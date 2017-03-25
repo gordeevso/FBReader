@@ -1,0 +1,33 @@
+ #include <QtGui>
+ #include "simpleForm.h"
+
+ simpleForm::simpleForm(QWidget *parent)
+     : QWidget(parent)
+ {
+     QLabel *firstNameLable = new QLabel(tr("First name"));
+     firstNameLine = new QLineEdit;
+
+     QLabel *secondNameLable = new QLabel(tr("Second name"));
+     secondNameLine = new QLineEdit;
+
+     QLabel *phoneLable = new QLabel(tr("Phone number"));
+     phoneLine = new QLineEdit;
+
+     QLabel *emailLable = new QLabel(tr("Email"));
+     emailLine = new QLineEdit;
+
+     QGridLayout *mainLayout = new QGridLayout;
+
+     mainLayout->addWidget(firstNameLable, 0, 0);
+     mainLayout->addWidget(firstNameLine, 0, 1);
+     mainLayout->addWidget(secondNameLable, 1, 0);
+     mainLayout->addWidget(secondNameLine, 1, 1);
+     mainLayout->addWidget(phoneLable, 2, 0);
+     mainLayout->addWidget(phoneLine, 2, 1);
+     mainLayout->addWidget(emailLable, 3, 0);
+     mainLayout->addWidget(emailLine, 3, 1);
+
+
+     setLayout(mainLayout);
+     setWindowTitle(tr("Simple form"));
+}

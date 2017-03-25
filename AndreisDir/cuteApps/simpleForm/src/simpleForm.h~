@@ -1,0 +1,44 @@
+ #ifndef SIMPLEFORM_H
+ #define SIMPLEFORM_H
+
+ #include <QGroupBox>
+ #include <QPushButton>
+ #include <QRadioButton>
+ #include <QWidget>
+
+ class QLabel;
+ class QLineEdit;
+ class QTextEdit;
+
+ class SimpleForm : public QWidget
+ {
+     Q_OBJECT
+
+ public:
+     SimpleForm(QWidget *parent = 0);
+
+ private:
+     QLineEdit *firstNameLine;
+     QLineEdit *secondNameLine;
+     QLineEdit *phoneLine;
+     QLineEdit *emailLine;
+     QTextEdit *backgroundText;
+     QTextEdit *motivationText; 
+     QPushButton *applyButton;
+     QGroupBox *citiesBox();
+     QRadioButton *radio1();
+     QRadioButton *radio2();
+ 
+ };
+
+ QGroupBox *SimpleForm::citiesBox()
+ {
+     QGroupBox *groupBox = new QGroupBox(tr("Exclusive Radio Buttons"));
+
+     QRadioButton *radio1 = new QRadioButton(tr("&Radio button 1"));
+     QRadioButton *radio2 = new QRadioButton(tr("R&adio button 2"));
+     QRadioButton *radio3 = new QRadioButton(tr("Ra&dio button 3"));
+
+}
+
+#endif

@@ -125,7 +125,7 @@ void Fbookshelf::initWindow() {
     }
 
     BookshelfView & bv = (BookshelfView&)*mBookshelfView;
- //   bv.init();
+    bv.init();
 
 
     refreshWindow();

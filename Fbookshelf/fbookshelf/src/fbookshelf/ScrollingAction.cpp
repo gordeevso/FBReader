@@ -16,11 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
+
 #include <iostream>
+
 #include <ZLTextView.h>
 #include <ZLBlockTreeView.h>
 
-#include "FBReader.h"
+//#include "FBReader.h"
+#include "Fbookshelf.h"
+#include "BookshelfView.h"
 #include "ScrollingAction.h"
 
 ScrollingAction::ScrollingAction(
@@ -43,8 +47,15 @@ bool ScrollingAction::useKeyDelay() const {
 }
 
 void ScrollingAction::run() {
-    std::cout << "run scroll\n";
-	FBReader &fbreader = FBReader::Instance();
+    //FBReader &fbreader = FBReader::Instance();
+    std::cout << "Scrolling ACTION !!!\n";
+
+    Fbookshelf &fbookshelf = Fbookshelf::Instance();
+    shared_ptr<ZLView> view = fbookshelf.currentView();
+    ((BookshelfView&)*view).onMouseScroll(myForward);
+    Fbookshelf::Instance().refreshWindow();
+
+    /*
 	shared_ptr<ZLView> view = fbreader.currentView();
 	int delay = fbreader.myLastScrollingTime.millisecondsTo(ZLTime());
 	if (view.isNull() ||
@@ -59,28 +70,29 @@ void ScrollingAction::run() {
 		((ZLBlockTreeView&)*view).scroll(myBlockScrollingMode, !myForward);
 	}
 	fbreader.myLastScrollingTime = ZLTime();
+    */
 }
 
 LineScrollingAction::LineScrollingAction(bool forward) : ScrollingAction(ZLTextAreaController::SCROLL_LINES, ZLBlockTreeView::ITEM, forward) {
 }
 
 int LineScrollingAction::scrollingDelay() const {
-	return FBReader::Instance().KeyScrollingDelayOption.value();
+//	return FBReader::Instance().KeyScrollingDelayOption.value();
 }
 
 size_t LineScrollingAction::textOptionValue() const {
-	return FBReader::Instance().LinesToScrollOption.value();
+//	return FBReader::Instance().LinesToScrollOption.value();
 }
 
 PageScrollingAction::PageScrollingAction(bool forward) : ScrollingAction(ZLTextAreaController::KEEP_LINES, ZLBlockTreeView::PAGE, forward) {
 }
 
 int PageScrollingAction::scrollingDelay() const {
-	return FBReader::Instance().KeyScrollingDelayOption.value();
+//	return FBReader::Instance().KeyScrollingDelayOption.value();
 }
 
 size_t PageScrollingAction::textOptionValue() const {
-	return FBReader::Instance().LinesToKeepOption.value();
+//	return FBReader::Instance().LinesToKeepOption.value();
 }
 
 MouseWheelScrollingAction::MouseWheelScrollingAction(bool forward) : ScrollingAction(ZLTextAreaController::SCROLL_LINES, ZLBlockTreeView::ITEM, forward) {
@@ -94,9 +106,9 @@ TapScrollingAction::TapScrollingAction(bool forward) : ScrollingAction(ZLTextAre
 }
 
 size_t TapScrollingAction::textOptionValue() const {
-	return FBReader::Instance().LinesToKeepOption.value();
+//	return FBReader::Instance().LinesToKeepOption.value();
 }
 
 bool TapScrollingAction::isEnabled() const {
-	return FBReader::Instance().EnableTapScrollingOption.value();
+//	return FBReader::Instance().EnableTapScrollingOption.value();
 }

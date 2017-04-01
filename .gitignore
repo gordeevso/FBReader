@@ -11,3 +11,15 @@ zlibrary/ui/zlui-qt4.so
 zlibrary/ui/zlui-gtk.so
 zlibrary/ui/zlui-qt.so
 fbreader/FBReader
+*.config
+*.user
+*.creator
+*.files
+*.includes
+*.autosave
+*.moc.*
+*.d*
+*.d
+*.o
+*.so
+*.so.*

@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-
+#include <iostream>
 #include <queue>
 
 #include <ZLibrary.h>
@@ -171,6 +171,9 @@ FBReader::FBReader(const std::string &bookToOpen) :
 	ZLCommunicationManager::Instance().registerHandler("openFile", myOpenFileHandler);
 
 	ZLNetworkManager::Instance().setUserAgent(std::string("FBReader/") + VERSION);
+
+    std::cout << myBindings0->getBinding(MouseScrollUpKey) << "\n";
+
 }
 
 FBReader::~FBReader() {
@@ -208,6 +211,8 @@ void FBReader::initWindow() {
 		openBook(book);
 	}
 	refreshWindow();
+
+    doActionByKey(MouseScrollDownKey);
 
 	ZLTimeManager::Instance().addTask(new TimeUpdater(), 1000);
 }

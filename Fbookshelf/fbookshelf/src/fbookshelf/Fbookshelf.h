@@ -25,12 +25,17 @@
 
 #include <ZLView.h>
 #include <ZLApplication.h>
+#include <ZLKeyBindings.h>
 
 #include "../library/Library.h"
+#include "../bookmodel/BookModel.h"
+
 
 class ZLFile;
-
+class ZLImageData;
 class Book;
+
+typedef std::map<std::string, shared_ptr<Book> > BooksMap;
 
 class Fbookshelf : public ZLApplication {
 
@@ -45,7 +50,7 @@ public:
     ~Fbookshelf();
 
     bool addBook(const std::string & pathToBook);
-    shared_ptr<Book> const getBook() const;
+    const BooksMap &getLibrary() const;
 
     void refreshWindow();
 
@@ -53,10 +58,14 @@ private:
     void initWindow();
     std::string helpFileName(const std::string &language) const;
 
+    shared_ptr<ZLKeyBindings> myBindings0;
+    shared_ptr<ZLKeyBindings> myBindings90;
+    shared_ptr<ZLKeyBindings> myBindings180;
+    shared_ptr<ZLKeyBindings> myBindings270;
 
+    BooksMap mLibrary;
 
-    std::vector<shared_ptr<Book> > mLibrary;
-    shared_ptr<ZLView> mSimpleBlackView;
+    shared_ptr<ZLView> mBookshelfView;
     std::string mBookToOpen;
 
 };

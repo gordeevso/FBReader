@@ -198,21 +198,28 @@ bool ZLApplication::Action::useKeyDelay() const {
 	return true;
 }
 
+#include <iostream>
 void ZLApplication::trackStylus(bool track) {
+    std::cout << "track stylus\n";
 	if (!myViewWidget.isNull()) {
 		myViewWidget->trackStylus(track);
 	}
 }
 
+
 void ZLApplication::doActionByKey(const std::string &key) {
+    std::cout << "do action !!!!!\n";
 	shared_ptr<ZLKeyBindings> bindings = keyBindings();
 	if (bindings.isNull()) {
+        std::cout << "action is null !!!!!\n";
 		return;
 	}
+
 	shared_ptr<Action> a = action(bindings->getBinding(key));
 	if (!a.isNull() &&
 			(!a->useKeyDelay() ||
 			 (myLastKeyActionTime.millisecondsTo(ZLTime()) >= KeyDelayOption.value()))) {
+        std::cout << "do action\n";
 		a->checkAndRun();
 		myLastKeyActionTime = ZLTime();
 	}

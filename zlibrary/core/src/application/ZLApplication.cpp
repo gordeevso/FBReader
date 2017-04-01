@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-
+#include <iostream>
 #include <ZLibrary.h>
 
 #include "ZLApplication.h"
@@ -147,6 +147,7 @@ void ZLApplication::presentWindow() {
 
 void ZLApplication::Action::checkAndRun() {
 	if (isEnabled()) {
+        std::cout << "run\n";
 		run();
 	}
 }
@@ -168,6 +169,7 @@ bool ZLApplication::isActionEnabled(const std::string &actionId) const {
 
 void ZLApplication::doAction(const std::string &actionId) {
 	shared_ptr<Action> _action = action(actionId);
+    std::cout << "do action \n";
 	if (!_action.isNull()) {
 		_action->checkAndRun();
 	}
@@ -205,6 +207,7 @@ void ZLApplication::trackStylus(bool track) {
 }
 
 void ZLApplication::doActionByKey(const std::string &key) {
+    std::cout << "mouse scroll down\n";
 	shared_ptr<ZLKeyBindings> bindings = keyBindings();
 	if (bindings.isNull()) {
 		return;

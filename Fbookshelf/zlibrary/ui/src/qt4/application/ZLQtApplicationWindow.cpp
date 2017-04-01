@@ -175,8 +175,9 @@ bool ZLQtApplicationWindow::isFullscreen() const {
 void ZLQtApplicationWindow::keyPressEvent(QKeyEvent *event) {
 	application().doActionByKey(ZLQtKeyUtil::keyName(event));
 }
-
+#include <iostream>
 void ZLQtApplicationWindow::wheelEvent(QWheelEvent *event) {
+    std::cout << "wheel event\n";
 	if (event->orientation() == Qt::Vertical) {
 		if (event->delta() > 0) {
 			application().doActionByKey(ZLApplication::MouseScrollUpKey);

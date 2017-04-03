@@ -101,11 +101,101 @@ const BooksMap &Fbookshelf::getLibrary() const
     return mLibrary;
 }
 
+void collectDirNames(std::string path, bool myScanSubdirs, std::set<std::string> &nameSet) {
+	std::queue<std::string> nameQueue;
+
+	int pos = path.find(ZLibrary::PathDelimiter);
+	while (pos != -1) {
+		nameQueue.push(path.substr(0, pos));
+		path.erase(0, pos + 1);
+		pos = path.find(ZLibrary::PathDelimiter);
+	}
+	if (!path.empty()) {
+		nameQueue.push(path);
+	}
+
+	std::set<std::string> resolvedNameSet;
+	while (!nameQueue.empty()) {
+		std::string name = nameQueue.front();
+		nameQueue.pop();
+		ZLFile f(name);
+		const std::string resolvedName = f.resolvedPath();
+		if (resolvedNameSet.find(resolvedName) == resolvedNameSet.end()) {
+			if (myScanSubdirs) {
+				shared_ptr<ZLDir> dir = f.directory();
+				if (!dir.isNull()) {
+					std::vector<std::string> subdirs;
+					dir->collectSubDirs(subdirs, true);
+					for (std::vector<std::string>::const_iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
+						nameQueue.push(dir->itemPath(*it));
+					}
+				}
+			}
+			resolvedNameSet.insert(resolvedName);
+			nameSet.insert(name);
+		}
+	}
+}
+
+void collectBookFileNames(std::string path, bool myScanSubdirs, std::set<std::string> &bookFileNames) {
+	std::set<std::string> dirs;
+	collectDirNames(path, myScanSubdirs, dirs);
+
+	while (!dirs.empty()) {
+		std::string dirname = *dirs.begin();
+		dirs.erase(dirs.begin());
+		
+		ZLFile dirfile(dirname);
+		std::vector<std::string> files;
+		bool inZip = false;
+
+		shared_ptr<ZLDir> dir = dirfile.directory();
+		if (dir.isNull()) {
+			continue;
+		}
+
+		if (dirfile.extension() == "zip") {
+			ZLFile phys(dirfile.physicalFilePath());
+			if (!BooksDBUtil::checkInfo(phys)) {
+				BooksDBUtil::resetZipInfo(phys);
+				BooksDBUtil::saveInfo(phys);
+			}
+			BooksDBUtil::listZipEntries(dirfile, files);
+			inZip = true;
+		} else {
+			dir->collectFiles(files, true);
+		}
+		if (!files.empty()) {
+			const bool collectBookWithoutMetaInfo = true;
+			for (std::vector<std::string>::const_iterator jt = files.begin(); jt != files.end(); ++jt) {
+				const std::string fileName = (inZip) ? (*jt) : (dir->itemPath(*jt));
+				ZLFile file(fileName);
+				if (PluginCollection::Instance().plugin(file, !collectBookWithoutMetaInfo) != 0) {
+					bookFileNames.insert(fileName);
+				// TODO: zip -> any archive
+				} else if (file.extension() == "zip") {
+					if (myScanSubdirs || !inZip) {
+						dirs.insert(fileName);
+					}
+				}
+			}
+		}
+	}
+}
+
 void Fbookshelf::initWindow() {
     ZLApplication::initWindow();
     trackStylus(true);
 
 //    grabAllKeys(true);
+
+    std::set<std::string> bookFileNames;
+    collectBookFileNames("~/FBooks", false, bookFileNames);
+
+    for(std::set<std::string>::iterator it = bookFileNames.begin(); it != bookFileNames.end(); ++it)
+    {
+        BooksDBUtil::getBook(*it);
+    }
 
     if(!mBookToOpen.empty())
     {

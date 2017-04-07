@@ -26,6 +26,9 @@
 #include <ZLView.h>
 #include <ZLApplication.h>
 #include <ZLKeyBindings.h>
+#include <ZLOptions.h>
+
+#include "BookshelfView.h"
 
 #include "../library/Library.h"
 #include "../bookmodel/BookModel.h"
@@ -49,11 +52,15 @@ public:
     Fbookshelf(const std::string &bookToOpen);
     ~Fbookshelf();
 
+    BookshelfView & getBookshelfView();
+
     bool addBook(const std::string & pathToBook);
     const BooksMap &getLibrary() const;
 
     void refreshWindow();
 
+public:
+    ZLBooleanOption EnableTapScrollingOption;
 private:
     void initWindow();
     std::string helpFileName(const std::string &language) const;

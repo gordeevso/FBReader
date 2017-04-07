@@ -68,7 +68,7 @@ public:
 	ZLIntegerRangeOption KeyScrollingDelayOption;
 	ZLIntegerRangeOption LinesToScrollOption;
 	ZLIntegerRangeOption LinesToKeepOption;
-	ZLBooleanOption EnableTapScrollingOption;
+    ZLBooleanOption EnableTapScrollingOption;
 	ZLBooleanOption TapScrollingOnFingerOnlyOption;
 
 	ZLBooleanOption UseSeparateBindingsOption;

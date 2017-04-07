@@ -86,18 +86,18 @@ FBReader::FBReader(const std::string &bookToOpen) :
 	KeyScrollingDelayOption(ZLCategoryKey::CONFIG, "Scrollings", "Delay", 0, 2000, 100),
 	LinesToScrollOption(ZLCategoryKey::CONFIG, "SmallScrolling", "LinesToScroll", 1, 20, 1),
 	LinesToKeepOption(ZLCategoryKey::CONFIG, "LargeScrolling", "LinesToKeepOption", 0, 20, 0),
-	EnableTapScrollingOption(ZLCategoryKey::CONFIG, "TapScrolling", "Enabled", true),
-	TapScrollingOnFingerOnlyOption(ZLCategoryKey::CONFIG, "TapScrolling", "FingerOnly", true),
+    EnableTapScrollingOption(ZLCategoryKey::CONFIG, "TapScrolling", "Enabled", false),
+    TapScrollingOnFingerOnlyOption(ZLCategoryKey::CONFIG, "TapScrolling", "FingerOnly", true),
 	UseSeparateBindingsOption(ZLCategoryKey::CONFIG, "KeysOptions", "UseSeparateBindings", false),
 	EnableSingleClickDictionaryOption(ZLCategoryKey::CONFIG, "Dictionary", "SingleClick", false),
 	LastOpenedPreferencesDialog(ZLCategoryKey::CONFIG, "PreferencesDialog", "LastOpened", ""),
-	myBindings0(new ZLKeyBindings("Keys")),
-	myBindings90(new ZLKeyBindings("Keys90")),
-	myBindings180(new ZLKeyBindings("Keys180")),
-	myBindings270(new ZLKeyBindings("Keys270")),
+    myBindings0(new ZLKeyBindings("Keys")),
+    myBindings90(new ZLKeyBindings("Keys90")),
+    myBindings180(new ZLKeyBindings("Keys180")),
+    myBindings270(new ZLKeyBindings("Keys270")),
 	myBookToOpen(bookToOpen),
 	myBookAlreadyOpen(false),
-	myActionOnCancel(UNFULLSCREEN) {
+    myActionOnCancel(UNFULLSCREEN) {
 
 	myBookTextView = new BookTextView(*context());
 	myFootnoteView = new FootnoteView(*context());
@@ -111,7 +111,7 @@ FBReader::FBReader(const std::string &bookToOpen) :
 	myPreviousMode = BOOK_TEXT_MODE;
 	setMode(BOOK_TEXT_MODE);
 
-	addAction(ActionCode::SHOW_READING, new UndoAction(FBReader::ALL_MODES & ~FBReader::BOOK_TEXT_MODE));
+    addAction(ActionCode::SHOW_READING, new UndoAction(FBReader::ALL_MODES & ~FBReader::BOOK_TEXT_MODE));
 	addAction(ActionCode::SHOW_LIBRARY, new SetModeAction(FBReader::LIBRARY_MODE, FBReader::BOOK_TEXT_MODE | FBReader::CONTENTS_MODE));
 	addAction(ActionCode::SHOW_NETWORK_LIBRARY, new ShowNetworkLibraryAction());
 	addAction(ActionCode::SEARCH_ON_NETWORK, new SimpleSearchOnNetworkAction());
@@ -138,10 +138,10 @@ FBReader::FBReader(const std::string &bookToOpen) :
 	addAction(ActionCode::PAGE_SCROLL_BACKWARD, new PageScrollingAction(false));
 	addAction(ActionCode::LINE_SCROLL_FORWARD, new LineScrollingAction(true));
 	addAction(ActionCode::LINE_SCROLL_BACKWARD, new LineScrollingAction(false));
-	addAction(ActionCode::MOUSE_SCROLL_FORWARD, new MouseWheelScrollingAction(true));
-	addAction(ActionCode::MOUSE_SCROLL_BACKWARD, new MouseWheelScrollingAction(false));
-	addAction(ActionCode::TAP_SCROLL_FORWARD, new TapScrollingAction(true));
-	addAction(ActionCode::TAP_SCROLL_BACKWARD, new TapScrollingAction(false));
+    addAction(ActionCode::MOUSE_SCROLL_FORWARD, new MouseWheelScrollingAction(true));
+    addAction(ActionCode::MOUSE_SCROLL_BACKWARD, new MouseWheelScrollingAction(false));
+    addAction(ActionCode::TAP_SCROLL_FORWARD, new TapScrollingAction(true));
+    addAction(ActionCode::TAP_SCROLL_BACKWARD, new TapScrollingAction(false));
 	addAction(ActionCode::INCREASE_FONT, new ChangeFontSizeAction(2));
 	addAction(ActionCode::DECREASE_FONT, new ChangeFontSizeAction(-2));
 	addAction(ActionCode::ROTATE_SCREEN, new RotationAction());
@@ -165,7 +165,7 @@ FBReader::FBReader(const std::string &bookToOpen) :
 	addAction(ActionCode::ORGANIZE_BOOKS_BY_TAG, booksOrderAction);
 	addAction(ActionCode::FILTER_LIBRARY, new FilterLibraryAction());
 
-	registerPopupData(ActionCode::SHOW_OPTIONS_DIALOG, myPreferencesPopupData);
+    registerPopupData(ActionCode::SHOW_OPTIONS_DIALOG, myPreferencesPopupData);
 
 	myOpenFileHandler = new OpenFileHandler();
 	ZLCommunicationManager::Instance().registerHandler("openFile", myOpenFileHandler);

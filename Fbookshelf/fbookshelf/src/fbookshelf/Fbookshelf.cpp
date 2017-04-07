@@ -9,10 +9,13 @@
 #include <ZLDir.h>
 #include <ZLStringUtil.h>
 #include <ZLResource.h>
+#include <ZLOptions.h>
 
+#include "ScrollingAction.h"
 #include "Fbookshelf.h"
 #include "BookshelfView.h"
-#include "ScrollingAction.h"
+
+#include "BookshelfActions.h"
 
 #include "../formats/FormatPlugin.h"
 #include "../library/Book.h"
@@ -25,25 +28,22 @@ Fbookshelf &Fbookshelf::Instance() {
 }
 
 Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("Fbookshelf"),
+                                                        EnableTapScrollingOption(ZLCategoryKey::CONFIG, "TapScrolling", "Enabled", true),
                                                         mBookToOpen(bookToOpen),
                                                         myBindings0(new ZLKeyBindings("Keys")),
                                                         myBindings90(new ZLKeyBindings("Keys90")),
                                                         myBindings180(new ZLKeyBindings("Keys180")),
                                                         myBindings270(new ZLKeyBindings("Keys270"))
 {
-    addAction("pageForward", new PageScrollingAction(true));
-    addAction("pageBackward", new PageScrollingAction(false));
-    addAction("lineForward", new LineScrollingAction(true));
-    addAction("lineBackward", new LineScrollingAction(false));
-    addAction("tapScrollForward", new TapScrollingAction(true));
-    addAction("tapScrollBackward", new TapScrollingAction(false));
+
+
+    addAction(SIMPLE_DIALOG, new OpenSimpleDialogAction());
     addAction("mouseScrollForward", new MouseWheelScrollingAction(true));
     addAction("mouseScrollBackward", new MouseWheelScrollingAction(false));
 
 
-
-    std::cout << myBindings0->getBinding(MouseScrollUpKey) << "\n";
-    std::cout << myBindings0->getBinding(MouseScrollDownKey) << "\n";
+  //  std::cout << myBindings0->getBinding(MouseScrollUpKey) << "\n";
+  //  std::cout << myBindings0->getBinding(MouseScrollDownKey) << "\n";
 
   //  myBindings0->bindKey(MouseScrollUpKey, "mouseScrollForward");
   //  myBindings0->bindKey(MouseScrollDownKey, "mouseScrollBackward");
@@ -57,12 +57,17 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("Fbookshel
 
 
 
-    std::cout << "path from main = " << mBookToOpen << "\n";
+  //  std::cout << "path from main = " << mBookToOpen << "\n";
 
 }
 
 Fbookshelf::~Fbookshelf() {
 
+}
+
+BookshelfView &Fbookshelf::getBookshelfView()
+{
+    return dynamic_cast<BookshelfView&>(*mBookshelfView);
 }
 
 bool Fbookshelf::addBook(const std::string &pathToBook)
@@ -87,7 +92,7 @@ bool Fbookshelf::addBook(const std::string &pathToBook)
         }
 
         assert(book != NULL);
-        std::cout << "title =" << book->title() << "\n";
+     //   std::cout << "title =" << book->title() << "\n";
 
 
         return true;
@@ -208,15 +213,25 @@ void Fbookshelf::initWindow() {
 
     BooksDBUtil::getBooks(mLibrary);
 
+/*
+    TagList tl1 = (*mLibrary.begin()).second->tags();
 
+    for(TagList::iterator it = tl1.begin(); it != tl1.end(); ++it)
+    {
+        std::cout << (*it)->name() << "\n";
+    }
+*/
+
+
+    /*
     for(std::map<std::string, shared_ptr<Book> >::const_iterator it = mLibrary.begin(); it != mLibrary.end(); ++it)
     {
-        std::cout << (*it).second->title() << "\n";
+        std::cout << (*(*it).second->tags().begin())->name() << "\n";
     }
+*/
 
-    BookshelfView & bv = (BookshelfView&)*mBookshelfView;
-    bv.init();
 
+    getBookshelfView().init();
 
     refreshWindow();
 /*

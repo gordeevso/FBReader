@@ -8,8 +8,11 @@
 #include <ZLView.h>
 #include <ZLPaintContext.h>
 
+#include "UIElements.h"
+
 #include "../library/Book.h"
 #include "../options/FBOptions.h"
+#include "../options/FBTextStyle.h"
 
 class ZLImageData;
 
@@ -20,9 +23,14 @@ public:
 
     void setCaption(const std::string &caption);
     void init();
+    shared_ptr<Book> getSelectedBook();
+    void setSelectedBook(shared_ptr<Book> book);
 
     bool onStylusPress(int x, int y);
     bool onStylusMovePressed(int x, int y);
+    bool onStylusRelease(int x, int y);
+    bool onStylusMove(int x, int y);
+
     void onScrollbarStep(ZLView::Direction direction, int steps);
     void onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to);
     void onScrollbarPageStep(ZLView::Direction direction, int steps);
@@ -33,6 +41,7 @@ private:
     void UpdateBookshelfElements();
     void UpdateScrollDown();
     void UpdateScrollUp();
+
     void DrawBookshelfElements();
     void DrawBackground();
 
@@ -41,84 +50,16 @@ private:
     ZLColor backgroundColor() const;
 
 private:
-    struct Point{
-        int x;
-        int y;
-        Point(int xx = 0, int yy = 0) : x(xx), y(yy)
-        {}
-    } mStartPoint, mEndPoint;
 
-    struct BookshelfElement
+
+    struct ElementMenu
     {
-        BookshelfElement(Point topLeft = Point(),
-                         Point bottomRight = Point(),
-                         ZLColor elementColor = ZLColor(),
-                         ZLColor frameColor = ZLColor(),
-                         shared_ptr<Book> book = 0,
-                         const shared_ptr<ZLImageData> imagedata = 0)
-            : mTopLeft(topLeft),
-              mBottomRight(bottomRight),
-              mElementColor(elementColor),
-              mFrameColor(frameColor),
-              mBook(book),
-              mImageData(imagedata)
-        {}
-
-        ~BookshelfElement()
-        {}
-
-        void UpdatePosition(int x1, int y1, int x2, int y2)
-        {
-            mTopLeft.x = x1;
-            mTopLeft.y = y1;
-            mBottomRight.x = x2;
-            mBottomRight.y = y2;
-        }
-
-        void DrawElement(ZLPaintContext & painter, int fontSize) const
-        {
-            painter.setFillColor(mElementColor);
-            painter.fillRectangle(mTopLeft.x, mTopLeft.y, mBottomRight.x, mBottomRight.y);
-
-            painter.setColor(mFrameColor);
-            painter.drawLine(mTopLeft.x, mTopLeft.y, mBottomRight.x, mTopLeft.y);
-            painter.drawLine(mBottomRight.x, mTopLeft.y, mBottomRight.x, mBottomRight.y);
-            painter.drawLine(mBottomRight.x, mBottomRight.y, mTopLeft.x, mBottomRight.y);
-            painter.drawLine(mTopLeft.x, mBottomRight.y, mTopLeft.x, mTopLeft.y);
-
-            painter.drawImage(mTopLeft.x +  (mBottomRight.x - mTopLeft.x) / 4,
-                              mBottomRight.y - fontSize,
-                              *mImageData,
-                              mBottomRight.x - mTopLeft.x,
-                              mBottomRight.y - mTopLeft.y - fontSize,
-                              ZLPaintContext::SCALE_FIT_TO_SIZE);
-
-            painter.setColor(
-                        //highlighted() ?
-                //FBOptions::Instance().colorOption(ZLTextStyle::HIGHLIGHTED_TEXT).value() :
-                FBOptions::Instance().RegularTextColorOption.value());
-
-
-            painter.drawString(mTopLeft.x +  (mBottomRight.x - mTopLeft.x) / 4,
-                               mBottomRight.y,
-                               mBook->title().c_str(),
-                               mBook->title().size(),
-                               true);
-
-        }
-
-
-    public:
-        Point mTopLeft;
-        Point mBottomRight;
-        ZLColor mElementColor;
-        ZLColor mFrameColor;
-        shared_ptr<Book> mBook;
-        shared_ptr<ZLImageData> mImageData;
-
+        //TODO
     };
 
 private:
+    Point mStartPoint;
+    Point mEndPoint;
 
     std::string mCaption;
     int mViewWidth;
@@ -133,11 +74,12 @@ private:
 
     int mElementWidth;
     int mElementHeight;
-    int mFontSize;
 
-    std::vector<std::pair<std::string, BookshelfElement> > mBookshelfElements;
-    std::vector<std::pair<std::string, BookshelfElement> >::iterator mItFirstRendering;
-    std::vector<std::pair<std::string, BookshelfElement> >::iterator mItLastRendering;
+    shared_ptr<Book> mSelectedBook;
+
+    std::vector<BookshelfElement> mBookshelfElements;
+    std::vector<BookshelfElement>::iterator mItFirstRendering;
+    std::vector<BookshelfElement>::iterator mItLastRendering;
 
 };
 

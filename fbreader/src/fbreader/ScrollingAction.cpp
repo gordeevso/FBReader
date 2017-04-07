@@ -98,5 +98,5 @@ size_t TapScrollingAction::textOptionValue() const {
 }
 
 bool TapScrollingAction::isEnabled() const {
-	return FBReader::Instance().EnableTapScrollingOption.value();
+    return FBReader::Instance().EnableTapScrollingOption.value();
 }

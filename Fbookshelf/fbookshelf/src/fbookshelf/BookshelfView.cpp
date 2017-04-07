@@ -10,13 +10,16 @@
 
 #include "BookshelfView.h"
 #include "Fbookshelf.h"
+#include "BookshelfActions.h"
+
 #include "../bookmodel/BookModel.h"
 #include "../options/FBTextStyle.h"
 
-const int ELEMENTS_ON_X = 2;
-const int ELEMENTS_ON_Y = 2;
+const int ELEMENTS_ON_X = 4;
+const int ELEMENTS_ON_Y = 4;
 const ZLColor ELEMENT_COLOR = ZLColor(190,190,190);
 const ZLColor ELEMENT_FRAME_COLOR = ZLColor(250,250,250);
+const ZLColor ELEMENT_COLOR_ON_SELECT = ZLColor(210,210,210);
 const ZLColor BACKGROUND_COLOR = ZLColor(255,255,255);
 const std::string CAPTION = "Bookshelf";
 
@@ -29,20 +32,20 @@ BookshelfView::BookshelfView(ZLPaintContext &context) : ZLView(context),
                                                         mElementsOnY(ELEMENTS_ON_Y),
                                                         mRenderingElementsCount(mElementsOnX * mElementsOnY),
                                                         mElementWidth(mViewWidth / mElementsOnX),
-                                                        mElementHeight(mViewHeight / mElementsOnY),
-                                                        mFontSize(std::min(mElementWidth/20, mElementHeight/20))
+                                                        mElementHeight(mViewHeight / mElementsOnY)
 {
   //  init();
 }
 
 void BookshelfView::init()
 {
+    mBookshelfElements.clear();
+
     int x1 = 0;
     int y1 = 0;
     int x2 = mElementWidth;
     int y2 = mElementHeight;
 
-    shared_ptr<BookModel> model;
     BookshelfElement element;
 
     BooksMap::const_iterator it = Fbookshelf::Instance().getLibrary().begin();
@@ -51,18 +54,25 @@ void BookshelfView::init()
     for(; it != itEnd; ++it)
     {
 
-        model = new BookModel((*it).second);
+        BookModel model((*it).second);
 
-        element.mImageData = ZLImageManager::Instance().imageData(*(model->imageMap().begin()->second));
+        element.mTitleImage.mImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
+        element.mTitleImage.mHWFactor = (float)element.mTitleImage.mImageData->height() / element.mTitleImage.mImageData->width();
         element.mBook = (*it).second;
+
+        element.mTitleString = new StringRect(element.mBook->title(), context());
+       // element.mTitleString->mStr = ;
+      //  element.mTitleString.painter = ;
+
         element.mTopLeft.x = x1;
         element.mTopLeft.y = y1;
         element.mBottomRight.x = x2;
         element.mBottomRight.y = y2;
+
         element.mElementColor = ELEMENT_COLOR;
         element.mFrameColor = ELEMENT_FRAME_COLOR;
 
-        mBookshelfElements.push_back(make_pair((*it).first, element));
+        mBookshelfElements.push_back(element);
 
         x1 += mElementWidth;
         x2 += mElementWidth;
@@ -88,6 +98,16 @@ void BookshelfView::init()
 
 }
 
+shared_ptr<Book> BookshelfView::getSelectedBook()
+{
+    return mSelectedBook;
+}
+
+void BookshelfView::setSelectedBook(shared_ptr<Book> book)
+{
+    mSelectedBook = book;
+}
+
 
 bool BookshelfView::onStylusPress(int x, int y) {
     mStartPoint.x = x;
@@ -104,6 +124,33 @@ bool BookshelfView::onStylusMovePressed(int x, int y) {
     Fbookshelf::Instance().refreshWindow();
 
     return true;
+}
+
+bool BookshelfView::onStylusRelease(int x, int y)
+{
+    for(std::vector<BookshelfElement>::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
+    {
+        if((*it).CheckBookOptions(x, y))
+        {
+            std::cout << "yes\n";
+            Fbookshelf::Instance().doAction(SIMPLE_DIALOG);
+            break;
+        }
+    }
+}
+
+
+
+bool BookshelfView::onStylusMove(int x, int y)
+{
+    for(std::vector<BookshelfElement>::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
+    {
+        if((*it).CheckSelectedBook(x, y))
+        {
+            setSelectedBook((*it).mBook);
+            break;
+        }
+    }
 }
 
 
@@ -182,9 +229,9 @@ void BookshelfView::UpdateBookshelfElements()
     int x2 = mElementWidth;
     int y2 = mElementHeight;
 
-    for(std::vector<std::pair<std::string, BookshelfElement> >::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
+    for(std::vector<BookshelfElement>::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
     {
-        (*it).second.UpdatePosition(x1, y1, x2, y2);
+        (*it).UpdatePosition(x1, y1, x2, y2);
 
         x1 += mElementWidth;
         x2 += mElementWidth;
@@ -198,10 +245,7 @@ void BookshelfView::UpdateBookshelfElements()
         }
     }
 
-    mFontSize = std::min(mElementHeight/20, mElementWidth/20);
-
-    const FBTextStyle &style = FBTextStyle::Instance();
-    context().setFont(style.fontFamily(), mFontSize, style.bold(), style.italic());
+;
 }
 
 
@@ -255,9 +299,9 @@ void BookshelfView::DrawBookshelfElements()
         UpdateBookshelfElements();
     }
 
-    for(std::vector<std::pair<std::string, BookshelfElement> >::const_iterator it = mItFirstRendering; it != mItLastRendering; ++it)
+    for(std::vector<BookshelfElement>::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
     {
-        (*it).second.DrawElement(context(),mFontSize);
+        (*it).DrawElement(context());
     }
 }
 

@@ -152,7 +152,9 @@ struct BookshelfElement
                      ZLColor elementColor = ZLColor(),
                      ZLColor frameColor = ZLColor(),
                      shared_ptr<Book> book = 0,
-                     shared_ptr<ZLImageData> imagedata = 0)
+                     shared_ptr<ZLImageData> imagedata = 0,
+                     bool selected = false,
+                     bool menuselected = false)
         : mTopLeft(topLeft),
           mBottomRight(bottomRight),
           mOptionsTopLeft(opttopleft),
@@ -160,7 +162,9 @@ struct BookshelfElement
           mElementColor(elementColor),
           mFrameColor(frameColor),
           mTitleString(),
-          mTitleImage()
+          mTitleImage(),
+          mIsSelected(selected),
+          mIsMenuSelected(menuselected)
     {}
 
     ~BookshelfElement()
@@ -188,7 +192,11 @@ struct BookshelfElement
 
     void DrawOptions(ZLPaintContext & painter)
     {
-        painter.setFillColor(ZLColor(255,255,255));
+        if(!mIsMenuSelected)
+            painter.setFillColor(ZLColor(255,255,255));
+        else
+            painter.setFillColor(ZLColor(210,210,90));
+
         painter.fillRectangle(mOptionsTopLeft.x, mOptionsTopLeft.y, mOptionsBottomRight.x, mOptionsBottomRight.y);
 
         painter.setColor(ZLColor(100,100,100));
@@ -201,7 +209,11 @@ struct BookshelfElement
 
     void DrawElement(ZLPaintContext & painter)
     {
-        painter.setFillColor(mElementColor);
+        if(!mIsSelected)
+            painter.setFillColor(mElementColor);
+        else
+            painter.setFillColor(ZLColor(210,210,90));
+
         painter.fillRectangle(mTopLeft.x, mTopLeft.y, mBottomRight.x, mBottomRight.y);
 
         painter.setColor(mFrameColor);
@@ -243,7 +255,8 @@ public:
     shared_ptr<Book> mBook;
     shared_ptr<StringRect> mTitleString;
     ImageRect mTitleImage;
-
+    bool mIsSelected;
+    bool mIsMenuSelected;
 };
 
 #endif // UIELEMENTS

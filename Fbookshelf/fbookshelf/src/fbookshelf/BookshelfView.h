@@ -23,8 +23,8 @@ public:
 
     void setCaption(const std::string &caption);
     void init();
-    shared_ptr<Book> getSelectedBook();
-    void setSelectedBook(shared_ptr<Book> book);
+
+    std::vector<BookshelfElement>::iterator getSelectedElement();
 
     bool onStylusPress(int x, int y);
     bool onStylusMovePressed(int x, int y);
@@ -75,7 +75,7 @@ private:
     int mElementWidth;
     int mElementHeight;
 
-    shared_ptr<Book> mSelectedBook;
+    std::vector<BookshelfElement>::iterator mItSelectedElement;
 
     std::vector<BookshelfElement> mBookshelfElements;
     std::vector<BookshelfElement>::iterator mItFirstRendering;

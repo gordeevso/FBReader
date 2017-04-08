@@ -98,6 +98,12 @@ void BookshelfView::init()
 
 }
 
+std::vector<BookshelfElement>::iterator BookshelfView::getSelectedElement()
+{
+    return mItSelectedElement;
+}
+
+/*
 shared_ptr<Book> BookshelfView::getSelectedBook()
 {
     return mSelectedBook;
@@ -107,7 +113,7 @@ void BookshelfView::setSelectedBook(shared_ptr<Book> book)
 {
     mSelectedBook = book;
 }
-
+*/
 
 bool BookshelfView::onStylusPress(int x, int y) {
     mStartPoint.x = x;
@@ -145,11 +151,29 @@ bool BookshelfView::onStylusMove(int x, int y)
 {
     for(std::vector<BookshelfElement>::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
     {
+        bool SelectedPrevState = (*it).mIsSelected;
+        bool MenuSelectedPrevState = (*it).mIsMenuSelected;
+
         if((*it).CheckSelectedBook(x, y))
         {
-            setSelectedBook((*it).mBook);
-            break;
+            mItSelectedElement = it;
+
+            if((*it).CheckBookOptions(x, y)){
+                (*it).mIsMenuSelected = true;
+                (*it).mIsSelected = false;
+            }
+            else
+                (*it).mIsSelected = true;
         }
+        else
+        {
+            (*it).mIsSelected = false;
+            (*it).mIsMenuSelected = false;
+        }
+
+        if((*it).mIsSelected != SelectedPrevState || (*it).mIsMenuSelected != MenuSelectedPrevState)
+            Fbookshelf::Instance().refreshWindow();
+
     }
 }
 

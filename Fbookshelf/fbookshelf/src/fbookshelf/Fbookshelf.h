@@ -30,7 +30,7 @@
 
 #include "BookshelfView.h"
 
-#include "../library/Library.h"
+#include "../library/BookshelfModel.h"
 #include "../bookmodel/BookModel.h"
 
 
@@ -38,7 +38,7 @@ class ZLFile;
 class ZLImageData;
 class Book;
 
-typedef std::map<std::string, shared_ptr<Book> > BooksMap;
+//typedef std::map<std::string, shared_ptr<Book> > BooksMap;
 
 class Fbookshelf : public ZLApplication {
 
@@ -54,8 +54,8 @@ public:
 
     BookshelfView & getBookshelfView();
 
-    bool addBook(const std::string & pathToBook);
-    const BooksMap &getLibrary() const;
+//    bool addBook(const std::string & pathToBook);
+//    const BooksMap &getLibrary() const;
 
     void refreshWindow();
 
@@ -70,10 +70,10 @@ private:
     shared_ptr<ZLKeyBindings> myBindings180;
     shared_ptr<ZLKeyBindings> myBindings270;
 
-    BooksMap mLibrary;
+//    BooksMap mLibrary;
 
     shared_ptr<ZLView> mBookshelfView;
-    std::string mBookToOpen;
+//    std::string mBookToOpen;
 
 };
 

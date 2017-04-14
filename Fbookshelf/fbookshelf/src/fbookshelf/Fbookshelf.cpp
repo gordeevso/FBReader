@@ -19,6 +19,7 @@
 
 #include "../formats/FormatPlugin.h"
 #include "../library/Book.h"
+#include "../library/BookshelfModel.h"
 #include "../database/booksdb/BooksDBUtil.h"
 #include "../database/booksdb/BooksDB.h"
 
@@ -29,7 +30,7 @@ Fbookshelf &Fbookshelf::Instance() {
 
 Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("Fbookshelf"),
                                                         EnableTapScrollingOption(ZLCategoryKey::CONFIG, "TapScrolling", "Enabled", true),
-                                                        mBookToOpen(bookToOpen),
+//                                                        mBookToOpen(bookToOpen),
                                                         myBindings0(new ZLKeyBindings("Keys")),
                                                         myBindings90(new ZLKeyBindings("Keys90")),
                                                         myBindings180(new ZLKeyBindings("Keys180")),
@@ -70,123 +71,35 @@ BookshelfView &Fbookshelf::getBookshelfView()
     return dynamic_cast<BookshelfView&>(*mBookshelfView);
 }
 
-bool Fbookshelf::addBook(const std::string &pathToBook)
-{
-
-    shared_ptr<Book> book;
-    if (!mBookToOpen.empty()) {
-        createBook(ZLFile(mBookToOpen), book);
-
-        if (book.isNull()) {
-            const BookList &books = Library::Instance().recentBooks();
-            if (!books.empty()) {
-                book = books[0];
-            }
-        }
-
-        if (book.isNull()) {
-            book = BooksDBUtil::getBook(helpFileName(ZLibrary::Language()));
-        }
-        if (book.isNull()) {
-            book = BooksDBUtil::getBook(helpFileName("en"));
-        }
-
-        assert(book != NULL);
-     //   std::cout << "title =" << book->title() << "\n";
-
-
-        return true;
-    }
-    return false;
-}
-
-
-const BooksMap &Fbookshelf::getLibrary() const
-{
-    return mLibrary;
-}
-
-void collectDirNames(std::string path, bool myScanSubdirs, std::set<std::string> &nameSet) {
-	std::queue<std::string> nameQueue;
-
-	int pos = path.find(ZLibrary::PathDelimiter);
-	while (pos != -1) {
-		nameQueue.push(path.substr(0, pos));
-		path.erase(0, pos + 1);
-		pos = path.find(ZLibrary::PathDelimiter);
-	}
-	if (!path.empty()) {
-		nameQueue.push(path);
-	}
-
-	std::set<std::string> resolvedNameSet;
-	while (!nameQueue.empty()) {
-		std::string name = nameQueue.front();
-		nameQueue.pop();
-		ZLFile f(name);
-		const std::string resolvedName = f.resolvedPath();
-		if (resolvedNameSet.find(resolvedName) == resolvedNameSet.end()) {
-			if (myScanSubdirs) {
-				shared_ptr<ZLDir> dir = f.directory();
-				if (!dir.isNull()) {
-					std::vector<std::string> subdirs;
-					dir->collectSubDirs(subdirs, true);
-					for (std::vector<std::string>::const_iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
-						nameQueue.push(dir->itemPath(*it));
-					}
-				}
-			}
-			resolvedNameSet.insert(resolvedName);
-			nameSet.insert(name);
-		}
-	}
-}
-
-void collectBookFileNames(std::string path, bool myScanSubdirs, std::set<std::string> &bookFileNames) {
-	std::set<std::string> dirs;
-	collectDirNames(path, myScanSubdirs, dirs);
-
-	while (!dirs.empty()) {
-		std::string dirname = *dirs.begin();
-		dirs.erase(dirs.begin());
-		
-		ZLFile dirfile(dirname);
-		std::vector<std::string> files;
-		bool inZip = false;
-
-		shared_ptr<ZLDir> dir = dirfile.directory();
-		if (dir.isNull()) {
-			continue;
-		}
-
-		if (dirfile.extension() == "zip") {
-			ZLFile phys(dirfile.physicalFilePath());
-			if (!BooksDBUtil::checkInfo(phys)) {
-				BooksDBUtil::resetZipInfo(phys);
-				BooksDBUtil::saveInfo(phys);
-			}
-			BooksDBUtil::listZipEntries(dirfile, files);
-			inZip = true;
-		} else {
-			dir->collectFiles(files, true);
-		}
-		if (!files.empty()) {
-			const bool collectBookWithoutMetaInfo = true;
-			for (std::vector<std::string>::const_iterator jt = files.begin(); jt != files.end(); ++jt) {
-				const std::string fileName = (inZip) ? (*jt) : (dir->itemPath(*jt));
-				ZLFile file(fileName);
-				if (PluginCollection::Instance().plugin(file, !collectBookWithoutMetaInfo) != 0) {
-					bookFileNames.insert(fileName);
-				// TODO: zip -> any archive
-				} else if (file.extension() == "zip") {
-					if (myScanSubdirs || !inZip) {
-						dirs.insert(fileName);
-					}
-				}
-			}
-		}
-	}
-}
+//bool Fbookshelf::addBook(const std::string &pathToBook)
+//{
+//
+//    shared_ptr<Book> book;
+//    if (!mBookToOpen.empty()) {
+//        createBook(ZLFile(mBookToOpen), book);
+//
+//        if (book.isNull()) {
+//            const BookList &books = Library::Instance().recentBooks();
+//            if (!books.empty()) {
+//                book = books[0];
+//            }
+//        }
+//
+//        if (book.isNull()) {
+//            book = BooksDBUtil::getBook(helpFileName(ZLibrary::Language()));
+//        }
+//        if (book.isNull()) {
+//            book = BooksDBUtil::getBook(helpFileName("en"));
+//        }
+//
+//        assert(book != NULL);
+//     //   std::cout << "title =" << book->title() << "\n";
+//
+//
+//        return true;
+//    }
+//    return false;
+//}
 
 void Fbookshelf::initWindow() {
     ZLApplication::initWindow();
@@ -195,23 +108,25 @@ void Fbookshelf::initWindow() {
 //    grabAllKeys(true);
 
     std::set<std::string> bookFileNames;
-    collectBookFileNames("~/FBooks", false, bookFileNames);
+    BookshelfModel::Instance().collectBookFileNames("~/FBooks", false, bookFileNames);
 
     for(std::set<std::string>::iterator it = bookFileNames.begin(); it != bookFileNames.end(); ++it)
     {
         BooksDBUtil::getBook(*it);
     }
+    BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
+    BookshelfModel::Instance().loadLibrarySortedByBookId();
 
-    if(!mBookToOpen.empty())
-    {
-        if(!addBook(mBookToOpen))
-            std::cout << "couldn't open " << mBookToOpen << "\n";
-    }
-    else
-        std::cout << "empty path " << mBookToOpen << "\n";
+//    if(!mBookToOpen.empty())
+//    {
+//        if(!addBook(mBookToOpen))
+//            std::cout << "couldn't open " << mBookToOpen << "\n";
+//    }
+//    else
+//        std::cout << "empty path " << mBookToOpen << "\n";
 
 
-    BooksDBUtil::getBooks(mLibrary);
+//    BooksDBUtil::getBooks(mLibrary);
 
 /*
     TagList tl1 = (*mLibrary.begin()).second->tags();

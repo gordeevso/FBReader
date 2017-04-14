@@ -48,8 +48,10 @@ void BookshelfView::init()
 
     BookshelfElement element;
 
-    BooksMap::const_iterator it = Fbookshelf::Instance().getLibrary().begin();
-    BooksMap::const_iterator itEnd = Fbookshelf::Instance().getLibrary().end();
+//  BooksMap::const_iterator it = Fbookshelf::Instance().getLibrary().begin();
+//  BooksMap::const_iterator itEnd = Fbookshelf::Instance().getLibrary().end();
+    BooksMapByBookId::const_iterator it = BookshelfModel::Instance().getLibrarySortedByBookId().begin();
+    BooksMapByBookId::const_iterator itEnd = BookshelfModel::Instance().getLibrarySortedByBookId().end();
 
     for(; it != itEnd; ++it)
     {

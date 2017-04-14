@@ -1,6 +1,7 @@
 include $(ROOTDIR)/makefiles/platforms.mk
 
-VERSION = $(shell cat $(ROOTDIR)/fbreader/VERSION)
+#VERSION = $(shell cat $(ROOTDIR)/fbreader/VERSION)
+VERSION = $(shell cat $(ROOTDIR)/fbookshelf/VERSION)
 MAKE = make ROOTDIR=$(ROOTDIR)
 LIBMAKE = $(MAKE) ZLSHARED=$(ZLSHARED)
 

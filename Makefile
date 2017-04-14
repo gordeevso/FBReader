@@ -3,7 +3,8 @@ ROOTDIR = $(CURDIR)
 include makefiles/platforms.mk
 
 ZLIBDIRS = zlibrary/core zlibrary/text zlibrary/ui
-APPDIRS = fbreader 
+#APPDIRS = fbreader 
+APPDIRS = fbookshelf 
 
 all:
 	@for dir in $(ZLIBDIRS) $(APPDIRS); do \

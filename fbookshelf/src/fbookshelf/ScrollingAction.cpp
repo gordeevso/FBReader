@@ -23,8 +23,8 @@
 #include <ZLBlockTreeView.h>
 
 //#include "FBReader.h"
-#include "Fbookshelf.h"
-#include "BookshelfView.h"
+#include "FBookshelf.h"
+#include "GridView.h"
 #include "ScrollingAction.h"
 
 ScrollingAction::ScrollingAction(
@@ -52,7 +52,7 @@ void ScrollingAction::run() {
 
     Fbookshelf &fbookshelf = Fbookshelf::Instance();
     shared_ptr<ZLView> view = fbookshelf.currentView();
-    ((BookshelfView&)*view).onMouseScroll(myForward);
+    ((GridView&)*view).onMouseScroll(myForward);
     Fbookshelf::Instance().refreshWindow();
 
     /*

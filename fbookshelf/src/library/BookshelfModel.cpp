@@ -433,6 +433,8 @@ void BookshelfModel::collectBookFileNames(std::string path, bool myScanSubdirs, 
 //	BooksDB::Instance().saveRecentBooks(myRecentBooks);
 //}
 
+
+
 BooksMap &BookshelfModel::getLibrary()
 {
     return myLibrary;
@@ -445,11 +447,7 @@ BooksMapByAuthor &BookshelfModel::getLibrarySortedByAuthor()
 
 void BookshelfModel::loadLibrarySortedByAuthor()
 {
-    BooksMap booksMap = BookshelfModel::Instance().getLibrary();
-    for (BooksMap::const_iterator it = booksMap.begin(); it != booksMap.end(); ++it)
-    {
-        BookshelfModel::Instance().getLibrarySortedByAuthor().insert(std::make_pair((*it).second->authors().back(), (*it).second ));
-    }
+
 }
 
 BooksMapByTitle &BookshelfModel::getLibrarySortedByTitle()
@@ -478,6 +476,53 @@ void BookshelfModel::loadLibrarySortedByBookId()
     for (BooksMap::const_iterator it = booksMap.begin(); it != booksMap.end(); ++it)
     {
         BookshelfModel::Instance().getLibrarySortedByBookId().insert(std::make_pair((*it).second->bookId(), (*it).second ));
-        
     }
 }
+
+
+std::vector<shared_ptr<Book> > & BookshelfModel::getLibrary(BookshelfModel::SortType sort_type) {
+    BooksMap booksMap = BookshelfModel::Instance().getLibrary();
+    BooksMap::const_iterator it_bm_end = booksMap.end();
+
+    myVecLibrary.clear();
+    myVecLibrary.reserve(booksMap.size());
+
+    if(sort_type == SORT_BY_AUTHOR) {
+        for (BooksMap::const_iterator it = booksMap.begin(); it != it_bm_end; ++it) {
+            myLibrarySortedByAuthor.insert(std::make_pair((*it).second->authors().back(), (*it).second ));
+        }
+
+        BooksMapByAuthor::const_iterator it_end = myLibrarySortedByAuthor.end();
+        for (BooksMapByAuthor::const_iterator it = myLibrarySortedByAuthor.begin(); it != it_end; ++it) {
+            myVecLibrary.push_back((*it).second);
+        }
+    }
+
+    if(sort_type == SORT_BY_TITLE) {
+        for (BooksMap::const_iterator it = booksMap.begin(); it != it_bm_end; ++it) {
+            myLibrarySortedByTitle.insert(std::make_pair((*it).second->title(), (*it).second ));
+        }
+
+        BooksMapByTitle::const_iterator it_end = myLibrarySortedByTitle.end();
+        for (BooksMapByTitle::const_iterator it = myLibrarySortedByTitle.begin(); it != it_end; ++it) {
+            myVecLibrary.push_back((*it).second);
+        }
+    }
+
+    if(sort_type == SORT_BY_ID) {
+        for (BooksMap::const_iterator it = booksMap.begin(); it != it_bm_end; ++it) {
+            myLibrarySortedByBookId.insert(std::make_pair((*it).second->bookId(), (*it).second ));
+        }
+
+        BooksMapByBookId::const_iterator it_end = myLibrarySortedByBookId.end();
+        for (BooksMapByBookId::const_iterator it = myLibrarySortedByBookId.begin(); it != it_end; ++it) {
+            myVecLibrary.push_back((*it).second);
+        }
+    }
+
+    return myVecLibrary;
+}
+
+
+
+

@@ -1,8 +1,8 @@
 include $(ROOTDIR)/makefiles/arch/unix.mk
 
 ifeq "$(INSTALLDIR)" ""
-#  	INSTALLDIR=/usr
-	INSTALLDIR=~/opt/FBookshelf
+  	INSTALLDIR=/usr
+#	INSTALLDIR=~/opt/FBookshelf
 endif
 IMAGEDIR = $(INSTALLDIR)/share/pixmaps
 APPIMAGEDIR = $(INSTALLDIR)/share/pixmaps/%APPLICATION_NAME%

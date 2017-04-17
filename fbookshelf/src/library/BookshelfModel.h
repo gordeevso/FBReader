@@ -44,6 +44,12 @@ class BookshelfModel {
 public:
 	static BookshelfModel &Instance();
 
+    enum SortType {
+        SORT_BY_ID,
+        SORT_BY_AUTHOR,
+        SORT_BY_TITLE
+    };
+
 private:
 	static shared_ptr<BookshelfModel> ourInstance;
 //	static const size_t MaxRecentListSize;
@@ -93,6 +99,8 @@ public:
         BooksMapByTitle &getLibrarySortedByTitle();
         BooksMapByBookId &getLibrarySortedByBookId();
         
+        std::vector<shared_ptr<Book> > & getLibrary(SortType);
+
         void loadLibrarySortedByAuthor();
         void loadLibrarySortedByTitle();
         void loadLibrarySortedByBookId();
@@ -113,6 +121,7 @@ private:
         BooksMapByAuthor myLibrarySortedByAuthor;
         BooksMapByTitle myLibrarySortedByTitle;
         BooksMapByBookId myLibrarySortedByBookId;
+        std::vector<shared_ptr<Book> > myVecLibrary;
 //	mutable BookSet myBooks;
 //	mutable BookSet myExternalBooks;
 

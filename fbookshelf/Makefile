@@ -8,7 +8,8 @@ TARGET = FBookshelf
 target = fbookshelf
 
 ALL_SUBDIRS = src src/database src/database/sqldb src/database/sqldb/implsqlite src/database/booksdb src/database/booksdb/runnables src/migration src/options src/library src/bookmodel src/formats src/formats/fb2 src/formats/docbook src/formats/css src/formats/html src/formats/pdb src/formats/txt src/formats/tcr src/formats/chm src/formats/xhtml src/formats/oeb src/formats/rtf src/formats/openreader src/formats/pdf src/formats/dummy src/formats/util src/fbreader src/encodingOption src/fbookshelf
-ALL_ARCHSUBDIRS = ../fbreader/desktop ../fbreader/pdaxrom ../fbreader/opie ../fbreader/zaurus ../fbreader/maemo ../fbreader/openzaurus ../fbreader/pma400 ../fbreader/win32
+
+ALL_ARCHSUBDIRS = desktop pdaxrom opie zaurus maemo openzaurus pma400 win32
 
 
 SUBDIRS = src/database src/database/sqldb src/database/sqldb/implsqlite src/database/booksdb src/database/booksdb/runnables src/migration src/options src/library src/bookmodel \

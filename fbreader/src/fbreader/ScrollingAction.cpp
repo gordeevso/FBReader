@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-#include <iostream>
+
 #include <ZLTextView.h>
 #include <ZLBlockTreeView.h>
 
@@ -43,7 +43,6 @@ bool ScrollingAction::useKeyDelay() const {
 }
 
 void ScrollingAction::run() {
-    std::cout << "run scroll\n";
 	FBReader &fbreader = FBReader::Instance();
 	shared_ptr<ZLView> view = fbreader.currentView();
 	int delay = fbreader.myLastScrollingTime.millisecondsTo(ZLTime());
@@ -98,5 +97,5 @@ size_t TapScrollingAction::textOptionValue() const {
 }
 
 bool TapScrollingAction::isEnabled() const {
-    return FBReader::Instance().EnableTapScrollingOption.value();
+	return FBReader::Instance().EnableTapScrollingOption.value();
 }

@@ -1,6 +1,5 @@
 #!/bin/sh
-IFS='
-'
+
 if [ $# != 2 ]; then
 	echo -e "usage\n  $0 <platform> <install_dir>";
 	exit 0;
@@ -28,8 +27,6 @@ case "$1" in
 		;;
 esac;
 installdir=$2;
-
-echo $installdir;
 
 for file in data/help/MiniHelp.$platform.*.fb2; do
 	lang=`echo $file | cut -d . -f 3`;

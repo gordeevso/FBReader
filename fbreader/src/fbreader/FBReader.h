@@ -58,7 +58,7 @@ public:
 		CONTENTS_MODE = 1 << 2,
 		BOOKMARKS_MODE = 1 << 3,
 		LIBRARY_MODE = 1 << 4,
-        NETWORK_LIBRARY_MODE = 1 << 5,
+		NETWORK_LIBRARY_MODE = 1 << 5,
 		ALL_MODES = 0xFF
 	};
 
@@ -68,7 +68,7 @@ public:
 	ZLIntegerRangeOption KeyScrollingDelayOption;
 	ZLIntegerRangeOption LinesToScrollOption;
 	ZLIntegerRangeOption LinesToKeepOption;
-    ZLBooleanOption EnableTapScrollingOption;
+	ZLBooleanOption EnableTapScrollingOption;
 	ZLBooleanOption TapScrollingOnFingerOnlyOption;
 
 	ZLBooleanOption UseSeparateBindingsOption;

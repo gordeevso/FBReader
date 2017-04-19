@@ -186,7 +186,7 @@ bool FBView::onStylusRelease(int x, int y) {
 	myIsReleasedWithoutMotion =
 		myIsReleasedWithoutMotion && (abs(x - pressedX()) <= 5) && (abs(y - pressedY()) <= 5);
 	if (!hadSelection && isReleasedWithoutMotion() &&
-            fbreader.EnableTapScrollingOption.value() &&
+			fbreader.EnableTapScrollingOption.value() &&
 			(!ZLBooleanOption(ZLCategoryKey::EMPTY, ZLOption::PLATFORM_GROUP, ZLOption::FINGER_TAP_DETECTABLE, false).value() ||
 			 !fbreader.TapScrollingOnFingerOnlyOption.value())) {
 		myTapScroller = new TapScroller(*this, y);

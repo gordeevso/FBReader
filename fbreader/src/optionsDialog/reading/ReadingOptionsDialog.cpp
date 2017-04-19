@@ -98,8 +98,8 @@ ReadingOptionsDialog::ReadingOptionsDialog() : AbstractOptionsDialog(ZLResourceK
 	const bool hasTouchScreen =
 		ZLBooleanOption(ZLCategoryKey::EMPTY, ZLOption::PLATFORM_GROUP, ZLOption::TOUCHSCREEN_PRESENTED, false).value();
 	if (hasTouchScreen) {
-        ZLToggleBooleanOptionEntry *enableTapScrollingEntry =
-            new ZLToggleBooleanOptionEntry(fbreader.EnableTapScrollingOption);
+		ZLToggleBooleanOptionEntry *enableTapScrollingEntry =
+			new ZLToggleBooleanOptionEntry(fbreader.EnableTapScrollingOption);
 		scrollingTab.addOption(ZLResourceKey("enableTapScrolling"), enableTapScrollingEntry);
 		const bool isFingerTapDetectionSupported =
 			ZLBooleanOption(ZLCategoryKey::EMPTY, ZLOption::PLATFORM_GROUP, ZLOption::FINGER_TAP_DETECTABLE, false).value();

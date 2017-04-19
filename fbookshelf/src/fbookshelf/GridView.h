@@ -123,6 +123,9 @@ private:
     int mRenderingElementsCount;
 
     size_t mScrollBarPos;
+    size_t mScrollBarMax;
+    size_t mMouseScrollFrom;
+    size_t mMouseScrollTo;
 
     int mElementWidth;
     int mElementHeight;

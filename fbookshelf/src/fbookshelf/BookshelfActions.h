@@ -16,7 +16,8 @@ public:
     static const std::string SORT_BY_ID;
     static const std::string SORT_BY_TITLE;
     static const std::string ADD_TAG;
-
+    static const std::string MOUSE_SCROLL_FORWARD;
+    static const std::string MOUSE_SCROLL_BACKWARD;
 private:
     BookshelfActionCode();
 };
@@ -50,6 +51,31 @@ public:
 };
 
 
+class ScrollingAction : public ZLApplication::Action {
+
+protected:
+    ScrollingAction(bool forward);
+
+public:
+    virtual size_t textOptionValue() const = 0;
+    virtual int scrollingDelay() const;
+    bool isEnabled() const;
+    bool useKeyDelay() const;
+    void run();
+
+private:
+    const bool myForward;
+};
+
+
+class MouseWheelScrollingAction : public ScrollingAction {
+
+public:
+    MouseWheelScrollingAction(bool forward);
+
+private:
+    size_t textOptionValue() const;
+};
 
 #endif // BOOKSHELFACTIONS
 

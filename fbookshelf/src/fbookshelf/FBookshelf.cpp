@@ -11,7 +11,6 @@
 #include <ZLResource.h>
 #include <ZLOptions.h>
 
-#include "ScrollingAction.h"
 #include "FBookshelf.h"
 #include "GridView.h"
 
@@ -29,11 +28,7 @@ Fbookshelf &Fbookshelf::Instance() {
 }
 
 Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshelf"),
-                                                        EnableTapScrollingOption(ZLCategoryKey::CONFIG, "TapScrolling", "Enabled", true),
-                                                        myBindings0(new ZLKeyBindings("Keys")),
-                                                        myBindings90(new ZLKeyBindings("Keys90")),
-                                                        myBindings180(new ZLKeyBindings("Keys180")),
-                                                        myBindings270(new ZLKeyBindings("Keys270"))
+                                                        myBindings0(new ZLKeyBindings("Keys"))
 {
     setMode(GRID_MODE);
 
@@ -41,19 +36,14 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
     setView(mBookshelfView);
 
     addAction(BookshelfActionCode::ADD_TAG, new OpenSimpleDialogAction());
+
     shared_ptr<Action> booksOrderAction = new SortBooksAction();
     addAction(BookshelfActionCode::SORT_BY_AUTHOR, booksOrderAction);
     addAction(BookshelfActionCode::SORT_BY_ID, booksOrderAction);
     addAction(BookshelfActionCode::SORT_BY_TITLE, booksOrderAction);
 
-  //  std::cout << myBindings0->getBinding(MouseScrollUpKey) << "\n";
-  //  std::cout << myBindings0->getBinding(MouseScrollDownKey) << "\n";
-
-  //  myBindings0->bindKey(MouseScrollUpKey, "mouseScrollForward");
-  //  myBindings0->bindKey(MouseScrollDownKey, "mouseScrollBackward");
-
-  //  std::cout << myBindings0->getBinding(MouseScrollUpKey) << "\n";
-  //  std::cout << myBindings0->getBinding(MouseScrollDownKey) << "\n";
+    addAction(BookshelfActionCode::MOUSE_SCROLL_FORWARD, new MouseWheelScrollingAction(true));
+    addAction(BookshelfActionCode::MOUSE_SCROLL_BACKWARD, new MouseWheelScrollingAction(false));
 
 }
 
@@ -72,12 +62,16 @@ GridView &Fbookshelf::getGridView() {
     return dynamic_cast<GridView&>(*mBookshelfView);
 }
 
+shared_ptr<ZLKeyBindings> Fbookshelf::keyBindings()
+{
+    return myBindings0;
+}
+
 
 void Fbookshelf::initWindow() {
     ZLApplication::initWindow();
     trackStylus(true);
 
-//  grabAllKeys(true);
 
     std::set<std::string> bookFileNames;
     BookshelfModel::Instance().collectBookFileNames("~/FBooks", false, bookFileNames);

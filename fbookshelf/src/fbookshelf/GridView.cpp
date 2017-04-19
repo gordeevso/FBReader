@@ -33,6 +33,10 @@ GridView::GridView(ZLPaintContext &context) : ZLView(context),
                                                         mElementsOnX(ELEMENTS_ON_X),
                                                         mElementsOnY(ELEMENTS_ON_Y),
                                                         mRenderingElementsCount(mElementsOnX * mElementsOnY),
+                                                        mScrollBarPos(0),
+                                                        mScrollBarMax(1),
+                                                        mMouseScrollFrom(0),
+                                                        mMouseScrollTo(1),
                                                         mElementWidth(mViewWidth / mElementsOnX),
                                                         mElementHeight(mViewHeight / mElementsOnY)
 {
@@ -88,10 +92,17 @@ void GridView::updateView(BookshelfModel::SortType sort_type)
     }
 
 
-    setScrollbarEnabled(VERTICAL, true);
-    setScrollbarParameters(VERTICAL, mBookshelfElements.size()/mElementsOnY, 0, 1);
+    if(mBookshelfElements.size() > mRenderingElementsCount)
+    {
+        mScrollBarMax = (mBookshelfElements.size() - mRenderingElementsCount) / mElementsOnX;
+        ++mScrollBarMax;
+    }
 
-    mScrollBarPos = 0;
+    std::cout << "MAX scroll = " << mScrollBarMax << "\n";
+
+    setScrollbarEnabled(VERTICAL, true);
+    setScrollbarParameters(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
+
 
     mItFirstRendering = mItLastRendering = mBookshelfElements.begin();
     mItLastRendering += mBookshelfElements.size() > mRenderingElementsCount ? mRenderingElementsCount : mBookshelfElements.size();
@@ -176,16 +187,17 @@ void GridView::onScrollbarStep(ZLView::Direction direction, int steps)
 
 void GridView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to)
 {
+    std::cout << "from " << from << " to " << to << "\n";
 
     if(from < mScrollBarPos)
     {
         updateScrollUp();
-        std::cout << "update scroll up\n";
+    //    std::cout << "update scroll up\n";
     }
     else
     {
         updateScrollDown();
-        std::cout << "update scroll down\n";
+    //    std::cout << "update scroll down\n";
     }
 
     mScrollBarPos = from;
@@ -209,20 +221,24 @@ void GridView::onScrollbarPageStep(ZLView::Direction direction, int steps)
 }
 
 
-//doesn't work
 void GridView::onMouseScroll(bool forward)
 {
-    std::cout << "mouse scroll \n";
+    std::cout << "mouse scroll" << mMouseScrollFrom << " " << mMouseScrollTo << "\n";
 
-    if(forward)
+    if(forward && mMouseScrollTo < mScrollBarMax)
     {
-        updateScrollUp();
-        std::cout << "update scroll step up\n";
+        ++mMouseScrollFrom;
+        ++mMouseScrollTo;
+        onScrollbarMoved(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
+        setScrollbarParameters(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
     }
-    else
+
+    if(!forward && mMouseScrollFrom > 0)
     {
-        updateScrollDown();
-        std::cout << "update scroll step down\n";
+        --mMouseScrollFrom;
+        --mMouseScrollTo;
+        onScrollbarMoved(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
+        setScrollbarParameters(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
     }
 }
 

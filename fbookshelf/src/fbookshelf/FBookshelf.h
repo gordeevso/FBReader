@@ -61,22 +61,15 @@ public:
     ViewMode mode() const;
 
     GridView & getGridView();
-
+    shared_ptr<ZLKeyBindings> keyBindings();
 
     void refreshWindow();
 
-public:
-    ZLBooleanOption EnableTapScrollingOption;
 private:
     void initWindow();
     std::string helpFileName(const std::string &language) const;
 
     shared_ptr<ZLKeyBindings> myBindings0;
-    shared_ptr<ZLKeyBindings> myBindings90;
-    shared_ptr<ZLKeyBindings> myBindings180;
-    shared_ptr<ZLKeyBindings> myBindings270;
-
-
     shared_ptr<ZLView> mBookshelfView;
     ViewMode myViewMode;
 

@@ -32,8 +32,8 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
 {
     setMode(GRID_MODE);
 
-    mBookshelfView = new GridView(*context());
-    setView(mBookshelfView);
+    myBookshelfView = new GridView(*context());
+    setView(myBookshelfView);
 
     addAction(BookshelfActionCode::ADD_TAG, new OpenSimpleDialogAction());
 
@@ -59,7 +59,7 @@ Fbookshelf::ViewMode Fbookshelf::mode() const {
 }
 
 GridView &Fbookshelf::getGridView() {
-    return dynamic_cast<GridView&>(*mBookshelfView);
+    return dynamic_cast<GridView&>(*myBookshelfView);
 }
 
 shared_ptr<ZLKeyBindings> Fbookshelf::keyBindings()

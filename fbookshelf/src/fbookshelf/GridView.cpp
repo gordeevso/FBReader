@@ -26,30 +26,30 @@ const ZLColor BACKGROUND_COLOR = ZLColor(255,255,255);
 const std::string CAPTION = "Grid";
 
 GridView::GridView(ZLPaintContext &context) : ZLView(context),
-                                                        mCaption(CAPTION),
-                                                        mViewWidth(context.width()),
-                                                        mViewHeight(context.height()),
-                                                        mBackgroundColor(BACKGROUND_COLOR),
-                                                        mElementsOnX(ELEMENTS_ON_X),
-                                                        mElementsOnY(ELEMENTS_ON_Y),
-                                                        mRenderingElementsCount(mElementsOnX * mElementsOnY),
-                                                        mScrollBarPos(0),
-                                                        mScrollBarMax(1),
-                                                        mMouseScrollFrom(0),
-                                                        mMouseScrollTo(1),
-                                                        mElementWidth(mViewWidth / mElementsOnX),
-                                                        mElementHeight(mViewHeight / mElementsOnY)
+                                                        myCaption(CAPTION),
+                                                        myViewWidth(context.width()),
+                                                        myViewHeight(context.height()),
+                                                        myBackgroundColor(BACKGROUND_COLOR),
+                                                        myElementsOnX(ELEMENTS_ON_X),
+                                                        myElementsOnY(ELEMENTS_ON_Y),
+                                                        myRenderingElementsCount(myElementsOnX * myElementsOnY),
+                                                        myScrollBarPos(0),
+                                                        myScrollBarMaxPos(1),
+                                                        myMouseScrollFrom(0),
+                                                        myMouseScrollTo(1),
+                                                        myElementWidth(myViewWidth / myElementsOnX),
+                                                        myElementHeight(myViewHeight / myElementsOnY)
 {
 }
 
 void GridView::updateView(BookshelfModel::SortType sort_type)
 {
-    mBookshelfElements.clear();
+    myBookshelfElements.clear();
 
     int x1 = 0;
     int y1 = 0;
-    int x2 = mElementWidth;
-    int y2 = mElementHeight;
+    int x2 = myElementWidth;
+    int y2 = myElementHeight;
 
     GridElement element;
 
@@ -63,49 +63,49 @@ void GridView::updateView(BookshelfModel::SortType sort_type)
 
         BookModel model(*it);
 
-        element.mTitleImage.mImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
-        element.mTitleImage.mHWFactor = (float)element.mTitleImage.mImageData->height() / element.mTitleImage.mImageData->width();
-        element.mBook = *it;
+        element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
+        element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
+        element.myBook = *it;
 
-        element.mTitleString = new StringRect(element.mBook->title(), context());
+        element.myTitleString = new StringRect(element.myBook->title(), context());
 
-        element.mTopLeft.x = x1;
-        element.mTopLeft.y = y1;
-        element.mBottomRight.x = x2;
-        element.mBottomRight.y = y2;
+        element.myTopLeft.x = x1;
+        element.myTopLeft.y = y1;
+        element.myBottomRight.x = x2;
+        element.myBottomRight.y = y2;
 
-        element.mElementColor = ELEMENT_COLOR;
-        element.mFrameColor = ELEMENT_FRAME_COLOR;
+        element.myElementColor = ELEMENT_COLOR;
+        element.myFrameColor = ELEMENT_FRAME_COLOR;
 
-        mBookshelfElements.push_back(element);
+        myBookshelfElements.push_back(element);
 
-        x1 += mElementWidth;
-        x2 += mElementWidth;
+        x1 += myElementWidth;
+        x2 += myElementWidth;
 
-        if(x2 > mViewWidth)
+        if(x2 > myViewWidth)
         {
             x1 = 0;
-            x2 = mElementWidth;
-            y1 += mElementHeight;
-            y2 += mElementHeight;
+            x2 = myElementWidth;
+            y1 += myElementHeight;
+            y2 += myElementHeight;
         }
     }
 
 
-    if(mBookshelfElements.size() > mRenderingElementsCount)
+    if(myBookshelfElements.size() > myRenderingElementsCount)
     {
-        mScrollBarMax = (mBookshelfElements.size() - mRenderingElementsCount) / mElementsOnX;
-        ++mScrollBarMax;
+        myScrollBarMaxPos = (myBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
+        ++myScrollBarMaxPos;
     }
 
-    std::cout << "MAX scroll = " << mScrollBarMax << "\n";
+    std::cout << "MAX scroll = " << myScrollBarMaxPos << "\n";
 
     setScrollbarEnabled(VERTICAL, true);
-    setScrollbarParameters(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
+    setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
 
 
-    mItFirstRendering = mItLastRendering = mBookshelfElements.begin();
-    mItLastRendering += mBookshelfElements.size() > mRenderingElementsCount ? mRenderingElementsCount : mBookshelfElements.size();
+    myItFirstRendering = myItLastRendering = myBookshelfElements.begin();
+    myItLastRendering += myBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myBookshelfElements.size();
 
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();
@@ -113,7 +113,7 @@ void GridView::updateView(BookshelfModel::SortType sort_type)
 
 std::vector<GridElement>::iterator GridView::getSelectedElement()
 {
-    return mItSelectedElement;
+    return myItSelectedElement;
 }
 
 
@@ -132,7 +132,7 @@ bool GridView::onStylusMovePressed(int x, int y) {
 
 bool GridView::onStylusRelease(int x, int y)
 {
-    for(std::vector<GridElement>::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
+    for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it)
     {
         if((*it).checkBookOptions(x, y))
         {
@@ -146,31 +146,31 @@ bool GridView::onStylusRelease(int x, int y)
 
 bool GridView::onStylusMove(int x, int y)
 {
-    for(std::vector<GridElement>::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
+    for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it)
     {
-        bool SelectedPrevState = (*it).mIsSelected;
-        bool MenuSelectedPrevState = (*it).mIsMenuSelected;
+        bool SelectedPrevState = (*it).myIsSelected;
+        bool MenuSelectedPrevState = (*it).myIsMenuSelected;
 
         if((*it).checkSelectedBook(x, y))
         {
-            mItSelectedElement = it;
+            myItSelectedElement = it;
 
             if((*it).checkBookOptions(x, y)){
-                (*it).mIsMenuSelected = true;
-                (*it).mIsSelected = false;
+                (*it).myIsMenuSelected = true;
+                (*it).myIsSelected = false;
             }
             else{
-                (*it).mIsSelected = true;
-                (*it).mIsMenuSelected = false;
+                (*it).myIsSelected = true;
+                (*it).myIsMenuSelected = false;
             }
         }
         else
         {
-            (*it).mIsSelected = false;
-            (*it).mIsMenuSelected = false;
+            (*it).myIsSelected = false;
+            (*it).myIsMenuSelected = false;
         }
 
-        if((*it).mIsSelected != SelectedPrevState || (*it).mIsMenuSelected != MenuSelectedPrevState)
+        if((*it).myIsSelected != SelectedPrevState || (*it).myIsMenuSelected != MenuSelectedPrevState)
             Fbookshelf::Instance().refreshWindow();
 
     }
@@ -189,7 +189,7 @@ void GridView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t
 {
     std::cout << "from " << from << " to " << to << "\n";
 
-    if(from < mScrollBarPos)
+    if(from < myScrollBarPos)
     {
         updateScrollUp();
     //    std::cout << "update scroll up\n";
@@ -200,7 +200,7 @@ void GridView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t
     //    std::cout << "update scroll down\n";
     }
 
-    mScrollBarPos = from;
+    myScrollBarPos = from;
 }
 
 
@@ -223,22 +223,22 @@ void GridView::onScrollbarPageStep(ZLView::Direction direction, int steps)
 
 void GridView::onMouseScroll(bool forward)
 {
-    std::cout << "mouse scroll" << mMouseScrollFrom << " " << mMouseScrollTo << "\n";
+    std::cout << "mouse scroll" << myMouseScrollFrom << " " << myMouseScrollTo << "\n";
 
-    if(forward && mMouseScrollTo < mScrollBarMax)
+    if(forward && myMouseScrollTo < myScrollBarMaxPos)
     {
-        ++mMouseScrollFrom;
-        ++mMouseScrollTo;
-        onScrollbarMoved(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
-        setScrollbarParameters(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
+        ++myMouseScrollFrom;
+        ++myMouseScrollTo;
+        onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+        setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
     }
 
-    if(!forward && mMouseScrollFrom > 0)
+    if(!forward && myMouseScrollFrom > 0)
     {
-        --mMouseScrollFrom;
-        --mMouseScrollTo;
-        onScrollbarMoved(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
-        setScrollbarParameters(VERTICAL, mScrollBarMax, mMouseScrollFrom, mMouseScrollTo);
+        --myMouseScrollFrom;
+        --myMouseScrollTo;
+        onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+        setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
     }
 }
 
@@ -246,30 +246,30 @@ void GridView::onMouseScroll(bool forward)
 
 void GridView::updateBookshelfElements()
 {
-    mViewWidth = context().width();
-    mViewHeight = context().height();
+    myViewWidth = context().width();
+    myViewHeight = context().height();
 
-    mElementWidth = mViewWidth / mElementsOnX;
-    mElementHeight = mViewHeight / mElementsOnY;
+    myElementWidth = myViewWidth / myElementsOnX;
+    myElementHeight = myViewHeight / myElementsOnY;
 
     int x1 = 0;
     int y1 = 0;
-    int x2 = mElementWidth;
-    int y2 = mElementHeight;
+    int x2 = myElementWidth;
+    int y2 = myElementHeight;
 
-    for(std::vector<GridElement>::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
+    for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it)
     {
         (*it).updatePosition(x1, y1, x2, y2);
 
-        x1 += mElementWidth;
-        x2 += mElementWidth;
+        x1 += myElementWidth;
+        x2 += myElementWidth;
 
-        if(x2 > mViewWidth)
+        if(x2 > myViewWidth)
         {
             x1 = 0;
-            x2 = mElementWidth;
-            y1 += mElementHeight;
-            y2 += mElementHeight;
+            x2 = myElementWidth;
+            y1 += myElementHeight;
+            y2 += myElementHeight;
         }
     }
 
@@ -280,19 +280,19 @@ void GridView::updateBookshelfElements()
 
 void GridView::updateScrollDown()
 {
-    if(mItLastRendering + mElementsOnX <= mBookshelfElements.end()){
-        mItFirstRendering += mElementsOnX;
-        mItLastRendering += mElementsOnX;
+    if(myItLastRendering + myElementsOnX <= myBookshelfElements.end()){
+        myItFirstRendering += myElementsOnX;
+        myItLastRendering += myElementsOnX;
     }
     else
     {
-        mItLastRendering = mItFirstRendering = mBookshelfElements.end();
-        mItFirstRendering -= mBookshelfElements.size() > mRenderingElementsCount ? mRenderingElementsCount : mBookshelfElements.size();
+        myItLastRendering = myItFirstRendering = myBookshelfElements.end();
+        myItFirstRendering -= myBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myBookshelfElements.size();
     }
 
-    assert(mItFirstRendering <= mItLastRendering);
-    assert(mItFirstRendering >= mBookshelfElements.begin() && mItFirstRendering < mBookshelfElements.end());
-    assert(mItLastRendering > mBookshelfElements.begin() && mItLastRendering <= mBookshelfElements.end());
+    assert(myItFirstRendering <= myItLastRendering);
+    assert(myItFirstRendering >= myBookshelfElements.begin() && myItFirstRendering < myBookshelfElements.end());
+    assert(myItLastRendering > myBookshelfElements.begin() && myItLastRendering <= myBookshelfElements.end());
 
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();
@@ -300,19 +300,19 @@ void GridView::updateScrollDown()
 
 void GridView::updateScrollUp()
 {
-    if(mItFirstRendering - mElementsOnX >= mBookshelfElements.begin()){
-        mItFirstRendering -= mElementsOnX;
-        mItLastRendering -= mElementsOnX;
+    if(myItFirstRendering - myElementsOnX >= myBookshelfElements.begin()){
+        myItFirstRendering -= myElementsOnX;
+        myItLastRendering -= myElementsOnX;
     }
     else
     {
-        mItFirstRendering = mItLastRendering = mBookshelfElements.begin();
-        mItLastRendering += mBookshelfElements.size() > mRenderingElementsCount ? mRenderingElementsCount : mBookshelfElements.size();
+        myItFirstRendering = myItLastRendering = myBookshelfElements.begin();
+        myItLastRendering += myBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myBookshelfElements.size();
     }
 
-    assert(mItFirstRendering <= mItLastRendering);
-    assert(mItFirstRendering >= mBookshelfElements.begin() && mItFirstRendering < mBookshelfElements.end());
-    assert(mItLastRendering > mBookshelfElements.begin() && mItLastRendering <= mBookshelfElements.end());
+    assert(myItFirstRendering <= myItLastRendering);
+    assert(myItFirstRendering >= myBookshelfElements.begin() && myItFirstRendering < myBookshelfElements.end());
+    assert(myItLastRendering > myBookshelfElements.begin() && myItLastRendering <= myBookshelfElements.end());
 
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();
@@ -322,12 +322,12 @@ void GridView::updateScrollUp()
 
 void GridView::drawBookshelfElements()
 {
-    if(context().width() != mViewWidth || context().height() != mViewHeight)
+    if(context().width() != myViewWidth || context().height() != myViewHeight)
     {
         updateBookshelfElements();
     }
 
-    for(std::vector<GridElement>::iterator it = mItFirstRendering; it != mItLastRendering; ++it)
+    for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it)
     {
         (*it).drawElement(context());
     }
@@ -337,20 +337,20 @@ void GridView::drawBookshelfElements()
 
 void GridView::drawBackground()
 {
-    context().setFillColor(mBackgroundColor);
+    context().setFillColor(myBackgroundColor);
     context().fillRectangle(0,0,context().width(),context().height());
 }
 
 
 
 const std::string &GridView::caption() const {
-    return mCaption;
+    return myCaption;
 }
 
 
 
 ZLColor GridView::backgroundColor() const {
-    return mBackgroundColor;
+    return myBackgroundColor;
 }
 
 

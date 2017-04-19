@@ -65,7 +65,7 @@ bool AddTagDialog::run()
     if (dialog->run()) {
         dialog->acceptValues();
 
-        shared_ptr<Book> book = (*(Fbookshelf::Instance().getGridView().getSelectedElement())).mBook;
+        shared_ptr<Book> book = (*(Fbookshelf::Instance().getGridView().getSelectedElement())).myBook;
         book->addTag(addTagEntry->initialValue());
         BooksDB::Instance().saveBook(book);
 

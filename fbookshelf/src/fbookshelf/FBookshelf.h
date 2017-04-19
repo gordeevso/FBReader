@@ -70,7 +70,7 @@ private:
     std::string helpFileName(const std::string &language) const;
 
     shared_ptr<ZLKeyBindings> myBindings0;
-    shared_ptr<ZLView> mBookshelfView;
+    shared_ptr<ZLView> myBookshelfView;
     ViewMode myViewMode;
 
 };

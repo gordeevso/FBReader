@@ -110,31 +110,31 @@ private:
     };
 */
 private:
-    Point mStartPoint;
-    Point mEndPoint;
+    Point myStartPoint;
+    Point myEndPoint;
 
-    std::string mCaption;
-    int mViewWidth;
-    int mViewHeight;
-    ZLColor mBackgroundColor;
+    std::string myCaption;
+    int myViewWidth;
+    int myViewHeight;
+    ZLColor myBackgroundColor;
 
-    int mElementsOnX;
-    int mElementsOnY;
-    int mRenderingElementsCount;
+    int myElementsOnX;
+    int myElementsOnY;
+    int myRenderingElementsCount;
 
-    size_t mScrollBarPos;
-    size_t mScrollBarMax;
-    size_t mMouseScrollFrom;
-    size_t mMouseScrollTo;
+    size_t myScrollBarPos;
+    size_t myScrollBarMaxPos;
+    size_t myMouseScrollFrom;
+    size_t myMouseScrollTo;
 
-    int mElementWidth;
-    int mElementHeight;
+    int myElementWidth;
+    int myElementHeight;
 
-    std::vector<GridElement>::iterator mItSelectedElement;
+    std::vector<GridElement>::iterator myItSelectedElement;
 
-    std::vector<GridElement> mBookshelfElements;
-    std::vector<GridElement>::iterator mItFirstRendering;
-    std::vector<GridElement>::iterator mItLastRendering;
+    std::vector<GridElement> myBookshelfElements;
+    std::vector<GridElement>::iterator myItFirstRendering;
+    std::vector<GridElement>::iterator myItLastRendering;
 
 };
 

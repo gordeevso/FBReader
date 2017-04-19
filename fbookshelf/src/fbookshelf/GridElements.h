@@ -31,12 +31,12 @@ struct ImageRect
 
 public:
 
-    int mx;
-    int my;
-    int mWidth;
-    int mHeight;
-    shared_ptr<ZLImageData> mImageData;
-    float mHWFactor;
+    int myX;
+    int myY;
+    int myWidth;
+    int myHeight;
+    shared_ptr<ZLImageData> myImageData;
+    float myHWFactor;
 };
 
 struct StringRect
@@ -57,13 +57,13 @@ struct StringRect
 
     public:
 
-        int mx;
-        int my;
-        int mxr;
-        int myr;
-        int mFontSize;
-        std::string const & mStr;
-        ZLPaintContext & painter;
+        int myX;
+        int myY;
+        int myXr;
+        int myYr;
+        int myFontSize;
+        std::string const & myRefStr;
+        ZLPaintContext & myRefPainter;
 };
 
 struct GridElement
@@ -91,17 +91,17 @@ struct GridElement
 
 
 public:
-    Point mTopLeft;
-    Point mBottomRight;
-    Point mOptionsTopLeft;
-    Point mOptionsBottomRight;
-    ZLColor mElementColor;
-    ZLColor mFrameColor;
-    shared_ptr<Book> mBook;
-    shared_ptr<StringRect> mTitleString;
-    ImageRect mTitleImage;
-    bool mIsSelected;
-    bool mIsMenuSelected;
+    Point myTopLeft;
+    Point myBottomRight;
+    Point myOptionsTopLeft;
+    Point myOptionsBottomRight;
+    ZLColor myElementColor;
+    ZLColor myFrameColor;
+    shared_ptr<Book> myBook;
+    shared_ptr<StringRect> myTitleString;
+    ImageRect myTitleImage;
+    bool myIsSelected;
+    bool myIsMenuSelected;
 };
 
 #endif

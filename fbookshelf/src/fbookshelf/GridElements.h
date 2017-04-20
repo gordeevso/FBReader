@@ -104,5 +104,36 @@ public:
     bool myIsMenuSelected;
 };
 
+
+
+struct ElementMenu
+{
+    ElementMenu(ZLPaintContext & context,
+                Point topleft = Point(),
+                int xoffset = 80,
+                int yoffset = 10,
+                int fontsize = 5);
+
+    ~ElementMenu()
+    {}
+
+    void draw();
+
+    const std::string ADD_TAG_ITEM = "add tag";
+    const std::string REMOVE_TAG_ITEM = "remove tag";
+
+    ZLPaintContext & myRefPainter;
+    Point myTopLeft;
+    int myXOffset;
+    int myYOffset;
+    int myFontSize;
+    bool myIsVisible;
+
+    std::vector<std::string>::iterator myItMenu;
+    std::vector<std::string>::iterator myItMenuEnd;
+    std::vector<std::string> myVecMenuStrings;
+};
+
+
 #endif
 

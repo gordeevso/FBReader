@@ -1,6 +1,7 @@
 #ifndef GRIDVIEW
 #define GRIDVIEW
 
+#include <iostream>
 #include <vector>
 #include <set>
 #include <string>
@@ -51,64 +52,90 @@ private:
     ZLColor backgroundColor() const;
 
 private:
-/*
+
 
     struct ElementMenu
     {
         ElementMenu(ZLPaintContext & context,
                     Point topleft = Point(),
-                    Point bottomright = Point(),
+                    int xoffset = 80,
+                    int yoffset = 10,
                     int fontsize = 5)
-            : painter(context),
-              mTopLeft(topleft),
-              mBottomRight(bottomright),
-              mFontSize(fontsize),
-              mMenuStrings()
-        {}
+            : myRefPainter(context),
+              myTopLeft(topleft),
+              myXOffset(xoffset),
+              myYOffset(yoffset),
+              myFontSize(fontsize),
+              myIsVisible(false),
+              myVecMenuStrings()
+        {
+            myVecMenuStrings.push_back(ADD_TAG_ITEM);
+            myVecMenuStrings.push_back(REMOVE_TAG_ITEM);
+            myItMenuEnd = myVecMenuStrings.end();
+        }
 
         ~ElementMenu()
         {}
 
-        void UpdatePosition(int x1, int y1, int x2, int y2)
+
+        void updatePosition(int x1, int y1, int x2, int y2)
         {
 
         }
 
-        void Draw()
+        void draw()
         {
-            mItMenu = mMenuStrings.begin();
-            mItMenuEnd = mMenuStrings.end();
-            for(; mItMenu != mItMenuEnd; ++mItMenu)
+            myItMenu = myVecMenuStrings.begin();
+
+            int cur_xl = myTopLeft.x;
+            int cur_yl = myTopLeft.y;
+            int cur_xr = cur_xl + myXOffset;
+            int cur_yr = cur_yl + myYOffset;
+
+            cur_xl += 2;
+            cur_yl += 2;
+
+            for(; myItMenu != myItMenuEnd; ++myItMenu)
             {
-                painter.setFillColor(ZLColor(255,255,255));
-                painter.fillRectangle(mx-1, my-2, mxr+1, myr+1);
+                myRefPainter.setFillColor(ZLColor(34,230,135));
+                myRefPainter.fillRectangle(cur_xl-2, cur_yl-2, cur_xr+1, cur_yr+2);
 
-                painter.setColor(FBOptions::Instance().RegularTextColorOption.value());
+                myRefPainter.setColor(FBOptions::Instance().RegularTextColorOption.value());
 
-                painter.drawString(mx,
-                                   myr,
-                                   (*mItMenu).c_str(),
-                                   (*mItMenu).size(),
-                                   true);
+                myRefPainter.drawString(cur_xl,
+                                        cur_yr,
+                                        (*myItMenu).c_str(),
+                                        (*myItMenu).size(),
+                                        true);
 
-                painter.setColor(ZLColor(0,0,0));
-                painter.drawLine(mx-1, my-2, mxr+1, my-2);
-                painter.drawLine(mxr+1, my-2, mxr+1, myr+1);
-                painter.drawLine(mxr+1, myr+1, mx-1, myr+1);
-                painter.drawLine(mx-1, myr+1, mx-1, my-2);
+                myRefPainter.setColor(ZLColor(0,0,0));
+                myRefPainter.drawLine(cur_xl-2, cur_yl-2, cur_xr+1, cur_yl-2);
+                myRefPainter.drawLine(cur_xr+1, cur_yl-2, cur_xr+1, cur_yr+2);
+                myRefPainter.drawLine(cur_xr+1, cur_yr+2, cur_xl-2, cur_yr+2);
+                myRefPainter.drawLine(cur_xl-2, cur_yr+2, cur_xl-2, cur_yl-2);
+
+                cur_yl += myYOffset + 2;
+                cur_yr += myYOffset + 2;
             }
         }
 
-        ZLPaintContext & painter;
-        Point mTopLeft;
-        Point mBottomRight;
-        int mFontSize;
+        const std::string ADD_TAG_ITEM = "add tag";
+        const std::string REMOVE_TAG_ITEM = "remove tag";
 
-        std::vector<std::string>::iterator mItMenu;
-        std::vector<std::string>::iterator mItMenuEnd;
-        std::vector<std::string> mMenuStrings;
+        ZLPaintContext & myRefPainter;
+        Point myTopLeft;
+        int myXOffset;
+        int myYOffset;
+        int myFontSize;
+        bool myIsVisible;
+
+        std::vector<std::string>::iterator myItMenu;
+        std::vector<std::string>::iterator myItMenuEnd;
+        std::vector<std::string> myVecMenuStrings;
     };
-*/
+
+
+
 private:
     Point myStartPoint;
     Point myEndPoint;
@@ -130,11 +157,12 @@ private:
     int myElementWidth;
     int myElementHeight;
 
+    std::vector<GridElement> myVecBookshelfElements;
     std::vector<GridElement>::iterator myItSelectedElement;
-
-    std::vector<GridElement> myBookshelfElements;
     std::vector<GridElement>::iterator myItFirstRendering;
     std::vector<GridElement>::iterator myItLastRendering;
+
+    ElementMenu myElementMenu;
 
 };
 

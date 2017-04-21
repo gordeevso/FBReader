@@ -46,6 +46,8 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
     addAction(BookshelfActionCode::MOUSE_SCROLL_FORWARD, new MouseWheelScrollingAction(true));
     addAction(BookshelfActionCode::MOUSE_SCROLL_BACKWARD, new MouseWheelScrollingAction(false));
 
+    addAction(BookshelfActionCode::SHOW_TAG_MENU, new ShowTagMenuAction());
+
 }
 
 Fbookshelf::~Fbookshelf() {
@@ -82,8 +84,7 @@ void Fbookshelf::initWindow() {
     }
 
     BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
-
-    getGridView().updateView(BookshelfModel::SORT_BY_AUTHOR);
+    getGridView().setMode(GridView::WITHOUT_TAGS_MENU);
 
     refreshWindow();
 

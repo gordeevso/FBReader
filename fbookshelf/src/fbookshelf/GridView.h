@@ -10,6 +10,8 @@
 #include <ZLPaintContext.h>
 
 #include "GridElements.h"
+#include "MenuElements.h"
+
 #include "../library/BookshelfModel.h"
 
 #include "../library/Book.h"
@@ -23,8 +25,15 @@ class GridView : public ZLView {
 public:
     GridView(ZLPaintContext &context);
 
+    enum ViewMode {
+        WITH_TAGS_MENU = 0,
+        WITHOUT_TAGS_MENU = 1
+    };
+
     void setCaption(const std::string &caption);
     void updateView(BookshelfModel::SortType);
+    void setMode(ViewMode);
+    void invertMode();
 
     std::vector<GridElement>::iterator getSelectedElement();
 
@@ -61,8 +70,10 @@ private:
 
 
 private:
-    Point myStartPoint;
-    Point myEndPoint;
+    ViewMode myViewMode;
+
+    int myTopLeftX;
+    int myTopleftY;
 
     std::string myCaption;
     int myViewWidth;
@@ -87,6 +98,7 @@ private:
     std::vector<GridElement>::iterator myItLastRendering;
 
     ElementMenu myElementMenu;
+    shared_ptr<TagsMenu> myTagsMenu;
 
 };
 

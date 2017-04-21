@@ -106,34 +106,7 @@ public:
 
 
 
-struct ElementMenu
-{
-    ElementMenu(ZLPaintContext & context,
-                Point topleft = Point(),
-                int xoffset = 80,
-                int yoffset = 10,
-                int fontsize = 5);
 
-    ~ElementMenu()
-    {}
-
-    void draw();
-    bool checkSelectedElementMenu(int x, int y, bool & changed_state);
-
-    ZLPaintContext & myRefPainter;
-    Point myTopLeft;
-    Point myCurTopLeft;
-    int myXOffset;
-    int myYOffset;
-    int myFontSize;
-    bool myIsVisible;
-    bool myIsSelected;
-
-    std::vector<std::pair<std::string, bool> >::iterator myItSelectedActionCode;
-    std::vector<std::pair<std::string, bool> >::iterator myItMenu;
-    std::vector<std::pair<std::string, bool> >::iterator myItMenuEnd;
-    std::vector<std::pair<std::string, bool> > myVecMenuStrings;
-};
 
 
 #endif

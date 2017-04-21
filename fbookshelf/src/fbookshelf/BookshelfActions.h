@@ -19,6 +19,7 @@ public:
     static const std::string REMOVE_TAG;
     static const std::string MOUSE_SCROLL_FORWARD;
     static const std::string MOUSE_SCROLL_BACKWARD;
+    static const std::string SHOW_TAG_MENU;
 private:
     BookshelfActionCode();
 };
@@ -41,6 +42,13 @@ class SortBooksAction : public ModeDependentAction {
 
 public:
     SortBooksAction();
+    void run();
+};
+
+class ShowTagMenuAction : public ModeDependentAction {
+
+public:
+    ShowTagMenuAction();
     void run();
 };
 

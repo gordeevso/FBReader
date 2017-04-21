@@ -9,9 +9,10 @@ const std::string BookshelfActionCode::SORT_BY_AUTHOR = "sortByAuthor";
 const std::string BookshelfActionCode::SORT_BY_ID = "sortById";
 const std::string BookshelfActionCode::SORT_BY_TITLE = "sortByTitle";
 const std::string BookshelfActionCode::ADD_TAG = "add tag";
-const std::string BookshelfActionCode::REMOVE_TAG = "remove tag";
+const std::string BookshelfActionCode::REMOVE_TAG = "removetag";
 const std::string BookshelfActionCode::MOUSE_SCROLL_FORWARD = "mouseScrollForward";
 const std::string BookshelfActionCode::MOUSE_SCROLL_BACKWARD = "mouseScrollBackward";
+const std::string BookshelfActionCode::SHOW_TAG_MENU = "showTagMenu";
 
 ModeDependentAction::ModeDependentAction(int visibleInModes) : myVisibleInModes(visibleInModes) {
 }
@@ -49,7 +50,14 @@ void SortBooksAction::run() {
 
 }
 
+ShowTagMenuAction::ShowTagMenuAction() : ModeDependentAction(Fbookshelf::BOOKSHELF_MODE | Fbookshelf::GRID_MODE) {
 
+}
+
+void ShowTagMenuAction::run()
+{
+    Fbookshelf::Instance().getGridView().invertMode();
+}
 
 
 ScrollingAction::ScrollingAction(bool forward) : myForward(forward) {
@@ -84,4 +92,6 @@ MouseWheelScrollingAction::MouseWheelScrollingAction(bool forward) : ScrollingAc
 size_t MouseWheelScrollingAction::textOptionValue() const {
     return 1;
 }
+
+
 

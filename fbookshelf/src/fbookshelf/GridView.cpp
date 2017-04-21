@@ -15,6 +15,7 @@
 #include "../bookmodel/BookModel.h"
 #include "../options/FBTextStyle.h"
 #include "../library/BookshelfModel.h"
+#include "../library/Tag.h"
 
 const int ELEMENTS_ON_X = 3;
 const int ELEMENTS_ON_Y = 3;
@@ -27,6 +28,9 @@ const ZLColor BACKGROUND_COLOR = ZLColor(255,255,255);
 const std::string CAPTION = "Grid";
 
 GridView::GridView(ZLPaintContext &context) : ZLView(context),
+                                              myViewMode(GridView::WITHOUT_TAGS_MENU),
+                                              myTopLeftX(0),
+                                              myTopleftY(0),
                                               myCaption(CAPTION),
                                               myViewWidth(context.width()),
                                               myViewHeight(context.height()),
@@ -44,16 +48,28 @@ GridView::GridView(ZLPaintContext &context) : ZLView(context),
                                               myItSelectedElement(myVecBookshelfElements.end()),
                                               myItFirstRendering(myVecBookshelfElements.end()),
                                               myItLastRendering(myVecBookshelfElements.end()),
-                                              myElementMenu(context)
+                                              myElementMenu(context),
+                                              myTagsMenu(0)
 {
+    std::vector<std::string> tags;
+    Tag::collectTagNames(tags);
+    myTagsMenu = new TagsMenu(context, tags);
 }
 
 void GridView::updateView(BookshelfModel::SortType sort_type) {
     myVecBookshelfElements.clear();
 
-    int x1 = 0;
-    int y1 = 0;
-    int x2 = myElementWidth;
+    if(myViewMode == GridView::WITHOUT_TAGS_MENU)
+        myViewWidth = context().width();
+
+    if(myViewMode == GridView::WITH_TAGS_MENU)
+        myViewWidth = context().width() - myTopLeftX;
+
+    myElementWidth = myViewWidth / myElementsOnX;
+
+    int x1 = myTopLeftX;
+    int y1 = myTopleftY;
+    int x2 = myTopLeftX + myElementWidth;
     int y2 = myElementHeight;
 
     GridElement element;
@@ -86,10 +102,10 @@ void GridView::updateView(BookshelfModel::SortType sort_type) {
         x1 += myElementWidth;
         x2 += myElementWidth;
 
-        if(x2 > myViewWidth)
+        if(x2 > myViewWidth + myTopLeftX)
         {
-            x1 = 0;
-            x2 = myElementWidth;
+            x1 = myTopLeftX;
+            x2 = myTopLeftX + myElementWidth;
             y1 += myElementHeight;
             y2 += myElementHeight;
         }
@@ -110,6 +126,39 @@ void GridView::updateView(BookshelfModel::SortType sort_type) {
 
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();
+}
+
+void GridView::setMode(GridView::ViewMode mode)
+{
+    if(mode != myViewMode) {
+        if(mode == GridView::WITHOUT_TAGS_MENU) {
+            if(!myTagsMenu.isNull())
+                myTagsMenu->myIsVisible = false;
+            myTopLeftX = 0;
+        }
+
+        if(mode == GridView::WITH_TAGS_MENU) {
+            if(!myTagsMenu.isNull()) {
+                std::vector<std::string> tags;
+                Tag::collectTagNames(tags);
+                myTagsMenu->reloadTags(tags);
+                myTagsMenu->myIsVisible = true;
+            }
+            myTopLeftX = myTagsMenu->myXOffset;
+        }
+        myViewMode = mode;
+    }
+    updateView(BookshelfModel::SORT_BY_AUTHOR);
+
+
+}
+
+void GridView::invertMode()
+{
+    if(myViewMode == GridView::WITHOUT_TAGS_MENU)
+        setMode(GridView::WITH_TAGS_MENU);
+    else
+        setMode(GridView::WITHOUT_TAGS_MENU);
 }
 
 std::vector<GridElement>::iterator GridView::getSelectedElement() {
@@ -266,15 +315,20 @@ void GridView::onMouseScroll(bool forward) {
 
 
 void GridView::updateBookshelfElements() {
-    myViewWidth = context().width();
+    if(myViewMode == GridView::WITHOUT_TAGS_MENU)
+        myViewWidth = context().width();
+
+    if(myViewMode == GridView::WITH_TAGS_MENU)
+        myViewWidth = context().width() - myTopLeftX;
+
     myViewHeight = context().height();
 
     myElementWidth = myViewWidth / myElementsOnX;
     myElementHeight = myViewHeight / myElementsOnY;
 
-    int x1 = 0;
-    int y1 = 0;
-    int x2 = myElementWidth;
+    int x1 = myTopLeftX;
+    int y1 = myTopleftY;
+    int x2 = myTopLeftX + myElementWidth;
     int y2 = myElementHeight;
 
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
@@ -283,9 +337,9 @@ void GridView::updateBookshelfElements() {
         x1 += myElementWidth;
         x2 += myElementWidth;
 
-        if(x2 > myViewWidth) {
-            x1 = 0;
-            x2 = myElementWidth;
+        if(x2 > myViewWidth + myTopLeftX) {
+            x1 = myTopLeftX;
+            x2 = myTopLeftX + myElementWidth;
             y1 += myElementHeight;
             y2 += myElementHeight;
         }
@@ -336,9 +390,18 @@ void GridView::updateScrollUp()
 
 
 void GridView::drawBookshelfElements() {
-    if(context().width() != myViewWidth || context().height() != myViewHeight) {
-        updateBookshelfElements();
+    if(myViewMode == GridView::WITHOUT_TAGS_MENU) {
+        if(context().width() != myViewWidth || context().height() != myViewHeight) {
+            updateBookshelfElements();
+        }
     }
+
+    if(myViewMode == GridView::WITH_TAGS_MENU) {
+        if(context().width() != myViewWidth + myTopLeftX || context().height() != myViewHeight) {
+            updateBookshelfElements();
+        }
+    }
+
 
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         (*it).drawElement(context());
@@ -367,10 +430,15 @@ ZLColor GridView::backgroundColor() const {
 
 
 void GridView::paint() {
-
     drawBackground();
-    drawBookshelfElements();
 
+    if(!myTagsMenu.isNull()) {
+        if(myTagsMenu->myIsVisible) {
+            myTagsMenu->draw();
+        }
+    }
+
+    drawBookshelfElements();
     if(myElementMenu.myIsVisible)
         myElementMenu.draw();
 

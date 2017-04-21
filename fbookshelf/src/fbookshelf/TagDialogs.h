@@ -19,6 +19,16 @@ private:
 
 };
 
+class RemoveTagDialog {
+
+public:
+    static bool run();
+
+private:
+    RemoveTagDialog();
+
+};
+
 
 
 

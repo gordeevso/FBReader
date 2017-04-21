@@ -118,20 +118,21 @@ struct ElementMenu
     {}
 
     void draw();
-
-    const std::string ADD_TAG_ITEM = "add tag";
-    const std::string REMOVE_TAG_ITEM = "remove tag";
+    bool checkSelectedElementMenu(int x, int y, bool & changed_state);
 
     ZLPaintContext & myRefPainter;
     Point myTopLeft;
+    Point myCurTopLeft;
     int myXOffset;
     int myYOffset;
     int myFontSize;
     bool myIsVisible;
+    bool myIsSelected;
 
-    std::vector<std::string>::iterator myItMenu;
-    std::vector<std::string>::iterator myItMenuEnd;
-    std::vector<std::string> myVecMenuStrings;
+    std::vector<std::pair<std::string, bool> >::iterator myItSelectedActionCode;
+    std::vector<std::pair<std::string, bool> >::iterator myItMenu;
+    std::vector<std::pair<std::string, bool> >::iterator myItMenuEnd;
+    std::vector<std::pair<std::string, bool> > myVecMenuStrings;
 };
 
 

@@ -16,6 +16,7 @@ public:
     static const std::string SORT_BY_ID;
     static const std::string SORT_BY_TITLE;
     static const std::string ADD_TAG;
+    static const std::string REMOVE_TAG;
     static const std::string MOUSE_SCROLL_FORWARD;
     static const std::string MOUSE_SCROLL_BACKWARD;
 private:
@@ -44,7 +45,13 @@ public:
 };
 
 
-class OpenSimpleDialogAction : public ZLApplication::Action {
+class AddTagDialogAction : public ZLApplication::Action {
+
+public:
+    void run();
+};
+
+class RemoveTagDialogAction : public ZLApplication::Action {
 
 public:
     void run();

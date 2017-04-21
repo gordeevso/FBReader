@@ -8,7 +8,8 @@
 const std::string BookshelfActionCode::SORT_BY_AUTHOR = "sortByAuthor";
 const std::string BookshelfActionCode::SORT_BY_ID = "sortById";
 const std::string BookshelfActionCode::SORT_BY_TITLE = "sortByTitle";
-const std::string BookshelfActionCode::ADD_TAG = "addTag";
+const std::string BookshelfActionCode::ADD_TAG = "add tag";
+const std::string BookshelfActionCode::REMOVE_TAG = "remove tag";
 const std::string BookshelfActionCode::MOUSE_SCROLL_FORWARD = "mouseScrollForward";
 const std::string BookshelfActionCode::MOUSE_SCROLL_BACKWARD = "mouseScrollBackward";
 
@@ -19,9 +20,14 @@ bool ModeDependentAction::isVisible() const {
     return (Fbookshelf::Instance().mode() & myVisibleInModes) != 0;
 }
 
-void OpenSimpleDialogAction::run()
+void AddTagDialogAction::run()
 {
     AddTagDialog::run();
+}
+
+void RemoveTagDialogAction::run()
+{
+    RemoveTagDialog::run();
 }
 
 
@@ -78,3 +84,4 @@ MouseWheelScrollingAction::MouseWheelScrollingAction(bool forward) : ScrollingAc
 size_t MouseWheelScrollingAction::textOptionValue() const {
     return 1;
 }
+

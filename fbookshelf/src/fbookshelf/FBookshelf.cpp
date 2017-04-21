@@ -35,7 +35,8 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
     myBookshelfView = new GridView(*context());
     setView(myBookshelfView);
 
-    addAction(BookshelfActionCode::ADD_TAG, new OpenSimpleDialogAction());
+    addAction(BookshelfActionCode::ADD_TAG, new AddTagDialogAction());
+    addAction(BookshelfActionCode::REMOVE_TAG, new RemoveTagDialogAction());
 
     shared_ptr<Action> booksOrderAction = new SortBooksAction();
     addAction(BookshelfActionCode::SORT_BY_AUTHOR, booksOrderAction);

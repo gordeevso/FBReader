@@ -121,19 +121,26 @@ bool GridView::onStylusPress(int x, int y) {
 
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         if(myElementMenu.myIsVisible) {
+            bool state = false;
+            if(myElementMenu.checkSelectedElementMenu(x, y, state)) {
 
-            //TODO add checking context menu right here
+                assert(myElementMenu.myItSelectedActionCode >= myElementMenu.myVecMenuStrings.begin() &&
+                       myElementMenu.myItSelectedActionCode < myElementMenu.myVecMenuStrings.end());
 
+                myElementMenu.myIsVisible = false;
+                Fbookshelf::Instance().refreshWindow();
+                Fbookshelf::Instance().doAction((*(myElementMenu.myItSelectedActionCode)).first);
+            }
             myElementMenu.myIsVisible = false;
             Fbookshelf::Instance().refreshWindow();
         }
 
         if((*it).checkBookOptions(x, y)) {
             myElementMenu.myIsVisible = true;
-            myElementMenu.myTopLeft.x = (*it).myOptionsTopLeft.x;
+            myElementMenu.myTopLeft.x = (*it).myOptionsTopLeft.x -
+                    (myElementMenu.myXOffset - ((*it).myOptionsBottomRight.x - (*it).myOptionsTopLeft.x)) - 1;
             myElementMenu.myTopLeft.y = (*it).myOptionsBottomRight.y;
             Fbookshelf::Instance().refreshWindow();
-            //Fbookshelf::Instance().doAction(BookshelfActionCode::ADD_TAG);
             break;
         }
     }
@@ -144,18 +151,28 @@ bool GridView::onStylusPress(int x, int y) {
 
 bool GridView::onStylusMovePressed(int x, int y) {
 
-
     return true;
 }
 
 bool GridView::onStylusRelease(int x, int y)
 {
-
+    return true;
 }
 
 
 
 bool GridView::onStylusMove(int x, int y) {
+    bool ElementMenuPrevState = myElementMenu.myIsSelected;
+    bool ElementMenuStringStateChanged = false;
+
+    if(myElementMenu.myIsVisible && myElementMenu.checkSelectedElementMenu(x, y, ElementMenuStringStateChanged))
+        myElementMenu.myIsSelected = true;
+    else
+        myElementMenu.myIsSelected = false;
+
+    if(myElementMenu.myIsSelected != ElementMenuPrevState || ElementMenuStringStateChanged)
+        Fbookshelf::Instance().refreshWindow();
+
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         bool SelectedPrevState = (*it).myIsSelected;
         bool MenuSelectedPrevState = (*it).myIsMenuSelected;
@@ -171,8 +188,14 @@ bool GridView::onStylusMove(int x, int y) {
                 (*it).myIsSelected = true;
                 (*it).myIsMenuSelected = false;
             }
+
         }
         else {
+            (*it).myIsSelected = false;
+            (*it).myIsMenuSelected = false;
+        }
+
+        if(myElementMenu.myIsVisible) {
             (*it).myIsSelected = false;
             (*it).myIsMenuSelected = false;
         }

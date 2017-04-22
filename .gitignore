@@ -18,7 +18,6 @@ fbreader/FBReader
 *.includes
 *.autosave
 *.moc.*
-*.d*
 *.d
 *.o
 *.so

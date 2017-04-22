@@ -76,12 +76,12 @@ void Fbookshelf::initWindow() {
     trackStylus(true);
 
 
-    std::set<std::string> bookFileNames;
-    BookshelfModel::Instance().collectBookFileNames("~/FBooks", false, bookFileNames);
-
-    for(std::set<std::string>::iterator it = bookFileNames.begin(); it != bookFileNames.end(); ++it) {
-        BooksDBUtil::getBook(*it);
-    }
+//    std::set<std::string> bookFileNames;
+//    BookshelfModel::Instance().collectBookFileNames("~/FBooks", false, bookFileNames);
+//
+//    for(std::set<std::string>::iterator it = bookFileNames.begin(); it != bookFileNames.end(); ++it) {
+//        BooksDBUtil::getBook(*it);
+//    }
 
     BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
     getGridView().setMode(GridView::WITHOUT_TAGS_MENU);

@@ -22,7 +22,8 @@
 #include "DataBase.h"
 
 std::string DataBase::databaseDirName() {
-	return ZLibrary::ApplicationWritableDirectory();
+//	return ZLibrary::ApplicationWritableDirectory();
+    return "~/.FBReader";
 }
 
 DataBase::~DataBase() {

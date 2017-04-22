@@ -35,9 +35,6 @@
 #include "Lists.h"
 
 typedef std::map<std::string, shared_ptr<Book> > BooksMap;
-typedef std::map<shared_ptr<Author>, shared_ptr<Book>, AuthorComparator> BooksMapByAuthor;
-typedef std::map<std::string, shared_ptr<Book> > BooksMapByTitle;
-typedef std::map<int, shared_ptr<Book> > BooksMapByBookId;
 
 class BookshelfModel {
 
@@ -52,100 +49,22 @@ public:
 
 private:
 	static shared_ptr<BookshelfModel> ourInstance;
-//	static const size_t MaxRecentListSize;
-
-//public:
-//	ZLStringOption PathOption;
-//	ZLBooleanOption ScanSubdirsOption;
-//	ZLBooleanOption CollectAllBooksOption;
-
+        
 private:
 	BookshelfModel();
 
 public:
-//	const AuthorList &authors() const;
-//	const TagList &tags() const;
-//	const BookList &books(shared_ptr<Author> author) const;
-//	const BookList &books(shared_ptr<Tag> tag) const;
-//	const BookList &recentBooks() const;
-
-//	enum RemoveType {
-//		REMOVE_DONT_REMOVE = 0,
-//		REMOVE_FROM_LIBRARY = 1,
-//		REMOVE_FROM_DISK = 2,
-//		REMOVE_FROM_LIBRARY_AND_DISK = REMOVE_FROM_LIBRARY | REMOVE_FROM_DISK
-//	};
-		
-//	RemoveType canRemove(shared_ptr<Book> book) const;
-
-//	void collectSeriesTitles(shared_ptr<Author> author, std::set<std::string> &titles) const;
-
-//	size_t revision() const;
-
-//	void addBook(shared_ptr<Book> book);
-//	void removeBook(shared_ptr<Book> book);
-//	void updateBook(shared_ptr<Book> book);
-//	void addBookToRecentList(shared_ptr<Book> book);
-
-//	void replaceAuthor(shared_ptr<Author> from, shared_ptr<Author> to);
-
-//	bool hasBooks(shared_ptr<Tag> tag) const;
-//	bool hasSubtags(shared_ptr<Tag> tag) const;
-//	void removeTag(shared_ptr<Tag> tag, bool includeSubTags);
-//	void renameTag(shared_ptr<Tag> from, shared_ptr<Tag> to, bool includeSubTags);
-//	void cloneTag(shared_ptr<Tag> from, shared_ptr<Tag> to, bool includeSubTags);    
-        BooksMap &getLibrary();
-        BooksMapByAuthor &getLibrarySortedByAuthor();
-        BooksMapByTitle &getLibrarySortedByTitle();
-        BooksMapByBookId &getLibrarySortedByBookId();
-        
+  
+        BooksMap &getLibrary();        
+        void buildVecLibrary(SortType);
         std::vector<shared_ptr<Book> > & getLibrary(SortType);
-
-        void loadLibrarySortedByAuthor();
-        void loadLibrarySortedByTitle();
-        void loadLibrarySortedByBookId();
-        void collectDirNames(std::string path, bool myScanSubdirs, std::set<std::string> &nameSet);
-        void collectBookFileNames(std::string path, bool myScanSubdirs, std::set<std::string> &bookFileNames);
-
-//private:
-
-//	void synchronize() const;
-
-//	void rebuildBookSet() const;
-//	void rebuildMaps() const;
-
-//	void insertIntoBookSet(shared_ptr<Book> book) const;
 
 private:
         BooksMap myLibrary;
-        BooksMapByAuthor myLibrarySortedByAuthor;
-        BooksMapByTitle myLibrarySortedByTitle;
-        BooksMapByBookId myLibrarySortedByBookId;
-        std::vector<shared_ptr<Book> > myVecLibrary;
-//	mutable BookSet myBooks;
-//	mutable BookSet myExternalBooks;
-
-//	mutable AuthorList myAuthors;
-//	mutable TagList myTags;
-//	typedef std::map<shared_ptr<Author>,BookList,AuthorComparator> BooksByAuthor;
-//	mutable BooksByAuthor myBooksByAuthor;
-//	typedef std::map<shared_ptr<Tag>,BookList,TagComparator> BooksByTag;
-//	mutable BooksByTag myBooksByTag;
+        std::vector<shared_ptr<Book> > myVecLibrarySortedByAuthors;
+        std::vector<shared_ptr<Book> > myVecLibrarySortedByTitles;
+        std::vector<shared_ptr<Book> > myVecLibrarySortedByIds;
 	mutable BookList myRecentBooks;
-
-//	mutable std::string myPath;
-//	mutable bool myScanSubdirs;
-
-//	enum BuildMode {
-//		BUILD_NOTHING = 0,
-//		BUILD_UPDATE_BOOKS_INFO = 1 << 0,
-//		BUILD_COLLECT_FILES_INFO = 1 << 1,
-//		BUILD_ALL = 0x03
-//	};
-//	mutable BuildMode myBuildMode;
-//	mutable size_t myRevision;
-
-//friend class LibrarySynchronizer;
 };
 
 #endif /* __BOOKSHELFMODEL_H__ */

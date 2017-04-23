@@ -46,7 +46,13 @@ void ImageRect::draw(ZLPaintContext &painter)
 
 
 
-StringRect::StringRect(const std::string &str, ZLPaintContext &paintcontext, int x1, int y1, int x2, int y2, int fontsize)
+StringRect::StringRect(const std::string &str,
+                       ZLPaintContext &paintcontext,
+                       int x1,
+                       int y1,
+                       int x2,
+                       int y2,
+                       int fontsize)
     : myRefStr(str),
       myRefPainter(paintcontext),
       myX(x1),
@@ -83,10 +89,10 @@ void StringRect::draw()
     myRefPainter.setColor(FBOptions::Instance().RegularTextColorOption.value());
 
     myRefPainter.drawString(myX,
-                       myYr,
-                       myRefStr.c_str(),
-                       myRefStr.size(),
-                       true);
+                            myYr,
+                            myRefStr.c_str(),
+                            myRefStr.size(),
+                            true);
 
     myRefPainter.setColor(ZLColor(0,0,0));
     myRefPainter.drawLine(myX-1, myY-2, myXr+1, myY-2);
@@ -99,7 +105,16 @@ void StringRect::draw()
 
 
 
-GridElement::GridElement(Point topLeft, Point bottomRight, Point opttopleft, Point optbottomright, ZLColor elementColor, ZLColor frameColor, shared_ptr<Book> book, shared_ptr<ZLImageData> imagedata, bool selected, bool menuselected)
+GridElement::GridElement(Point topLeft,
+                         Point bottomRight,
+                         Point opttopleft,
+                         Point optbottomright,
+                         ZLColor elementColor,
+                         ZLColor frameColor,
+                         shared_ptr<Book> book,
+                         shared_ptr<ZLImageData> imagedata,
+                         bool selected,
+                         bool menuselected)
     : myTopLeft(topLeft),
       myBottomRight(bottomRight),
       myOptionsTopLeft(opttopleft),

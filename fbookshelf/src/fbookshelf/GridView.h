@@ -71,6 +71,7 @@ private:
 
 private:
     ViewMode myViewMode;
+    BookshelfModel::SortType mySortType;
 
     int myTopLeftX;
     int myTopleftY;

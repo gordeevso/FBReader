@@ -29,6 +29,7 @@ const std::string CAPTION = "Grid";
 
 GridView::GridView(ZLPaintContext &context) : ZLView(context),
                                               myViewMode(GridView::WITHOUT_TAGS_MENU),
+                                              mySortType(BookshelfModel::SORT_BY_AUTHOR),
                                               myTopLeftX(0),
                                               myTopleftY(0),
                                               myCaption(CAPTION),
@@ -48,8 +49,7 @@ GridView::GridView(ZLPaintContext &context) : ZLView(context),
                                               myItSelectedElement(myVecBookshelfElements.end()),
                                               myItFirstRendering(myVecBookshelfElements.end()),
                                               myItLastRendering(myVecBookshelfElements.end()),
-                                              myElementMenu(context),
-                                              myTagsMenu(0)
+                                              myElementMenu(context)
 {
     std::vector<std::string> tags;
     Tag::collectTagNames(tags);
@@ -57,72 +57,78 @@ GridView::GridView(ZLPaintContext &context) : ZLView(context),
 }
 
 void GridView::updateView(BookshelfModel::SortType sort_type) {
-    myVecBookshelfElements.clear();
 
-    if(myViewMode == GridView::WITHOUT_TAGS_MENU)
-        myViewWidth = context().width();
+    if(mySortType != sort_type || myVecBookshelfElements.empty()) {
+        myVecBookshelfElements.clear();
 
-    if(myViewMode == GridView::WITH_TAGS_MENU)
-        myViewWidth = context().width() - myTopLeftX;
+        if(myViewMode == GridView::WITHOUT_TAGS_MENU)
+            myViewWidth = context().width();
 
-    myElementWidth = myViewWidth / myElementsOnX;
+        if(myViewMode == GridView::WITH_TAGS_MENU)
+            myViewWidth = context().width() - myTopLeftX;
 
-    int x1 = myTopLeftX;
-    int y1 = myTopleftY;
-    int x2 = myTopLeftX + myElementWidth;
-    int y2 = myElementHeight;
+        myElementWidth = myViewWidth / myElementsOnX;
 
-    GridElement element;
+        int x1 = myTopLeftX;
+        int y1 = myTopleftY;
+        int x2 = myTopLeftX + myElementWidth;
+        int y2 = myElementHeight;
 
-    std::vector<shared_ptr<Book> > & library = BookshelfModel::Instance().getLibrary(sort_type);
+        GridElement element;
 
-    std::vector<shared_ptr<Book> >::const_iterator it = library.begin();
-    std::vector<shared_ptr<Book> >::const_iterator itEnd = library.end();
+        std::vector<shared_ptr<Book> > & library = BookshelfModel::Instance().getLibrary(sort_type);
 
-    for(; it != itEnd; ++it) {
+        std::vector<shared_ptr<Book> >::const_iterator it = library.begin();
+        std::vector<shared_ptr<Book> >::const_iterator itEnd = library.end();
 
-        BookModel model(*it);
+        for(; it != itEnd; ++it) {
 
-        element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
-        element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
-        element.myBook = *it;
+            BookModel model(*it);
 
-        element.myTitleString = new StringRect(element.myBook->title(), context());
+            element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
+            element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
+            element.myBook = *it;
 
-        element.myTopLeft.x = x1;
-        element.myTopLeft.y = y1;
-        element.myBottomRight.x = x2;
-        element.myBottomRight.y = y2;
+            element.myTitleString = new StringRect(element.myBook->title(), context());
 
-        element.myElementColor = ELEMENT_COLOR;
-        element.myFrameColor = ELEMENT_FRAME_COLOR;
+            element.myTopLeft.x = x1;
+            element.myTopLeft.y = y1;
+            element.myBottomRight.x = x2;
+            element.myBottomRight.y = y2;
 
-        myVecBookshelfElements.push_back(element);
+            element.myElementColor = ELEMENT_COLOR;
+            element.myFrameColor = ELEMENT_FRAME_COLOR;
 
-        x1 += myElementWidth;
-        x2 += myElementWidth;
+            myVecBookshelfElements.push_back(element);
 
-        if(x2 > myViewWidth + myTopLeftX)
-        {
-            x1 = myTopLeftX;
-            x2 = myTopLeftX + myElementWidth;
-            y1 += myElementHeight;
-            y2 += myElementHeight;
+            x1 += myElementWidth;
+            x2 += myElementWidth;
+
+            if(x2 > myViewWidth + myTopLeftX)
+            {
+                x1 = myTopLeftX;
+                x2 = myTopLeftX + myElementWidth;
+                y1 += myElementHeight;
+                y2 += myElementHeight;
+            }
         }
+
+        myElementMenu.myIsVisible = false;
+
+        if(myVecBookshelfElements.size() > myRenderingElementsCount) {
+            myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
+            ++myScrollBarMaxPos;
+        }
+
+        setScrollbarEnabled(VERTICAL, true);
+        setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+
+        myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
+        myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
+
+        mySortType = sort_type;
     }
 
-    myElementMenu.myIsVisible = false;
-
-    if(myVecBookshelfElements.size() > myRenderingElementsCount) {
-        myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
-        ++myScrollBarMaxPos;
-    }
-
-    setScrollbarEnabled(VERTICAL, true);
-    setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-
-    myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
-    myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
 
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();
@@ -143,12 +149,19 @@ void GridView::setMode(GridView::ViewMode mode)
                 Tag::collectTagNames(tags);
                 myTagsMenu->reloadTags(tags);
                 myTagsMenu->myIsVisible = true;
+                myTopLeftX = myTagsMenu->myXOffset;
             }
-            myTopLeftX = myTagsMenu->myXOffset;
         }
+
         myViewMode = mode;
     }
-    updateView(BookshelfModel::SORT_BY_AUTHOR);
+
+    if(myVecBookshelfElements.empty())
+        updateView(mySortType);
+    else {
+        updateBookshelfElements();
+        Fbookshelf::Instance().refreshWindow();
+    }
 
 
 }
@@ -167,6 +180,17 @@ std::vector<GridElement>::iterator GridView::getSelectedElement() {
 
 
 bool GridView::onStylusPress(int x, int y) {
+    if(!myTagsMenu.isNull() && myTagsMenu->myIsVisible) {
+        bool state = false;
+        if(myTagsMenu->checkSelectedElementMenu(x, y, state)) {
+
+            assert(myTagsMenu->myItSelectedActionCode >= myTagsMenu->myVecMenuStrings.begin() &&
+                   myTagsMenu->myItSelectedActionCode < myTagsMenu->myVecMenuStrings.end());
+
+           // myTagsMenu->myIsVisible = false;
+            std::cout << (*(myTagsMenu->myItSelectedActionCode)).first << "\n";
+        }
+    }
 
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         if(myElementMenu.myIsVisible) {
@@ -221,6 +245,19 @@ bool GridView::onStylusMove(int x, int y) {
 
     if(myElementMenu.myIsSelected != ElementMenuPrevState || ElementMenuStringStateChanged)
         Fbookshelf::Instance().refreshWindow();
+
+    if(!myTagsMenu.isNull()) {
+        bool TagsMenuPrevState = myTagsMenu->myIsSelected;
+        bool TagsMenuStateChanged = false;
+
+        if(myTagsMenu->myIsVisible && myTagsMenu->checkSelectedElementMenu(x, y, TagsMenuStateChanged))
+            myTagsMenu->myIsSelected = true;
+        else
+            myTagsMenu->myIsSelected = false;
+
+        if(myTagsMenu->myIsSelected != TagsMenuPrevState || TagsMenuStateChanged)
+            Fbookshelf::Instance().refreshWindow();
+    }
 
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         bool SelectedPrevState = (*it).myIsSelected;
@@ -297,19 +334,34 @@ void GridView::onScrollbarPageStep(ZLView::Direction direction, int steps){
 
 void GridView::onMouseScroll(bool forward) {
 
-    if(forward && myMouseScrollTo < myScrollBarMaxPos) {
-        ++myMouseScrollFrom;
-        ++myMouseScrollTo;
-        onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-        setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+    if(myViewMode == GridView::WITHOUT_TAGS_MENU) {
+        if(forward && myMouseScrollTo < myScrollBarMaxPos) {
+            ++myMouseScrollFrom;
+            ++myMouseScrollTo;
+            onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+            setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+        }
+
+        if(!forward && myMouseScrollFrom > 0) {
+            --myMouseScrollFrom;
+            --myMouseScrollTo;
+            onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+            setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+        }
     }
 
-    if(!forward && myMouseScrollFrom > 0) {
-        --myMouseScrollFrom;
-        --myMouseScrollTo;
-        onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-        setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+    if(myViewMode == GridView::WITH_TAGS_MENU && !myTagsMenu.isNull()) {
+        ;
+        if(forward) {
+            myTagsMenu->updateScrollDown();
+        }
+        else {
+            myTagsMenu->updateScrollUp();
+        }
+
+        Fbookshelf::Instance().refreshWindow();
     }
+
 }
 
 
@@ -434,6 +486,7 @@ void GridView::paint() {
 
     if(!myTagsMenu.isNull()) {
         if(myTagsMenu->myIsVisible) {
+            myTagsMenu->checkFont();
             myTagsMenu->draw();
         }
     }

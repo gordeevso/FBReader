@@ -29,6 +29,7 @@
 #include <ZLOptions.h>
 
 #include "GridView.h"
+#include "BookStackView.h"
 
 #include "../library/BookshelfModel.h"
 #include "../bookmodel/BookModel.h"
@@ -49,7 +50,7 @@ public:
     enum ViewMode {
         UNDEFINED_MODE = 0,
         GRID_MODE = 1 << 0,
-        BOOKSHELF_MODE = 1 << 1,
+        BOOKSTACK_MODE = 1 << 1,
         ALL_MODES = 0xFF
     };
 
@@ -60,7 +61,9 @@ public:
     void setMode(ViewMode mode);
     ViewMode mode() const;
 
-    GridView & getGridView();
+    shared_ptr<ZLView> getGridView();
+    shared_ptr<ZLView> getBookStackView();
+
     shared_ptr<ZLKeyBindings> keyBindings();
 
     void refreshWindow();
@@ -70,7 +73,8 @@ private:
     std::string helpFileName(const std::string &language) const;
 
     shared_ptr<ZLKeyBindings> myBindings0;
-    shared_ptr<ZLView> myBookshelfView;
+    shared_ptr<ZLView> myGridView;
+    shared_ptr<ZLView> myBookStackView;
     ViewMode myViewMode;
 
 };

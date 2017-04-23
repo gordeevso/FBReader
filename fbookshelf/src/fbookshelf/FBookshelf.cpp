@@ -13,6 +13,7 @@
 
 #include "FBookshelf.h"
 #include "GridView.h"
+#include "BookStackView.h"
 
 #include "BookshelfActions.h"
 
@@ -30,10 +31,15 @@ Fbookshelf &Fbookshelf::Instance() {
 Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshelf"),
                                                         myBindings0(new ZLKeyBindings("Keys"))
 {
-    setMode(GRID_MODE);
+    myViewMode = GRID_MODE;
 
-    myBookshelfView = new GridView(*context());
-    setView(myBookshelfView);
+    myGridView = new GridView(*context());
+    myBookStackView = new BookStackView(*context());
+
+    setView(myGridView);
+
+    addAction(BookshelfActionCode::SET_GRIDVIEW, new SetGridViewAction());
+    addAction(BookshelfActionCode::SET_BOOKSTACKVIEW, new SetBookStackViewAction());
 
     addAction(BookshelfActionCode::ADD_TAG, new AddTagDialogAction());
     addAction(BookshelfActionCode::REMOVE_TAG, new RemoveTagDialogAction());
@@ -47,7 +53,6 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
     addAction(BookshelfActionCode::MOUSE_SCROLL_BACKWARD, new MouseWheelScrollingAction(false));
 
     addAction(BookshelfActionCode::SHOW_TAG_MENU, new ShowTagMenuAction());
-
 }
 
 Fbookshelf::~Fbookshelf() {
@@ -55,18 +60,38 @@ Fbookshelf::~Fbookshelf() {
 
 void Fbookshelf::setMode(Fbookshelf::ViewMode mode) {
     myViewMode = mode;
+    switch (mode) {
+    case GRID_MODE:
+        static_cast<GridView&>(*myGridView).setMode(GridView::WITHOUT_TAGS_MENU);
+        setView(myGridView);
+        break;
+    case BOOKSTACK_MODE:
+        static_cast<BookStackView&>(*myBookStackView).setMode(BookStackView::WITHOUT_TAGS_MENU);
+        setView(myBookStackView);
+        break;
+    default:
+        break;
+    }
+    refreshWindow();
 }
 
 Fbookshelf::ViewMode Fbookshelf::mode() const {
     return myViewMode;
 }
 
-GridView &Fbookshelf::getGridView() {
-    return dynamic_cast<GridView&>(*myBookshelfView);
+shared_ptr<ZLView> Fbookshelf::getGridView()
+{
+    return myGridView;
 }
 
-shared_ptr<ZLKeyBindings> Fbookshelf::keyBindings()
+shared_ptr<ZLView> Fbookshelf::getBookStackView()
 {
+    return myBookStackView;
+}
+
+
+
+shared_ptr<ZLKeyBindings> Fbookshelf::keyBindings() {
     return myBindings0;
 }
 
@@ -75,16 +100,12 @@ void Fbookshelf::initWindow() {
     ZLApplication::initWindow();
     trackStylus(true);
 
-
-//    std::set<std::string> bookFileNames;
-//    BookshelfModel::Instance().collectBookFileNames("~/FBooks", false, bookFileNames);
-//
-//    for(std::set<std::string>::iterator it = bookFileNames.begin(); it != bookFileNames.end(); ++it) {
-//        BooksDBUtil::getBook(*it);
-//    }
-
     BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
-    getGridView().setMode(GridView::WITHOUT_TAGS_MENU);
+
+    shared_ptr<ZLView> view = this->currentView();
+    if(view->isInstanceOf(GridView::TYPE_ID)) {
+        static_cast<GridView&>(*view).setMode(GridView::WITHOUT_TAGS_MENU);
+    }
 
     refreshWindow();
 

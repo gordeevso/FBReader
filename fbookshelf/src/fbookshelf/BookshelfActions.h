@@ -20,6 +20,9 @@ public:
     static const std::string MOUSE_SCROLL_FORWARD;
     static const std::string MOUSE_SCROLL_BACKWARD;
     static const std::string SHOW_TAG_MENU;
+    static const std::string SET_BOOKSTACKVIEW;
+    static const std::string SET_GRIDVIEW;
+
 private:
     BookshelfActionCode();
 };
@@ -36,6 +39,23 @@ public:
 private:
     int myVisibleInModes;
 };
+
+
+
+class SetGridViewAction : public ModeDependentAction {
+
+public:
+    SetGridViewAction();
+    void run();
+};
+
+class SetBookStackViewAction : public ModeDependentAction {
+
+public:
+    SetBookStackViewAction();
+    void run();
+};
+
 
 
 class SortBooksAction : public ModeDependentAction {

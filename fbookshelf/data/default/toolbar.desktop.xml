@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolbar>
+	<button id="setBookStackView"/>
+	<button id="setGridView"/>
+	<separator/>
 	<button id="showTagMenu"/>
 	<separator/>
 	<toggleButton id="sortByAuthor" group="booksOrder" default="yes"/>

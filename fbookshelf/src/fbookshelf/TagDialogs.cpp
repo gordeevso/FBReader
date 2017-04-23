@@ -60,8 +60,10 @@ bool AddTagDialog::run()
 
     if (dialog->run()) {
         dialog->acceptValues();
+        Fbookshelf &fbookshelf = Fbookshelf::Instance();
 
-        shared_ptr<Book> book = (*(Fbookshelf::Instance().getGridView().getSelectedElement())).myBook;
+        shared_ptr<ZLView> view = fbookshelf.getGridView();
+        shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
         book->addTag(addTagEntry->initialValue());
         BooksDB::Instance().saveBook(book);
 
@@ -94,7 +96,10 @@ BookTagEntry::BookTagEntry() : ZLComboOptionEntry(true),
 
     myValues.push_back("");
 
-    shared_ptr<Book> book = (*(Fbookshelf::Instance().getGridView().getSelectedElement())).myBook;
+    Fbookshelf &fbookshelf = Fbookshelf::Instance();
+
+    shared_ptr<ZLView> view = fbookshelf.getGridView();
+    shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
     TagList const & tags = book->tags();
 
     for(size_t i = 0; i != tags.size(); ++i) {
@@ -139,7 +144,10 @@ bool RemoveTagDialog::run()
     if (dialog->run()) {
         dialog->acceptValues();
 
-        shared_ptr<Book> book = (*(Fbookshelf::Instance().getGridView().getSelectedElement())).myBook;
+        Fbookshelf &fbookshelf = Fbookshelf::Instance();
+
+        shared_ptr<ZLView> view = fbookshelf.getGridView();
+        shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
         TagList const & tags = book->tags();
 
         for(size_t i = 0; i != tags.size(); ++i) {

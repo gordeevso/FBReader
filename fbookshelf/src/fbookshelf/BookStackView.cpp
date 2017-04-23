@@ -7,7 +7,7 @@
 #include <ZLTimeManager.h>
 #include <ZLTextSelectionModel.h>
 
-#include "GridView.h"
+#include "BookStackView.h"
 #include "FBookshelf.h"
 #include "BookshelfActions.h"
 
@@ -24,10 +24,10 @@ const ZLColor ELEMENT_FRAME_COLOR = ZLColor(250,250,250);
 const ZLColor ELEMENT_COLOR_ON_SELECT = ZLColor(210,210,210);
 const ZLColor BACKGROUND_COLOR = ZLColor(255,255,255);
 
-const std::string CAPTION = "Grid";
+const std::string CAPTION = "BookStack";
 
-GridView::GridView(ZLPaintContext &context) : ZLView(context),
-                                              myViewMode(GridView::WITHOUT_TAGS_MENU),
+BookStackView::BookStackView(ZLPaintContext &context) : ZLView(context),
+                                              myViewMode(BookStackView::WITHOUT_TAGS_MENU),
                                               mySortType(BookshelfModel::SORT_BY_AUTHOR),
                                               myTopLeftX(0),
                                               myTopleftY(0),
@@ -55,21 +55,21 @@ GridView::GridView(ZLPaintContext &context) : ZLView(context),
     myTagsMenu = new TagsMenu(context, tags);
 }
 
-const ZLTypeId GridView::TYPE_ID(ZLView::TYPE_ID);
+const ZLTypeId BookStackView::TYPE_ID(ZLView::TYPE_ID);
 
-const ZLTypeId &GridView::typeId() const {
+const ZLTypeId &BookStackView::typeId() const {
     return TYPE_ID;
 }
 
-void GridView::updateView(BookshelfModel::SortType sort_type) {
+void BookStackView::updateView(BookshelfModel::SortType sort_type) {
 
     if(mySortType != sort_type || myVecBookshelfElements.empty()) {
         myVecBookshelfElements.clear();
 
-        if(myViewMode == GridView::WITHOUT_TAGS_MENU)
+        if(myViewMode == BookStackView::WITHOUT_TAGS_MENU)
             myViewWidth = context().width();
 
-        if(myViewMode == GridView::WITH_TAGS_MENU)
+        if(myViewMode == BookStackView::WITH_TAGS_MENU)
             myViewWidth = context().width() - myTopLeftX;
 
         myElementWidth = myViewWidth / myElementsOnX;
@@ -139,16 +139,16 @@ void GridView::updateView(BookshelfModel::SortType sort_type) {
     Fbookshelf::Instance().refreshWindow();
 }
 
-void GridView::setMode(GridView::ViewMode mode)
+void BookStackView::setMode(BookStackView::ViewMode mode)
 {
     if(mode != myViewMode) {
-        if(mode == GridView::WITHOUT_TAGS_MENU) {
+        if(mode == BookStackView::WITHOUT_TAGS_MENU) {
             if(!myTagsMenu.isNull())
                 myTagsMenu->myIsVisible = false;
             myTopLeftX = 0;
         }
 
-        if(mode == GridView::WITH_TAGS_MENU) {
+        if(mode == BookStackView::WITH_TAGS_MENU) {
             if(!myTagsMenu.isNull()) {
                 std::vector<std::string> tags;
                 Tag::collectTagNames(tags);
@@ -171,20 +171,20 @@ void GridView::setMode(GridView::ViewMode mode)
 
 }
 
-void GridView::invertMode()
+void BookStackView::invertMode()
 {
-    if(myViewMode == GridView::WITHOUT_TAGS_MENU)
-        setMode(GridView::WITH_TAGS_MENU);
+    if(myViewMode == BookStackView::WITHOUT_TAGS_MENU)
+        setMode(BookStackView::WITH_TAGS_MENU);
     else
-        setMode(GridView::WITHOUT_TAGS_MENU);
+        setMode(BookStackView::WITHOUT_TAGS_MENU);
 }
 
-std::vector<GridElement>::iterator GridView::getSelectedElement() {
+std::vector<GridElement>::iterator BookStackView::getSelectedElement() {
     return myItSelectedElement;
 }
 
 
-bool GridView::onStylusPress(int x, int y) {
+bool BookStackView::onStylusPress(int x, int y) {
     if(!myTagsMenu.isNull() && myTagsMenu->myIsVisible) {
         bool state = false;
         if(myTagsMenu->checkSelectedElementMenu(x, y, state)) {
@@ -227,19 +227,19 @@ bool GridView::onStylusPress(int x, int y) {
 }
 
 
-bool GridView::onStylusMovePressed(int x, int y) {
+bool BookStackView::onStylusMovePressed(int x, int y) {
 
     return true;
 }
 
-bool GridView::onStylusRelease(int x, int y)
+bool BookStackView::onStylusRelease(int x, int y)
 {
     return true;
 }
 
 
 
-bool GridView::onStylusMove(int x, int y) {
+bool BookStackView::onStylusMove(int x, int y) {
     bool ElementMenuPrevState = myElementMenu.myIsSelected;
     bool ElementMenuStringStateChanged = false;
 
@@ -298,13 +298,13 @@ bool GridView::onStylusMove(int x, int y) {
 
 
 //What is it?
-void GridView::onScrollbarStep(ZLView::Direction direction, int steps) {
+void BookStackView::onScrollbarStep(ZLView::Direction direction, int steps) {
     std::cout << "onscrollstep\n";
 }
 
 
 
-void GridView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to) {
+void BookStackView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to) {
     if(myElementMenu.myIsVisible) {
         myElementMenu.myIsVisible = false;
         Fbookshelf::Instance().refreshWindow();
@@ -322,7 +322,7 @@ void GridView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t
 
 
 
-void GridView::onScrollbarPageStep(ZLView::Direction direction, int steps){
+void BookStackView::onScrollbarPageStep(ZLView::Direction direction, int steps){
     if(myElementMenu.myIsVisible) {
         myElementMenu.myIsVisible = false;
         Fbookshelf::Instance().refreshWindow();
@@ -337,9 +337,9 @@ void GridView::onScrollbarPageStep(ZLView::Direction direction, int steps){
 }
 
 
-void GridView::onMouseScroll(bool forward) {
+void BookStackView::onMouseScroll(bool forward) {
 
-    if(myViewMode == GridView::WITHOUT_TAGS_MENU) {
+    if(myViewMode == BookStackView::WITHOUT_TAGS_MENU) {
         if(forward && myMouseScrollTo < myScrollBarMaxPos) {
             ++myMouseScrollFrom;
             ++myMouseScrollTo;
@@ -355,7 +355,7 @@ void GridView::onMouseScroll(bool forward) {
         }
     }
 
-    if(myViewMode == GridView::WITH_TAGS_MENU && !myTagsMenu.isNull()) {
+    if(myViewMode == BookStackView::WITH_TAGS_MENU && !myTagsMenu.isNull()) {
         ;
         if(forward) {
             myTagsMenu->updateScrollDown();
@@ -371,11 +371,11 @@ void GridView::onMouseScroll(bool forward) {
 
 
 
-void GridView::updateBookshelfElements() {
-    if(myViewMode == GridView::WITHOUT_TAGS_MENU)
+void BookStackView::updateBookshelfElements() {
+    if(myViewMode == BookStackView::WITHOUT_TAGS_MENU)
         myViewWidth = context().width();
 
-    if(myViewMode == GridView::WITH_TAGS_MENU)
+    if(myViewMode == BookStackView::WITH_TAGS_MENU)
         myViewWidth = context().width() - myTopLeftX;
 
     myViewHeight = context().height();
@@ -407,7 +407,7 @@ void GridView::updateBookshelfElements() {
 
 
 
-void GridView::updateScrollDown() {
+void BookStackView::updateScrollDown() {
     if(myItLastRendering + myElementsOnX <= myVecBookshelfElements.end()){
         myItFirstRendering += myElementsOnX;
         myItLastRendering += myElementsOnX;
@@ -425,7 +425,7 @@ void GridView::updateScrollDown() {
     Fbookshelf::Instance().refreshWindow();
 }
 
-void GridView::updateScrollUp()
+void BookStackView::updateScrollUp()
 {
     if(myItFirstRendering - myElementsOnX >= myVecBookshelfElements.begin()){
         myItFirstRendering -= myElementsOnX;
@@ -446,14 +446,14 @@ void GridView::updateScrollUp()
 
 
 
-void GridView::drawBookshelfElements() {
-    if(myViewMode == GridView::WITHOUT_TAGS_MENU) {
+void BookStackView::drawBookshelfElements() {
+    if(myViewMode == BookStackView::WITHOUT_TAGS_MENU) {
         if(context().width() != myViewWidth || context().height() != myViewHeight) {
             updateBookshelfElements();
         }
     }
 
-    if(myViewMode == GridView::WITH_TAGS_MENU) {
+    if(myViewMode == BookStackView::WITH_TAGS_MENU) {
         if(context().width() != myViewWidth + myTopLeftX || context().height() != myViewHeight) {
             updateBookshelfElements();
         }
@@ -467,26 +467,26 @@ void GridView::drawBookshelfElements() {
 
 
 
-void GridView::drawBackground() {
+void BookStackView::drawBackground() {
     context().setFillColor(myBackgroundColor);
     context().fillRectangle(0,0,context().width(),context().height());
 }
 
 
 
-const std::string &GridView::caption() const {
+const std::string &BookStackView::caption() const {
     return myCaption;
 }
 
 
 
-ZLColor GridView::backgroundColor() const {
+ZLColor BookStackView::backgroundColor() const {
     return myBackgroundColor;
 }
 
 
 
-void GridView::paint() {
+void BookStackView::paint() {
     drawBackground();
 
     if(!myTagsMenu.isNull()) {
@@ -501,3 +501,4 @@ void GridView::paint() {
         myElementMenu.draw();
 
 }
+

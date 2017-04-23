@@ -1,5 +1,5 @@
-#ifndef GRIDVIEW
-#define GRIDVIEW
+#ifndef BOOKSTACKVIEW
+#define BOOKSTACKVIEW
 
 #include <iostream>
 #include <vector>
@@ -20,10 +20,10 @@
 
 class ZLImageData;
 
-class GridView : public ZLView {
+class BookStackView : public ZLView {
 
 public:
-    GridView(ZLPaintContext &context);
+    BookStackView(ZLPaintContext &context);
     const ZLTypeId &typeId() const;
 
     enum ViewMode {
@@ -64,7 +64,6 @@ private:
     void paint();
     ZLColor backgroundColor() const;
 
-
 private:
     ViewMode myViewMode;
     BookshelfModel::SortType mySortType;
@@ -100,4 +99,6 @@ private:
 };
 
 
-#endif
+
+#endif // BOOKSTACKVIEW
+

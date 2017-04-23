@@ -1,6 +1,4 @@
 #!/bin/sh
-IFS='
-'
 if [ $# != 2 ]; then
 	echo -e "usage\n  $0 <platform> <install_dir>";
 	exit 0;

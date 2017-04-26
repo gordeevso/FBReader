@@ -55,10 +55,10 @@ do_install:
 	@install -d $(FBSHAREDIR)
 	@install -d $(FBSHAREDIR)/help
 	@./scripts/install_help.sh $(VARIANT) $(FBSHAREDIR)/help
-	@install -d $(FBSHAREDIR)/network
-	@install -m 0644 $(wildcard data/network/*.xml) $(FBSHAREDIR)/network
-	@install -d $(FBSHAREDIR)/network/certificates
-	@install -m 0644 $(wildcard data/network/certificates/*.crt) $(FBSHAREDIR)/network/certificates
+#	@install -d $(FBSHAREDIR)/network
+#	@install -m 0644 $(wildcard data/network/*.xml) $(FBSHAREDIR)/network
+#	@install -d $(FBSHAREDIR)/network/certificates
+#	@install -m 0644 $(wildcard data/network/certificates/*.crt) $(FBSHAREDIR)/network/certificates
 	@install -d $(FBSHAREDIR)/formats/html
 	@install -m 0644 data/formats/html/html.ent $(FBSHAREDIR)/formats/html
 	@install -d $(FBSHAREDIR)/formats/xhtml
@@ -77,8 +77,8 @@ do_install:
 	@install -m 0644 $(wildcard data/resources/*.xml) $(FBSHAREDIR)/resources
 	@install -d $(DESTDIR)$(APPIMAGEDIR_REAL)
 	@install -m 0644 $(wildcard data/icons/toolbar/$(VARIANT)/*.*) $(DESTDIR)$(APPIMAGEDIR_REAL)
-	@install -m 0644 $(wildcard data/icons/filetree/$(VARIANT)/*.*) $(DESTDIR)$(APPIMAGEDIR_REAL)
-	@install -m 0644 $(wildcard data/icons/booktree/new/*.*) $(DESTDIR)$(APPIMAGEDIR_REAL)
+#	@install -m 0644 $(wildcard data/icons/filetree/$(VARIANT)/*.*) $(DESTDIR)$(APPIMAGEDIR_REAL)
+#	@install -m 0644 $(wildcard data/icons/booktree/new/*.*) $(DESTDIR)$(APPIMAGEDIR_REAL)
 	@make -C $(TARGET_ARCH) RESOLUTION=$(RESOLUTION) install
 
 

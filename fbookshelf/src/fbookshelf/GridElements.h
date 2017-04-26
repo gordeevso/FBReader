@@ -53,7 +53,7 @@ struct StringRect
     void updateFont(int x1, int y1, int x2, int y2);
     void updatePosition(int x1, int y1, int x2, int y2);
     void draw();
-
+    void divideStr(std::string & s1, std::string & s2);
 
     public:
 

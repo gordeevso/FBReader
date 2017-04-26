@@ -52,6 +52,7 @@ struct TagsMenu
 
     void reloadTags(std::vector<std::string> const & tags);
     void draw();
+    void divideStr(std::string const & source, std::string & new_str);
     void checkFont();
     bool checkSelectedElementMenu(int x, int y, bool & changed_state);
     void updateScrollDown();

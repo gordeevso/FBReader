@@ -84,21 +84,78 @@ void StringRect::updatePosition(int x1, int y1, int x2, int y2)
 void StringRect::draw()
 {
     myRefPainter.setFillColor(ZLColor(255,255,255));
-    myRefPainter.fillRectangle(myX-1, myY-2, myXr+1, myYr+1);
 
     myRefPainter.setColor(FBOptions::Instance().RegularTextColorOption.value());
 
-    myRefPainter.drawString(myX,
-                            myYr,
-                            myRefStr.c_str(),
-                            myRefStr.size(),
-                            true);
+    if(myRefPainter.stringWidth(myRefStr.c_str(), myRefStr.size(), true) < myXr - myX) {
+        myRefPainter.fillRectangle(myX-1, myY-2, myXr+1, myYr+1);
 
-    myRefPainter.setColor(ZLColor(0,0,0));
-    myRefPainter.drawLine(myX-1, myY-2, myXr+1, myY-2);
-    myRefPainter.drawLine(myXr+1, myY-2, myXr+1, myYr+1);
-    myRefPainter.drawLine(myXr+1, myYr+1, myX-1, myYr+1);
-    myRefPainter.drawLine(myX-1, myYr+1, myX-1, myY-2);
+        myRefPainter.drawString(myX,
+                                myYr,
+                                myRefStr.c_str(),
+                                myRefStr.size(),
+                                true);
+
+        myRefPainter.setColor(ZLColor(0,0,0));
+        myRefPainter.drawLine(myX-1, myY-2, myXr+1, myY-2);
+        myRefPainter.drawLine(myXr+1, myY-2, myXr+1, myYr+1);
+        myRefPainter.drawLine(myXr+1, myYr+1, myX-1, myYr+1);
+        myRefPainter.drawLine(myX-1, myYr+1, myX-1, myY-2);
+
+        return;
+    }
+    else {
+
+        std::string s1, s2;
+        divideStr(s1, s2);
+
+        myRefPainter.fillRectangle(myX-1, myY-2, myXr+1, myYr + (myYr - myY) +1);
+
+        myRefPainter.drawString(myX,
+                                myYr,
+                                s1.c_str(),
+                                s1.size(),
+                                true);
+
+        myRefPainter.drawString(myX,
+                                myYr + (myYr - myY) + 1,
+                                s2.c_str(),
+                                s2.size(),
+                                true);
+
+        myRefPainter.setColor(ZLColor(0,0,0));
+        myRefPainter.drawLine(myX-1, myY-2, myXr+1, myY-2);
+        myRefPainter.drawLine(myXr+1, myY-2, myXr+1, myYr + (myYr - myY) + 2);
+        myRefPainter.drawLine(myXr+1, myYr + (myYr - myY) + 2, myX-1, myYr + (myYr - myY) + 2);
+        myRefPainter.drawLine(myX-1, myYr + (myYr - myY) + 2, myX-1, myY-2);
+
+        return;
+    }
+
+}
+
+void StringRect::divideStr(std::string &s1, std::string &s2) {
+    s1.reserve(myRefStr.size());
+    s2.reserve(myRefStr.size());
+    s1.clear();
+    s2.clear();
+    for(size_t i = 1; i != myRefStr.size() + 1; ++i) {
+        if(myRefPainter.stringWidth(myRefStr.substr(0, i).c_str(), myRefStr.substr(0, i).size(), true) > myXr - myX) {
+            s1 = myRefStr.substr(0, i-1);
+
+            if(myRefPainter.stringWidth(myRefStr.c_str(), myRefStr.size(), true) < (myXr - myX) * 2)
+                s2 = myRefStr.substr(i-1, myRefStr.size() - i + 1);
+            else {
+                for(size_t j = 1; j != myRefStr.size() - i + 1; ++j) {
+                    if(myRefPainter.stringWidth(myRefStr.substr(i - 1, j).c_str(), myRefStr.substr(i - 1, j).size(), true) > myXr - myX) {
+                        s2 = myRefStr.substr(i - 1, j - 1);
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+    }
 }
 
 

@@ -41,7 +41,6 @@ void ElementMenu::draw()
             myRefPainter.setFillColor(ZLColor(160,160,160));
 
         myRefPainter.fillRectangle(myCurTopLeft.x-2, myCurTopLeft.y-2, cur_xr+1, cur_yr+2);
-
         myRefPainter.setColor(FBOptions::Instance().RegularTextColorOption.value());
 
         myRefPainter.drawString(myCurTopLeft.x,
@@ -143,14 +142,26 @@ void TagsMenu::draw() {
             myRefPainter.setFillColor(ZLColor(190,190,190));
 
         myRefPainter.fillRectangle(myCurTopLeft.x-2, myCurTopLeft.y-2, cur_xr+1, cur_yr+2);
-
         myRefPainter.setColor(FBOptions::Instance().RegularTextColorOption.value());
 
-        myRefPainter.drawString(myCurTopLeft.x,
-                                cur_yr,
-                                (*it).first.c_str(),
-                                (*it).first.size(),
-                                true);
+        if(myRefPainter.stringWidth((*it).first.c_str(), (*it).first.size(), true) < myXOffset) {
+
+            myRefPainter.drawString(myCurTopLeft.x,
+                                    cur_yr,
+                                    (*it).first.c_str(),
+                                    (*it).first.size(),
+                                    true);
+        }
+        else {
+            std::string new_str;
+            divideStr((*it).first, new_str);
+
+            myRefPainter.drawString(myCurTopLeft.x,
+                                    cur_yr,
+                                    new_str.c_str(),
+                                    new_str.size(),
+                                    true);
+        }
 
         myRefPainter.setColor(ZLColor(255,255,255));
         myRefPainter.drawLine(myCurTopLeft.x-2, myCurTopLeft.y-2, cur_xr+1,myCurTopLeft.y-2);
@@ -160,6 +171,17 @@ void TagsMenu::draw() {
 
         myCurTopLeft.y += myYOffset + 2;
         cur_yr += myYOffset + 2;
+    }
+}
+
+void TagsMenu::divideStr(std::string const & source, std::string & new_str) {
+    new_str.reserve(source.size());
+    new_str.clear();
+    for(size_t i = 1; i != source.size() + 1; ++i) {
+        if(myRefPainter.stringWidth(source.substr(0, i).c_str(), source.substr(0, i).size(), true) >= myXOffset) {
+            new_str = source.substr(0, i-1);
+            break;
+        }
     }
 }
 

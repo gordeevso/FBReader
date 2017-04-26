@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cassert>
 #include <string>
+#include <cstdlib>
 
 #include <ZLUnicodeUtil.h>
 #include <ZLTimeManager.h>
@@ -234,6 +235,9 @@ bool GridView::onStylusMovePressed(int x, int y) {
 
 bool GridView::onStylusRelease(int x, int y)
 {
+    if((*myItSelectedElement).checkSelectedBook(x, y)) {
+        system(("FBReader " + (*myItSelectedElement).myBook->file().physicalFilePath() + "&").c_str());
+    }
     return true;
 }
 

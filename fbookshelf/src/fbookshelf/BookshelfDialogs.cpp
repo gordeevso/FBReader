@@ -4,7 +4,7 @@
 #include <ZLOptionEntry.h>
 
 
-#include "TagDialogs.h"
+#include "BookshelfDialogs.h"
 #include "FBookshelf.h"
 
 #include "../database/booksdb/BooksDB.h"

@@ -10,7 +10,8 @@
 #include <ZLPaintContext.h>
 
 #include "GridElements.h"
-#include "MenuElements.h"
+#include "BookshelfMenu.h"
+#include "GridContextMenu.h"
 
 #include "../library/BookshelfModel.h"
 
@@ -94,8 +95,8 @@ private:
     std::vector<GridElement>::iterator myItFirstRendering;
     std::vector<GridElement>::iterator myItLastRendering;
 
-    ElementMenu myElementMenu;
-    shared_ptr<TagsMenu> myTagsMenu;
+    GridContextMenu myElementMenu;
+    shared_ptr<BookshelfMenu> myTagsMenu;
 
 };
 

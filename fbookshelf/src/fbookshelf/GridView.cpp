@@ -10,7 +10,6 @@
 #include "GridView.h"
 #include "FBookshelf.h"
 #include "BookshelfActions.h"
-#include "cstdlib"
 
 #include "../bookmodel/BookModel.h"
 #include "../options/FBTextStyle.h"
@@ -53,7 +52,7 @@ GridView::GridView(ZLPaintContext &context) : ZLView(context),
 {
     std::vector<std::string> tags;
     Tag::collectTagNames(tags);
-    myTagsMenu = new TagsMenu(context, tags);
+    myTagsMenu = new BookshelfMenu(context, tags);
 }
 
 const ZLTypeId GridView::TYPE_ID(ZLView::TYPE_ID);

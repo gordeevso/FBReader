@@ -52,7 +52,7 @@ BookStackView::BookStackView(ZLPaintContext &context) : ZLView(context),
 {
     std::vector<std::string> tags;
     Tag::collectTagNames(tags);
-    myTagsMenu = new TagsMenu(context, tags);
+    myTagsMenu = new BookshelfMenu(context, tags);
 }
 
 const ZLTypeId BookStackView::TYPE_ID(ZLView::TYPE_ID);

@@ -6,7 +6,7 @@
 #include <string>
 #include <shared_ptr.h>
 
-#include "TagDialogs.h"
+#include "BookshelfDialogs.h"
 
 
 class BookshelfActionCode {

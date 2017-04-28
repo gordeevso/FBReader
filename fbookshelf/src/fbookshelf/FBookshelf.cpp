@@ -53,6 +53,8 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
     addAction(BookshelfActionCode::MOUSE_SCROLL_BACKWARD, new MouseWheelScrollingAction(false));
 
     addAction(BookshelfActionCode::SHOW_TAG_MENU, new ShowTagMenuAction());
+
+    addAction(BookshelfActionCode::RUN_FBREADER, new RunFBReaderAction());
 }
 
 Fbookshelf::~Fbookshelf() {

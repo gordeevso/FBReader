@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 
 #include "BookshelfActions.h"
 #include "FBookshelf.h"
@@ -16,6 +17,7 @@ const std::string BookshelfActionCode::MOUSE_SCROLL_BACKWARD = "mouseScrollBackw
 const std::string BookshelfActionCode::SHOW_TAG_MENU = "showTagMenu";
 const std::string BookshelfActionCode::SET_BOOKSTACKVIEW = "setBookStackView";
 const std::string BookshelfActionCode::SET_GRIDVIEW = "setGridView";
+const std::string BookshelfActionCode::RUN_FBREADER = "runFbreader";
 
 ModeDependentAction::ModeDependentAction(int visibleInModes) : myVisibleInModes(visibleInModes) {
 }
@@ -152,6 +154,13 @@ size_t MouseWheelScrollingAction::textOptionValue() const {
 
 
 
+void RunFBReaderAction::run()
+{
+    Fbookshelf &fbookshelf = Fbookshelf::Instance();
+    shared_ptr<ZLView> view = fbookshelf.currentView();
 
-
-
+    if(fbookshelf.mode() == Fbookshelf::GRID_MODE) {
+        shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
+        system(("FBReader " + book->file().physicalFilePath() + "&").c_str());
+    }
+}

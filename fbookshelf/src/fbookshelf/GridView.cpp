@@ -10,6 +10,7 @@
 #include "GridView.h"
 #include "FBookshelf.h"
 #include "BookshelfActions.h"
+#include "cstdlib"
 
 #include "../bookmodel/BookModel.h"
 #include "../options/FBTextStyle.h"
@@ -118,6 +119,7 @@ void GridView::updateView(BookshelfModel::SortType sort_type) {
             }
         }
 
+        myItSelectedElement = myVecBookshelfElements.begin();
         myElementMenu.myIsVisible = false;
 
         if(myVecBookshelfElements.size() > myRenderingElementsCount) {
@@ -232,8 +234,19 @@ bool GridView::onStylusMovePressed(int x, int y) {
     return true;
 }
 
-bool GridView::onStylusRelease(int x, int y)
-{
+bool GridView::onStylusRelease(int x, int y) {
+    for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
+
+        if(it == myItSelectedElement &&
+           (*it).checkSelectedBook(x, y) &&
+           !(*it).checkBookOptions(x, y) &&
+           !myElementMenu.myIsVisible &&
+           !myElementMenu.myIsSelected) {
+
+            Fbookshelf::Instance().doAction(BookshelfActionCode::RUN_FBREADER);
+            break;
+        }
+    }
     return true;
 }
 
@@ -243,8 +256,9 @@ bool GridView::onStylusMove(int x, int y) {
     bool ElementMenuPrevState = myElementMenu.myIsSelected;
     bool ElementMenuStringStateChanged = false;
 
-    if(myElementMenu.myIsVisible && myElementMenu.checkSelectedElementMenu(x, y, ElementMenuStringStateChanged))
+    if(myElementMenu.myIsVisible && myElementMenu.checkSelectedElementMenu(x, y, ElementMenuStringStateChanged)){
         myElementMenu.myIsSelected = true;
+    }
     else
         myElementMenu.myIsSelected = false;
 
@@ -294,6 +308,8 @@ bool GridView::onStylusMove(int x, int y) {
         if((*it).myIsSelected != SelectedPrevState || (*it).myIsMenuSelected != MenuSelectedPrevState)
             Fbookshelf::Instance().refreshWindow();
     }
+
+    return true;
 }
 
 

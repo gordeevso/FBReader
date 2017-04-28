@@ -22,6 +22,7 @@ public:
     static const std::string SHOW_TAG_MENU;
     static const std::string SET_BOOKSTACKVIEW;
     static const std::string SET_GRIDVIEW;
+    static const std::string RUN_FBREADER;
 
 private:
     BookshelfActionCode();
@@ -110,6 +111,12 @@ public:
 
 private:
     size_t textOptionValue() const;
+};
+
+class RunFBReaderAction : public ZLApplication::Action {
+
+public:
+    void run();
 };
 
 #endif // BOOKSHELFACTIONS

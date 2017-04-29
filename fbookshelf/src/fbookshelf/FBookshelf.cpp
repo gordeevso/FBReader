@@ -13,7 +13,7 @@
 
 #include "FBookshelf.h"
 #include "GridView.h"
-//#include "BookStackView.h"
+#include "BookStackView.h"
 
 #include "BookshelfActions.h"
 
@@ -22,8 +22,7 @@
 #include "../library/BookshelfModel.h"
 #include "../database/booksdb/BooksDBUtil.h"
 #include "../database/booksdb/BooksDB.h"
-#include "../OPDSExtractor/OPDSDownloader.h"
-#include "../OPDSExtractor/OPDSSimpleParser.h"
+
 
 Fbookshelf &Fbookshelf::Instance() {
     return (Fbookshelf&)ZLApplication::Instance();
@@ -33,16 +32,14 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
                                                         myBindings0(new ZLKeyBindings("Keys"))
 {
     myViewMode = GRID_MODE;
-    if (bookToOpen != ""){
-        netVsLibMode = bookToOpen;
-    }
+
     myGridView = new GridView(*context());
-    //myBookStackView = new BookStackView(*context());
+    myBookStackView = new BookStackView(*context());
 
     setView(myGridView);
 
     addAction(BookshelfActionCode::SET_GRIDVIEW, new SetGridViewAction());
-    //addAction(BookshelfActionCode::SET_BOOKSTACKVIEW, new SetBookStackViewAction());
+    addAction(BookshelfActionCode::SET_BOOKSTACKVIEW, new SetBookStackViewAction());
 
     addAction(BookshelfActionCode::ADD_TAG, new AddTagDialogAction());
     addAction(BookshelfActionCode::REMOVE_TAG, new RemoveTagDialogAction());
@@ -70,10 +67,10 @@ void Fbookshelf::setMode(Fbookshelf::ViewMode mode) {
         static_cast<GridView&>(*myGridView).setMode(GridView::WITHOUT_TAGS_MENU);
         setView(myGridView);
         break;
-    /*case BOOKSTACK_MODE:
+    case BOOKSTACK_MODE:
         static_cast<BookStackView&>(*myBookStackView).setMode(BookStackView::WITHOUT_TAGS_MENU);
         setView(myBookStackView);
-        break;*/
+        break;
     default:
         break;
     }
@@ -88,13 +85,13 @@ shared_ptr<ZLView> Fbookshelf::getGridView()
 {
     return myGridView;
 }
-/*
+
 shared_ptr<ZLView> Fbookshelf::getBookStackView()
 {
     return myBookStackView;
 }
 
-*/
+
 
 shared_ptr<ZLKeyBindings> Fbookshelf::keyBindings() {
     return myBindings0;
@@ -105,40 +102,17 @@ void Fbookshelf::initWindow() {
     ZLApplication::initWindow();
     trackStylus(true);
 
-    if (netVsLibMode == "net"){
-        std::string url = "https://books.fbreader.org/opds/by_title";
-        OPDSDownloader downloader;
-        std::string content = downloader.download(url);
-        OPDSSimpleParser parser(content);
-        parser.parse();
-        BooksMap& netLib = BookshelfModel::Instance().getLibrary();
-        for (int i = 0; i < parser.OPDS_Title_nodes.size(); i++){
-            std::string title =  parser.OPDS_Title_nodes[i];
-            std::cout << i << std::endl;
-            shared_ptr<Book> book = Book::createBook(
-                ZLFile("/home/sabrina/Dostoevskiyi_F._Idiot.fb2"), i,
-                "English",
-                "English",
-                title
-            );
-            netLib.insert(std::make_pair("",book));
+    BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
+    BooksMap::iterator it = BookshelfModel::Instance().getLibrary().begin();
+    BooksMap::iterator itEnd = BookshelfModel::Instance().getLibrary().end();
+    for(; it != itEnd; ++it)
+    {
+        if((*it).second->title() == "About FBReader") {
+            BookshelfModel::Instance().getLibrary().erase(it);
         }
     }
-    else{
-                
-            BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
-            BooksMap::iterator it = BookshelfModel::Instance().getLibrary().begin();
-            BooksMap::iterator itEnd = BookshelfModel::Instance().getLibrary().end();
-            for(; it != itEnd; ++it)
-            {
-                if((*it).second->title() == "About FBReader") {
-                    BookshelfModel::Instance().getLibrary().erase(it);
-                }
-            }
-                    
-    }
+            
 
-    
     shared_ptr<ZLView> view = this->currentView();
     if(view->isInstanceOf(GridView::TYPE_ID)) {
         static_cast<GridView&>(*view).setMode(GridView::WITHOUT_TAGS_MENU);

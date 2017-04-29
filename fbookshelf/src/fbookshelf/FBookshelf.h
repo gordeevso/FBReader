@@ -29,7 +29,7 @@
 #include <ZLOptions.h>
 
 #include "GridView.h"
-//#include "BookStackView.h"
+#include "BookStackView.h"
 
 #include "../library/BookshelfModel.h"
 #include "../bookmodel/BookModel.h"
@@ -62,7 +62,7 @@ public:
     ViewMode mode() const;
 
     shared_ptr<ZLView> getGridView();
-    //shared_ptr<ZLView> getBookStackView();
+    shared_ptr<ZLView> getBookStackView();
 
     shared_ptr<ZLKeyBindings> keyBindings();
 
@@ -74,9 +74,9 @@ private:
 
     shared_ptr<ZLKeyBindings> myBindings0;
     shared_ptr<ZLView> myGridView;
-    //shared_ptr<ZLView> myBookStackView;
+    shared_ptr<ZLView> myBookStackView;
     ViewMode myViewMode;
-    std::string netVsLibMode = "lib";
+
 };
 
 #endif /* __FBOOKSHELF_H__ */

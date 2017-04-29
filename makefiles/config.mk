@@ -47,7 +47,7 @@ ifeq "$(ZLSHARED)" "yes"
   CORE_LIBS = -lm -L$(ROOTDIR)/zlibrary/core -lzlcore -ldl
 	TEXT_LIBS = -lzltext
 else
-  CORE_LIBS = -lm -L$(ROOTDIR)/zlibrary/ui -L$(ROOTDIR)/zlibrary/core -lzlcore -lzlui-$(UI_TYPE) -lzlcore $(UILIBS) $(XML_LIBS) $(ARCHIVER_LIBS) $(NETWORK_LIBS)
+  CORE_LIBS = -lm -L$(ROOTDIR)/zlibrary/ui -L$(ROOTDIR)/zlibrary/core -lzlcore -lzlui-$(UI_TYPE) -lzlcore -lcurl $(UILIBS) $(XML_LIBS) $(ARCHIVER_LIBS) $(NETWORK_LIBS)
 	TEXT_LIBS = -lzltext $(EXTERNAL_LIBS) -llinebreak -lfribidi
 endif
 

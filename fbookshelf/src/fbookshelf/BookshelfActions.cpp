@@ -3,7 +3,7 @@
 
 #include "BookshelfActions.h"
 #include "FBookshelf.h"
-#include "BookStackView.h"
+//#include "BookStackView.h"
 
 #include "../library/BookshelfModel.h"
 
@@ -15,7 +15,7 @@ const std::string BookshelfActionCode::REMOVE_TAG = "remove tag";
 const std::string BookshelfActionCode::MOUSE_SCROLL_FORWARD = "mouseScrollForward";
 const std::string BookshelfActionCode::MOUSE_SCROLL_BACKWARD = "mouseScrollBackward";
 const std::string BookshelfActionCode::SHOW_TAG_MENU = "showTagMenu";
-const std::string BookshelfActionCode::SET_BOOKSTACKVIEW = "setBookStackView";
+//const std::string BookshelfActionCode::SET_BOOKSTACKVIEW = "setBookStackView";
 const std::string BookshelfActionCode::SET_GRIDVIEW = "setGridView";
 const std::string BookshelfActionCode::RUN_FBREADER = "runFbreader";
 
@@ -38,9 +38,9 @@ void SetGridViewAction::run()
     fbookshelf.refreshWindow();
 }
 
-SetBookStackViewAction::SetBookStackViewAction() : ModeDependentAction(Fbookshelf::GRID_MODE) {
-}
-
+//SetBookStackViewAction::SetBookStackViewAction() : ModeDependentAction(Fbookshelf::GRID_MODE) {
+//}
+/*
 void SetBookStackViewAction::run()
 {
     Fbookshelf &fbookshelf = Fbookshelf::Instance();
@@ -48,7 +48,7 @@ void SetBookStackViewAction::run()
 
     fbookshelf.refreshWindow();
 }
-
+)*/
 
 void AddTagDialogAction::run()
 {
@@ -73,8 +73,8 @@ void SortBooksAction::run() {
         if(fbookshelf.mode() == Fbookshelf::GRID_MODE)
             static_cast<GridView&>(*view).updateView(BookshelfModel::SORT_BY_ID);
 
-        if(fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE)
-            static_cast<BookStackView&>(*view).updateView(BookshelfModel::SORT_BY_ID);
+        // if(fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE)
+        //     static_cast<BookStackView&>(*view).updateView(BookshelfModel::SORT_BY_ID);
     }
 
     if(ZLStringOption(ZLCategoryKey::LOOK_AND_FEEL, "ToggleButtonGroup", "booksOrder", "").value() == BookshelfActionCode::SORT_BY_AUTHOR) {
@@ -83,8 +83,8 @@ void SortBooksAction::run() {
         if(fbookshelf.mode() == Fbookshelf::GRID_MODE)
             static_cast<GridView&>(*view).updateView(BookshelfModel::SORT_BY_AUTHOR);
 
-        if(fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE)
-            static_cast<BookStackView&>(*view).updateView(BookshelfModel::SORT_BY_AUTHOR);
+        // if(fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE)
+        //     static_cast<BookStackView&>(*view).updateView(BookshelfModel::SORT_BY_AUTHOR);
     }
 
     if(ZLStringOption(ZLCategoryKey::LOOK_AND_FEEL, "ToggleButtonGroup", "booksOrder", "").value() == BookshelfActionCode::SORT_BY_TITLE) {
@@ -93,8 +93,8 @@ void SortBooksAction::run() {
         if(fbookshelf.mode() == Fbookshelf::GRID_MODE)
             static_cast<GridView&>(*view).updateView(BookshelfModel::SORT_BY_TITLE);
 
-        if(fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE)
-            static_cast<BookStackView&>(*view).updateView(BookshelfModel::SORT_BY_TITLE);
+        // if(fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE)
+        //     static_cast<BookStackView&>(*view).updateView(BookshelfModel::SORT_BY_TITLE);
     }
 
 }
@@ -135,9 +135,9 @@ void ScrollingAction::run() {
         (static_cast<GridView&>(*view)).onMouseScroll(myForward);
     }
 
-    if(fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE) {
-        (static_cast<BookStackView&>(*view)).onMouseScroll(myForward);
-    }
+    // if(fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE) {
+    //     (static_cast<BookStackView&>(*view)).onMouseScroll(myForward);
+    // }
     fbookshelf.refreshWindow();
 
 }

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <cassert>
 #include <string>
@@ -22,7 +23,7 @@ const int ELEMENTS_ON_Y = 3;
 const ZLColor ELEMENT_COLOR = ZLColor(190,190,190);
 const ZLColor ELEMENT_FRAME_COLOR = ZLColor(250,250,250);
 const ZLColor ELEMENT_COLOR_ON_SELECT = ZLColor(210,210,210);
-const ZLColor BACKGROUND_COLOR = ZLColor(255,255,255);
+const ZLColor BACKGROUND_COLOR = ZLColor(210, 180, 140);
 
 const std::string CAPTION = "BookStack";
 
@@ -44,6 +45,7 @@ BookStackView::BookStackView(ZLPaintContext &context) : ZLView(context),
                                               myMouseScrollTo(1),
                                               myElementWidth(myViewWidth / myElementsOnX),
                                               myElementHeight(myViewHeight / myElementsOnY),
+                                              myVecShelf(),
                                               myVecBookshelfElements(),
                                               myItSelectedElement(myVecBookshelfElements.end()),
                                               myItFirstRendering(myVecBookshelfElements.end()),
@@ -62,24 +64,22 @@ const ZLTypeId &BookStackView::typeId() const {
 }
 
 void BookStackView::updateView(BookshelfModel::SortType sort_type) {
-
+   
+    std::cout << "void BookStackView::updateView(BookshelfModel::SortType sort_type)" << std::endl;
     if(mySortType != sort_type || myVecBookshelfElements.empty()) {
         myVecBookshelfElements.clear();
 
-        if(myViewMode == BookStackView::WITHOUT_TAGS_MENU)
-            myViewWidth = context().width();
 
-        if(myViewMode == BookStackView::WITH_TAGS_MENU)
-            myViewWidth = context().width() - myTopLeftX;
+       myViewWidth = context().width();
 
         myElementWidth = myViewWidth / myElementsOnX;
 
         int x1 = myTopLeftX;
         int y1 = myTopleftY;
         int x2 = myTopLeftX + myElementWidth;
-        int y2 = myElementHeight;
+        int y2 = myTopleftY + myElementHeight;
 
-        GridElement element;
+        BookElement element;
 
         std::vector<shared_ptr<Book> > & library = BookshelfModel::Instance().getLibrary(sort_type);
 
@@ -93,21 +93,19 @@ void BookStackView::updateView(BookshelfModel::SortType sort_type) {
             element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
             element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
             element.myBook = *it;
+            
 
-            element.myTitleString = new StringRect(element.myBook->title(), context());
 
             element.myTopLeft.x = x1;
             element.myTopLeft.y = y1;
-            element.myBottomRight.x = x2;
-            element.myBottomRight.y = y2;
-
-            element.myElementColor = ELEMENT_COLOR;
-            element.myFrameColor = ELEMENT_FRAME_COLOR;
+            element.myBottomRight.x = x1 + element.myTitleImage.myWidth;
+            element.myBottomRight.y = y1 + element.myTitleImage.myHeight;
 
             myVecBookshelfElements.push_back(element);
+            
 
             x1 += myElementWidth;
-            x2 += myElementWidth;
+            y1 += 30;
 
             if(x2 > myViewWidth + myTopLeftX)
             {
@@ -116,6 +114,8 @@ void BookStackView::updateView(BookshelfModel::SortType sort_type) {
                 y1 += myElementHeight;
                 y2 += myElementHeight;
             }
+            
+            
         }
 
         myElementMenu.myIsVisible = false;
@@ -128,14 +128,16 @@ void BookStackView::updateView(BookshelfModel::SortType sort_type) {
         setScrollbarEnabled(VERTICAL, true);
         setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
 
-        myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
-        myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
-
+//        myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
+//        myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
+         myItFirstRendering = myVecBookshelfElements.begin();
+         myItLastRendering = myVecBookshelfElements.end();
         mySortType = sort_type;
+        
     }
 
 
-    updateBookshelfElements();
+    updateBookStackElements();
     Fbookshelf::Instance().refreshWindow();
 }
 
@@ -164,7 +166,7 @@ void BookStackView::setMode(BookStackView::ViewMode mode)
     if(myVecBookshelfElements.empty())
         updateView(mySortType);
     else {
-        updateBookshelfElements();
+        updateBookStackElements();
         Fbookshelf::Instance().refreshWindow();
     }
 
@@ -179,7 +181,7 @@ void BookStackView::invertMode()
         setMode(BookStackView::WITHOUT_TAGS_MENU);
 }
 
-std::vector<GridElement>::iterator BookStackView::getSelectedElement() {
+std::vector<BookElement>::iterator BookStackView::getSelectedElement() {
     return myItSelectedElement;
 }
 
@@ -197,7 +199,7 @@ bool BookStackView::onStylusPress(int x, int y) {
         }
     }
 
-    for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
+    for(std::vector<BookElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         if(myElementMenu.myIsVisible) {
             bool state = false;
             if(myElementMenu.checkSelectedElementMenu(x, y, state)) {
@@ -215,9 +217,9 @@ bool BookStackView::onStylusPress(int x, int y) {
 
         if((*it).checkBookOptions(x, y)) {
             myElementMenu.myIsVisible = true;
-            myElementMenu.myTopLeft.x = (*it).myOptionsTopLeft.x -
-                    (myElementMenu.myXOffset - ((*it).myOptionsBottomRight.x - (*it).myOptionsTopLeft.x)) - 1;
-            myElementMenu.myTopLeft.y = (*it).myOptionsBottomRight.y;
+//            myElementMenu.myTopLeft.x = (*it).myOptionsTopLeft.x -
+//                    (myElementMenu.myXOffset - ((*it).myOptionsBottomRight.x - (*it).myOptionsTopLeft.x)) - 1;
+//            myElementMenu.myTopLeft.y = (*it).myOptionsBottomRight.y;
             Fbookshelf::Instance().refreshWindow();
             break;
         }
@@ -264,35 +266,35 @@ bool BookStackView::onStylusMove(int x, int y) {
             Fbookshelf::Instance().refreshWindow();
     }
 
-    for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
-        bool SelectedPrevState = (*it).myIsSelected;
-        bool MenuSelectedPrevState = (*it).myIsMenuSelected;
-
-        if((*it).checkSelectedBook(x, y)) {
-            myItSelectedElement = it;
-
-            if((*it).checkBookOptions(x, y)) {
-                (*it).myIsMenuSelected = true;
-                (*it).myIsSelected = false;
-            }
-            else {
-                (*it).myIsSelected = true;
-                (*it).myIsMenuSelected = false;
-            }
-
-        }
-        else {
-            (*it).myIsSelected = false;
-            (*it).myIsMenuSelected = false;
-        }
-
-        if(myElementMenu.myIsVisible) {
-            (*it).myIsSelected = false;
-            (*it).myIsMenuSelected = false;
-        }
-
-        if((*it).myIsSelected != SelectedPrevState || (*it).myIsMenuSelected != MenuSelectedPrevState)
-            Fbookshelf::Instance().refreshWindow();
+    for(std::vector<BookElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
+//        bool SelectedPrevState = (*it).myIsSelected;
+//        bool MenuSelectedPrevState = (*it).myIsMenuSelected;
+//
+//        if((*it).checkSelectedBook(x, y)) {
+//            myItSelectedElement = it;
+//
+//            if((*it).checkBookOptions(x, y)) {
+//                (*it).myIsMenuSelected = true;
+//                (*it).myIsSelected = false;
+//            }
+//            else {
+//                (*it).myIsSelected = true;
+//                (*it).myIsMenuSelected = false;
+//            }
+//
+//        }
+//        else {
+//            (*it).myIsSelected = false;
+//            (*it).myIsMenuSelected = false;
+//        }
+//
+//        if(myElementMenu.myIsVisible) {
+//            (*it).myIsSelected = false;
+//            (*it).myIsMenuSelected = false;
+//        }
+//
+//        if((*it).myIsSelected != SelectedPrevState || (*it).myIsMenuSelected != MenuSelectedPrevState)
+//            Fbookshelf::Instance().refreshWindow();
     }
 }
 
@@ -371,76 +373,89 @@ void BookStackView::onMouseScroll(bool forward) {
 
 
 
-void BookStackView::updateBookshelfElements() {
-    if(myViewMode == BookStackView::WITHOUT_TAGS_MENU)
+void BookStackView::updateBookStackElements() {
+    myVecShelf.clear();
+  if(myViewMode == GridView::WITHOUT_TAGS_MENU)
         myViewWidth = context().width();
 
-    if(myViewMode == BookStackView::WITH_TAGS_MENU)
+    if(myViewMode == GridView::WITH_TAGS_MENU)
         myViewWidth = context().width() - myTopLeftX;
 
     myViewHeight = context().height();
 
-    myElementWidth = myViewWidth / myElementsOnX;
-    myElementHeight = myViewHeight / myElementsOnY;
+    myElementWidth = 200;
+    myElementHeight = 250;
 
-    int x1 = myTopLeftX;
-    int y1 = myTopleftY;
-    int x2 = myTopLeftX + myElementWidth;
-    int y2 = myElementHeight;
+    int x1 = myTopLeftX + 70;
+    int y1 = myTopleftY + 100;
+    int x2 = myTopLeftX + myElementWidth + 150;
+    int y2 = myElementHeight + 150;
 
-    for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
+    
+    for(std::vector<BookElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         (*it).updatePosition(x1, y1, x2, y2);
 
-        x1 += myElementWidth;
-        x2 += myElementWidth;
+        x1 += myElementWidth + 20;
+        x2 += myElementWidth + 20;
 
-        if(x2 > myViewWidth + myTopLeftX) {
-            x1 = myTopLeftX;
+        if(x2 > myViewWidth - 120) {
+            x1 = myTopLeftX + 70;
             x2 = myTopLeftX + myElementWidth;
-            y1 += myElementHeight;
-            y2 += myElementHeight;
+            y1 += myElementHeight + 100;
+            y2 += myElementHeight + 100;
         }
     }
-
+    int numberOfShelfs = ceil(myViewWidth / myElementWidth);
+    int i = 0;
+    while(i < numberOfShelfs) {
+        myVecShelf.push_back(Shelf((i + 1) * 350, myViewWidth));
+        i++;
+    }
 
 }
 
 
 
 void BookStackView::updateScrollDown() {
-    if(myItLastRendering + myElementsOnX <= myVecBookshelfElements.end()){
-        myItFirstRendering += myElementsOnX;
-        myItLastRendering += myElementsOnX;
-    }
-    else {
-        myItLastRendering = myItFirstRendering = myVecBookshelfElements.end();
-        myItFirstRendering -= myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
-    }
+//    if(myItLastRendering + myElementsOnX <= myVecBookshelfElements.end()){
+//        myItFirstRendering += myElementsOnX;
+//        myItLastRendering += myElementsOnX;
+//    }
+//    else {
+//        myItLastRendering = myItFirstRendering = myVecBookshelfElements.end();
+//        myItFirstRendering -= myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
+//    }
+//
+//    assert(myItFirstRendering <= myItLastRendering);
+//    assert(myItFirstRendering >= myVecBookshelfElements.begin() && myItFirstRendering < myVecBookshelfElements.end());
+//    assert(myItLastRendering > myVecBookshelfElements.begin() && myItLastRendering <= myVecBookshelfElements.end());
 
-    assert(myItFirstRendering <= myItLastRendering);
-    assert(myItFirstRendering >= myVecBookshelfElements.begin() && myItFirstRendering < myVecBookshelfElements.end());
-    assert(myItLastRendering > myVecBookshelfElements.begin() && myItLastRendering <= myVecBookshelfElements.end());
-
-    updateBookshelfElements();
+    updateBookStackElements();
+//    updateBookStack();
+    myItFirstRendering = myVecBookshelfElements.begin();
+    myItLastRendering = myVecBookshelfElements.end();
     Fbookshelf::Instance().refreshWindow();
 }
 
 void BookStackView::updateScrollUp()
 {
-    if(myItFirstRendering - myElementsOnX >= myVecBookshelfElements.begin()){
-        myItFirstRendering -= myElementsOnX;
-        myItLastRendering -= myElementsOnX;
-    }
-    else {
-        myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
-        myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
-    }
+//    if(myItFirstRendering - myElementsOnX >= myVecBookshelfElements.begin()){
+//        myItFirstRendering -= myElementsOnX;
+//        myItLastRendering -= myElementsOnX;
+//    }
+//    else {
+//        myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
+//        myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
+//    }
+//
+//    assert(myItFirstRendering <= myItLastRendering);
+//    assert(myItFirstRendering >= myVecBookshelfElements.begin() && myItFirstRendering < myVecBookshelfElements.end());
+//    assert(myItLastRendering > myVecBookshelfElements.begin() && myItLastRendering <= myVecBookshelfElements.end());
 
-    assert(myItFirstRendering <= myItLastRendering);
-    assert(myItFirstRendering >= myVecBookshelfElements.begin() && myItFirstRendering < myVecBookshelfElements.end());
-    assert(myItLastRendering > myVecBookshelfElements.begin() && myItLastRendering <= myVecBookshelfElements.end());
-
-    updateBookshelfElements();
+    updateBookStackElements();
+//    updateBookStack();
+    myItFirstRendering = myVecBookshelfElements.begin();
+    myItLastRendering = myVecBookshelfElements.end();
     Fbookshelf::Instance().refreshWindow();
 }
 
@@ -449,20 +464,21 @@ void BookStackView::updateScrollUp()
 void BookStackView::drawBookshelfElements() {
     if(myViewMode == BookStackView::WITHOUT_TAGS_MENU) {
         if(context().width() != myViewWidth || context().height() != myViewHeight) {
-            updateBookshelfElements();
+            updateBookStackElements();
         }
     }
 
     if(myViewMode == BookStackView::WITH_TAGS_MENU) {
         if(context().width() != myViewWidth + myTopLeftX || context().height() != myViewHeight) {
-            updateBookshelfElements();
+            updateBookStackElements();
         }
     }
 
 
-    for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
+    for(std::vector<BookElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         (*it).drawElement(context());
     }
+
 }
 
 
@@ -470,6 +486,12 @@ void BookStackView::drawBookshelfElements() {
 void BookStackView::drawBackground() {
     context().setFillColor(myBackgroundColor);
     context().fillRectangle(0,0,context().width(),context().height());
+    context().setFillColor(ZLColor(153, 131, 102));
+    context().fillRectangle(0, 0, 70, myViewHeight);
+    context().fillRectangle(myViewWidth, 0, myViewWidth - 70, myViewHeight);
+    context().setColor(ZLColor(0, 0, 0));
+    context().drawLine(70, 0, 70, myViewHeight);
+    context().drawLine(myViewWidth - 70, 0, myViewWidth - 70, myViewHeight);
 }
 
 
@@ -496,9 +518,43 @@ void BookStackView::paint() {
         }
     }
 
-    drawBookshelfElements();
+    
     if(myElementMenu.myIsVisible)
-        myElementMenu.draw();
+        myElementMenu.draw();    drawBackground();
+
+    if(!myTagsMenu.isNull()) {
+        if(myTagsMenu->myIsVisible) {
+            myTagsMenu->checkFont();
+            myTagsMenu->draw();
+        }
+    }
+    drawBookStack();
+    drawBookshelfElements();
 
 }
 
+void BookStackView::drawBookStack() {
+//    updateBookshelfElements();
+    for(std::vector<Shelf>::iterator it = myVecShelf.begin(); it != myVecShelf.end(); ++it) {
+        (*it).draw(context());
+    }
+}
+
+void BookStackView::updateBookStack() {
+//    if(myViewMode == BookStackView::WITHOUT_TAGS_MENU)
+//        myViewWidth = context().width();
+//
+//    if(myViewMode == BookStackView::WITH_TAGS_MENU)
+//        myViewWidth = context().width() - myTopLeftX;
+//
+//    myViewHeight = context().height();
+//
+//    myElementWidth = myViewWidth / myElementsOnX;
+//    myElementHeight = myViewHeight / myElementsOnY;
+//
+//    int x1 = myTopLeftX;
+//    int y1 = myTopleftY;
+//    int x2 = myTopLeftX + myElementWidth;
+//    int y2 = myElementHeight;
+
+}

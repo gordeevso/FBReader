@@ -10,6 +10,7 @@
 #include <ZLPaintContext.h>
 
 #include "GridElements.h"
+#include "BookStackElements.h"
 #include "BookshelfMenu.h"
 #include "GridContextMenu.h"
 
@@ -37,7 +38,7 @@ public:
     void setMode(ViewMode);
     void invertMode();
 
-    std::vector<GridElement>::iterator getSelectedElement();
+    std::vector<BookElement>::iterator getSelectedElement();
 
     bool onStylusPress(int x, int y);
     bool onStylusMovePressed(int x, int y);
@@ -54,12 +55,15 @@ public:
     static const ZLTypeId TYPE_ID;
 
 private:
-    void updateBookshelfElements();
+    void updateBookStackElements();
     void updateScrollDown();
     void updateScrollUp();
 
     void drawBookshelfElements();
     void drawBackground();
+    
+    void updateBookStack();
+    void drawBookStack();
 
     const std::string &caption() const;
     void paint();
@@ -89,10 +93,12 @@ private:
     int myElementWidth;
     int myElementHeight;
 
-    std::vector<GridElement> myVecBookshelfElements;
-    std::vector<GridElement>::iterator myItSelectedElement;
-    std::vector<GridElement>::iterator myItFirstRendering;
-    std::vector<GridElement>::iterator myItLastRendering;
+    std::vector<BookElement> myVecBookshelfElements;
+    std::vector<BookElement>::iterator myItSelectedElement;
+    std::vector<BookElement>::iterator myItFirstRendering;
+    std::vector<BookElement>::iterator myItLastRendering;
+    
+    std::vector<Shelf> myVecShelf;
 
     GridContextMenu myElementMenu;
     shared_ptr<BookshelfMenu> myTagsMenu;

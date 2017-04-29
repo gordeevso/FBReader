@@ -103,6 +103,15 @@ void Fbookshelf::initWindow() {
     trackStylus(true);
 
     BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
+    BooksMap::iterator it = BookshelfModel::Instance().getLibrary().begin();
+    BooksMap::iterator itEnd = BookshelfModel::Instance().getLibrary().end();
+    for(; it != itEnd; ++it)
+    {
+        if((*it).second->title() == "About FBReader") {
+            BookshelfModel::Instance().getLibrary().erase(it);
+        }
+    }
+            
 
     shared_ptr<ZLView> view = this->currentView();
     if(view->isInstanceOf(GridView::TYPE_ID)) {

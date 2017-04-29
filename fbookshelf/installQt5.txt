@@ -1,0 +1,3 @@
+1. Download Qt from https://www.qt.io/download-open-source/?hsCtaTracking=f977210e-de67-475f-a32b-65cec207fd03%7Cd62710cd-e1db-46aa-8d4d-2f1c1ffdacea
+2. qtchooser -install qt5-manual <path to qmake> 
+

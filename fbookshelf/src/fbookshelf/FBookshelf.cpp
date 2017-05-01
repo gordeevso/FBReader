@@ -1,7 +1,8 @@
 #include <cassert>
 #include <queue>
 #include <iostream>
-
+#include <sstream>
+#include <string>
 #include <ZLibrary.h>
 #include <ZLFile.h>
 #include <ZLDialogManager.h>
@@ -131,23 +132,28 @@ void Fbookshelf::initWindow() {
         std::string content = downloader.download(url);
         OPDSSimpleParser parser(content);
         parser.parse();
-        BooksMap& netLib = BookshelfModel::Instance().getLibrary();
-        for (int i = 1; i < parser.OPDS_Title_nodes.size(); i++){
+        std::string baseString = "";
+        std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfModel::Instance().getLibrary();
+        for (int i = 0; i < parser.OPDS_Title_nodes.size(); i++){
             std::string title =  parser.OPDS_Title_nodes[i];
-            std::cout << i << std::endl;
-            shared_ptr<Book> book = Book::createBook(
-                ZLFile("/home/sabrina/Dostoevskiyi_F._Idiot.fb2"), i,
+            //std::cout << i << std::endl;
+            shared_ptr<Book> bookptr = Book::createBook(
+                ZLFile(title), i,
                 "English",
                 "English",
                 title
             );
-            netLib.insert(std::make_pair("",book));
+            baseString += "a";
+            //std::cout << booksmap.size() << std::endl;
+            booksmap.insert(std::make_pair(baseString,bookptr));
+            //std::cout << "OK" << std::endl;
         }
-
         shared_ptr<ZLView> view = this->currentView();
+
         if(view->isInstanceOf(WebView::TYPE_ID)) {
             static_cast<WebView&>(*view).setMode(WebView::WITHOUT_TAGS_MENU);
         }
+
     }
     else{
         BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());

@@ -80,12 +80,13 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
         int y2 = myElementHeight;
 
         WebElement element;
-
+        //std::cout << "OKI" << std::endl;
         std::vector<shared_ptr<Book> > & library = BookshelfModel::Instance().getLibrary(sort_type);
+        
+        std::cout << library.size() << std::endl;
+        std::vector<shared_ptr<Book> >::iterator it = library.begin();
 
-        std::vector<shared_ptr<Book> >::const_iterator it = library.begin();
-        std::vector<shared_ptr<Book> >::const_iterator itEnd = library.end();
-
+        std::vector<shared_ptr<Book> >::iterator itEnd = library.end();
         for(; it != itEnd; ++it) {
 
 //            BookModel model(*it);
@@ -135,7 +136,7 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
         mySortType = sort_type;
     }
 
-
+    
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();
 }
@@ -161,15 +162,13 @@ void WebView::setMode(WebView::ViewMode mode)
 
         myViewMode = mode;
     }
-
-    if(myVecBookshelfElements.empty())
+    if(myVecBookshelfElements.empty()){
         updateView(mySortType);
+    }
     else {
         updateBookshelfElements();
         Fbookshelf::Instance().refreshWindow();
     }
-
-
 }
 
 void WebView::invertMode()

@@ -1,3 +1,11 @@
 1. Download Qt from https://www.qt.io/download-open-source/?hsCtaTracking=f977210e-de67-475f-a32b-65cec207fd03%7Cd62710cd-e1db-46aa-8d4d-2f1c1ffdacea
-2. qtchooser -install qt5-manual <path to qmake> 
+2. qtchooser -install qt5-manual <path to qmake> // You should choose the path to qmake of version 5 or higher. It usually is stored in home/Qt/5.8
+3. change the path in FBReader/cookieUtility/mainwindow.cpp line 81 to path to your FBReader folder 
+4. Run usuall make install
+5. run FBookshelf net
+Run it for now only from fbookshelf folder, because cookies would not be found other way (will be fixed soon)
+6. Click save all button in Webview after login and then close the window
+This window may occur twice
+Probably you would get a segmentation fault now
+
 

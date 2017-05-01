@@ -51,7 +51,8 @@ APPIMAGEDIR_REAL = $(subst %application_name%,$(target),$(subst %APPLICATION_NAM
 do_install:
 	@install -d $(DESTDIR)$(BINDIR)
 #	@install $(TARGET) $(DESTDIR)$(BINDIR)/FBReader
-	@install $(TARGET) $(DESTDIR)$(BINDIR)/FBookshelf
+	@install $(ROOTDIR)/cookieUtility/cookiebrowser $(DESTDIR)$(BINDIR)/cookiebrowser
+	@install $(TARGET) $(BINDIR)/FBookshelf
 	@install -d $(FBSHAREDIR)
 	@install -d $(FBSHAREDIR)/help
 	@./scripts/install_help.sh $(VARIANT) $(FBSHAREDIR)/help

@@ -78,12 +78,10 @@ void MainWindow::handleCookieAdded(const QNetworkCookie &cookie)
 
 void MainWindow::handleSaveAllClicked()
 {
-    std::ofstream fout("/home/sabrina/FBReader/OPDSExtractor/src/cookie.txt");
-    std::cout << std::endl;
+    std::ofstream fout("/home/sabrina/bookshelf/FBReader/fbookshelf/src/OPDSExtractor/cookie.txt");
     for (auto c: m_cookies) {
         if (c.domain() == ".fbreader.org" || c.domain() == "books.fbreader.org")
             fout << c.name().constData() << "=" <<c.value().constData() << "; ";
-            std::cout <<  c.name().constData() << "=" <<c.value().constData() << "; ";
     }
    // m_store->deleteAllCookies();
 }

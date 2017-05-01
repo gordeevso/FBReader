@@ -24,7 +24,7 @@ OPDSDownloader::~OPDSDownloader() {
 }
 
 void OPDSDownloader::googleOAuth(){
-    //std::system("cookieUtility/cookiebrowser");
+    std::system("cookiebrowser");
 }
 
 std::string OPDSDownloader::download(const std::string &url) {
@@ -36,10 +36,9 @@ std::string OPDSDownloader::download(const std::string &url) {
     std::stringstream out;
     do{
         if (tried){
-           // googleOAuth();
+           googleOAuth();
         }
-        std::ifstream fin("/home/sabrina/bookshelf/FBReader/fbookshelf/src/OPDSExtractor/cookie.txt");
-        std::cout << "failed finding cookie";
+        std::ifstream fin("src/OPDSExtractor/cookie.txt");
         std::string s;
         std::getline(fin, s);
 

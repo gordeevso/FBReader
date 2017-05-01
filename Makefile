@@ -5,9 +5,9 @@ include makefiles/platforms.mk
 ZLIBDIRS = zlibrary/core zlibrary/text zlibrary/ui
 #APPDIRS = fbreader 
 APPDIRS = fbookshelf 
-
+WEBVIEW = cookieUtility
 all:
-	@for dir in $(ZLIBDIRS) $(APPDIRS); do \
+	for dir in $(ZLIBDIRS) $(APPDIRS); do \
 		if [ -d $$dir ]; then \
 			cd $$dir; \
 			if ! $(MAKE); then \
@@ -15,7 +15,13 @@ all:
 			fi; \
 			cd $(ROOTDIR); \
 		fi; \
-	done;
+	done; \
+	for dir in $(WEBVIEW); do \
+		cd $$dir;\
+		bash mk.sh; \
+		cd $(ROOTDIR); \
+	done; \
+	
 
 install: all do_install
 

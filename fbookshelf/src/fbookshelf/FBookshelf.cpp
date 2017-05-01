@@ -112,7 +112,7 @@ void Fbookshelf::initWindow() {
         OPDSSimpleParser parser(content);
         parser.parse();
         BooksMap& netLib = BookshelfModel::Instance().getLibrary();
-        for (int i = 0; i < parser.OPDS_Title_nodes.size(); i++){
+        for (int i = 1; i < parser.OPDS_Title_nodes.size(); i++){
             std::string title =  parser.OPDS_Title_nodes[i];
             std::cout << i << std::endl;
             shared_ptr<Book> book = Book::createBook(

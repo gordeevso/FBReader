@@ -93,10 +93,10 @@ private:
     int myElementWidth;
     int myElementHeight;
 
-    std::vector<BookElement> myVecBookshelfElements;
-    std::vector<BookElement>::iterator myItSelectedElement;
-    std::vector<BookElement>::iterator myItFirstRendering;
-    std::vector<BookElement>::iterator myItLastRendering;
+    std::vector<BookStackElement> myVecBookshelfElements;
+    std::vector<BookStackElement>::iterator myItSelectedElement;
+    std::vector<BookStackElement>::iterator myItFirstRendering;
+    std::vector<BookStackElement>::iterator myItLastRendering;
     
     std::vector<Shelf> myVecShelf;
 
@@ -108,4 +108,3 @@ private:
 
 
 #endif // BOOKSTACKVIEW
-

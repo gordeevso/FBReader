@@ -14,6 +14,7 @@
 #include "FBookshelf.h"
 #include "GridView.h"
 #include "BookStackView.h"
+#include "WebView.h"
 
 #include "BookshelfActions.h"
 
@@ -32,15 +33,24 @@ Fbookshelf &Fbookshelf::Instance() {
 Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshelf"),
                                                         myBindings0(new ZLKeyBindings("Keys"))
 {
-    if (bookToOpen != ""){
-        netVsLibMode = bookToOpen;
-    }
-    myViewMode = GRID_MODE;
-
     myGridView = new GridView(*context());
     myBookStackView = new BookStackView(*context());
+    myWebView = new WebView(*context());
 
-    setView(myGridView);
+    if (bookToOpen != ""){
+        netVsLibMode = bookToOpen;
+
+        myViewMode = WEB_MODE;
+        setView(myWebView);
+
+    }
+    else {
+        myViewMode = GRID_MODE;
+        setView(myGridView);
+
+    }
+
+
 
     addAction(BookshelfActionCode::SET_GRIDVIEW, new SetGridViewAction());
     addAction(BookshelfActionCode::SET_BOOKSTACKVIEW, new SetBookStackViewAction());
@@ -75,6 +85,10 @@ void Fbookshelf::setMode(Fbookshelf::ViewMode mode) {
         static_cast<BookStackView&>(*myBookStackView).setMode(BookStackView::WITHOUT_TAGS_MENU);
         setView(myBookStackView);
         break;
+    case WEB_MODE:
+        static_cast<WebView&>(*myWebView).setMode(WebView::WITHOUT_TAGS_MENU);
+        setView(myWebView);
+        break;
     default:
         break;
     }
@@ -93,6 +107,11 @@ shared_ptr<ZLView> Fbookshelf::getGridView()
 shared_ptr<ZLView> Fbookshelf::getBookStackView()
 {
     return myBookStackView;
+}
+
+shared_ptr<ZLView> Fbookshelf::getWebView()
+{
+    return myWebView;
 }
 
 
@@ -124,6 +143,11 @@ void Fbookshelf::initWindow() {
             );
             netLib.insert(std::make_pair("",book));
         }
+
+        shared_ptr<ZLView> view = this->currentView();
+        if(view->isInstanceOf(WebView::TYPE_ID)) {
+            static_cast<WebView&>(*view).setMode(WebView::WITHOUT_TAGS_MENU);
+        }
     }
     else{
         BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
@@ -135,13 +159,19 @@ void Fbookshelf::initWindow() {
                 BookshelfModel::Instance().getLibrary().erase(it);
             }
         }
+
+//        shared_ptr<ZLView> view = this->currentView();
+//        if(view->isInstanceOf(WebView::TYPE_ID)) {
+//            static_cast<WebView&>(*view).setMode(WebView::WITHOUT_TAGS_MENU);
+//        }
+        shared_ptr<ZLView> view = this->currentView();
+        if(view->isInstanceOf(GridView::TYPE_ID)) {
+            static_cast<GridView&>(*view).setMode(GridView::WITHOUT_TAGS_MENU);
+        }
     }
             
 
-    shared_ptr<ZLView> view = this->currentView();
-    if(view->isInstanceOf(GridView::TYPE_ID)) {
-        static_cast<GridView&>(*view).setMode(GridView::WITHOUT_TAGS_MENU);
-    }
+
 
     refreshWindow();
 

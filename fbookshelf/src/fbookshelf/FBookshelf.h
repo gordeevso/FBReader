@@ -29,6 +29,7 @@
 #include <ZLOptions.h>
 
 #include "GridView.h"
+#include "WebView.h"
 #include "BookStackView.h"
 
 #include "../library/BookshelfModel.h"
@@ -51,6 +52,7 @@ public:
         UNDEFINED_MODE = 0,
         GRID_MODE = 1 << 0,
         BOOKSTACK_MODE = 1 << 1,
+        WEB_MODE = 1 << 2,
         ALL_MODES = 0xFF
     };
 
@@ -63,6 +65,7 @@ public:
 
     shared_ptr<ZLView> getGridView();
     shared_ptr<ZLView> getBookStackView();
+    shared_ptr<ZLView> getWebView();
 
     shared_ptr<ZLKeyBindings> keyBindings();
 
@@ -75,6 +78,7 @@ private:
     shared_ptr<ZLKeyBindings> myBindings0;
     shared_ptr<ZLView> myGridView;
     shared_ptr<ZLView> myBookStackView;
+    shared_ptr<ZLView> myWebView;
     ViewMode myViewMode;
     std::string netVsLibMode;
 

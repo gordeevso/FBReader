@@ -7,6 +7,7 @@
 #include <string>
 #include <unistd.h>
 #include <sys/types.h>
+
 CookieWidget::CookieWidget(const QNetworkCookie &cookie, QWidget *parent): QWidget(parent)
 {
     setupUi(this);
@@ -40,7 +41,7 @@ MainWindow::MainWindow(const QUrl &url) :
     w->setLayout(m_layout);
 
     connect(SaveAll, &QPushButton::clicked, this, &MainWindow::handleSaveAllClicked);
-
+    connect(LogOut,  &QPushButton::clicked, this, &MainWindow::handleLogOutClicked);
     m_store = m_webview->page()->profile()->cookieStore();
     connect(m_store, &QWebEngineCookieStore::cookieAdded, this, &MainWindow::handleCookieAdded);
     m_store->loadAllCookies();
@@ -58,25 +59,13 @@ bool MainWindow::containsCookie(const QNetworkCookie &cookie)
 
 void MainWindow::handleCookieAdded(const QNetworkCookie &cookie)
 {
-    // only new cookies
-    if (containsCookie(cookie))
+    /*if (containsCookie(cookie))
         return;
-
+*/
     CookieWidget *widget = new CookieWidget(cookie);
     widget->setHighlighted(m_cookies.count() % 2);
     m_cookies.append(cookie);
     m_layout->insertWidget(0,widget);
-
-    connect(widget, &CookieWidget::deleteClicked, [this, cookie, widget]() {
-        m_store->deleteCookie(cookie);
-        delete widget;
-        m_cookies.removeOne(cookie);
-        for (int i = 0; i < m_layout->count() - 1; i++) {
-            // fix background colors
-            auto widget = qobject_cast<CookieWidget*>(m_layout->itemAt(i)->widget());
-            widget->setHighlighted(i % 2);
-        }
-    });
 }
 
 std::string getHomeDir(){
@@ -89,6 +78,17 @@ std::string getHomeDir(){
     return TestFileName;
 }
 
+void MainWindow::handleLogOutClicked()
+{
+    m_store->deleteAllCookies();
+    for (int i = m_layout->count() - 1; i >= 0; i--)
+        delete m_layout->itemAt(i)->widget();
+    m_cookies.clear();
+    handleSaveAllClicked();
+    m_webview->reload();
+}
+
+
 void MainWindow::handleSaveAllClicked()
 {
     std::string filepath = getHomeDir() + "/FBookshelfNet/cookie.txt";
@@ -97,5 +97,4 @@ void MainWindow::handleSaveAllClicked()
         if (c.domain() == ".fbreader.org" || c.domain() == "books.fbreader.org")
             fout << c.name().constData() << "=" <<c.value().constData() << "; ";
     }
-   // m_store->deleteAllCookies();
 }

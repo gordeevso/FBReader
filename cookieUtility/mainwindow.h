@@ -33,6 +33,7 @@ private:
 private slots:
     void handleCookieAdded(const QNetworkCookie &cookie);
     void handleSaveAllClicked();
+    void handleLogOutClicked();
 
 private:
     QWebEngineCookieStore *m_store;

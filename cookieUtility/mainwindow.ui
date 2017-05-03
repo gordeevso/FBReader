@@ -105,6 +105,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="LogOut">
+            <property name="text">
+             <string>Log out</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

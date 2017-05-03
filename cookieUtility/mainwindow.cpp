@@ -1,9 +1,12 @@
 #include "mainwindow.h"
 #include <QWebEngineCookieStore>
 #include <QWebEngineProfile>
-#include <fstream>;
+#include <fstream>
 #include <iostream>
-
+#include <pwd.h>
+#include <string>
+#include <unistd.h>
+#include <sys/types.h>
 CookieWidget::CookieWidget(const QNetworkCookie &cookie, QWidget *parent): QWidget(parent)
 {
     setupUi(this);
@@ -76,9 +79,20 @@ void MainWindow::handleCookieAdded(const QNetworkCookie &cookie)
     });
 }
 
+std::string getHomeDir(){
+    int myuid;
+    passwd *mypasswd;
+    std::string TestFileName;
+    myuid = getuid();
+    mypasswd = getpwuid(myuid);
+    TestFileName= mypasswd->pw_dir;
+    return TestFileName;
+}
+
 void MainWindow::handleSaveAllClicked()
 {
-    std::ofstream fout("/home/sabrina/bookshelf/FBReader/fbookshelf/src/OPDSExtractor/cookie.txt");
+    std::string filepath = getHomeDir() + "/FBookshelfNet/cookie.txt";
+    std::ofstream fout(filepath);
     for (auto c: m_cookies) {
         if (c.domain() == ".fbreader.org" || c.domain() == "books.fbreader.org")
             fout << c.name().constData() << "=" <<c.value().constData() << "; ";

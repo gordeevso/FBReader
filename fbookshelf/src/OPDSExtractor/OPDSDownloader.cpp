@@ -7,7 +7,12 @@
 #include <iostream>
 #include <cstdlib>
 #include <stdio.h>
+#include <string>
 #include <string.h>
+#include <pwd.h>
+#include <unistd.h>
+#include <sys/types.h>
+
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
     std::string data((const char*) ptr, (size_t) size * nmemb);
@@ -27,6 +32,16 @@ void OPDSDownloader::googleOAuth(){
     std::system("cookiebrowser");
 }
 
+std::string getHomeDir(){
+    int myuid;
+    passwd *mypasswd;
+    std::string TestFileName;
+    myuid = getuid();
+    mypasswd = getpwuid(myuid);
+    TestFileName= mypasswd->pw_dir;
+    return TestFileName;
+}
+
 std::string OPDSDownloader::download(const std::string &url) {
     curl_easy_setopt(curl, CURLOPT_AUTOREFERER, 1 );
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1 );
@@ -38,7 +53,8 @@ std::string OPDSDownloader::download(const std::string &url) {
         if (tried){
            googleOAuth();
         }
-        std::ifstream fin("src/OPDSExtractor/cookie.txt");
+        std::string filepath = getHomeDir() + "/FBookshelfNet/cookie.txt";
+        std::ifstream fin(filepath.c_str());
         std::string s;
         std::getline(fin, s);
 

@@ -50,6 +50,10 @@ WebView::WebView(ZLPaintContext &context) : ZLView(context),
                                               myItLastRendering(myVecBookshelfElements.end())
 //                                              myElementMenu(context)
 {
+    ZLFile imageFile("/usr/share/pixmaps/FBookshelf/title.png");
+    myTitleImage = new ZLFileImage(imageFile, 0);
+
+
 //    std::vector<std::string> tags;
 //    Tag::collectTagNames(tags);
 //    myTagsMenu = new BookshelfMenu(context, tags);
@@ -89,10 +93,10 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
         std::vector<shared_ptr<Book> >::iterator itEnd = library.end();
         for(; it != itEnd; ++it) {
 
-//            BookModel model(*it);
+            BookModel model(*it);
 
-//            element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
-//            element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
+            element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(myTitleImage));
+            element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
             element.myBook = *it;
 
             element.myTitleString = new StringRect(element.myBook->title(), context());
@@ -122,10 +126,10 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
         myItSelectedElement = myVecBookshelfElements.begin();
 //        myElementMenu.myIsVisible = false;
 
-//        if(myVecBookshelfElements.size() > myRenderingElementsCount) {
-//            myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
-//            ++myScrollBarMaxPos;
-//        }
+        if(myVecBookshelfElements.size() > myRenderingElementsCount) {
+            myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
+            ++myScrollBarMaxPos;
+        }
 
         setScrollbarEnabled(VERTICAL, true);
         setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);

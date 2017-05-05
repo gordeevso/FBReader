@@ -8,6 +8,7 @@
 
 #include <ZLView.h>
 #include <ZLPaintContext.h>
+#include <ZLFileImage.h>
 
 #include "WebElements.h"
 #include "BookshelfMenu.h"
@@ -95,6 +96,7 @@ private:
     std::vector<WebElement>::iterator myItFirstRendering;
     std::vector<WebElement>::iterator myItLastRendering;
 
+    shared_ptr<ZLFileImage> myTitleImage;
 //    GridContextMenu myElementMenu;
 //    shared_ptr<BookshelfMenu> myTagsMenu;
 

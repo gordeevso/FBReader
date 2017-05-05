@@ -169,7 +169,7 @@ WebElement::WebElement(Point topLeft,
                          ZLColor elementColor,
                          ZLColor frameColor,
                          shared_ptr<Book> book,
-//                         shared_ptr<ZLImageData> imagedata,
+                         shared_ptr<ZLImageData> imagedata,
                          bool selected
 //                         bool menuselected
                        )
@@ -180,7 +180,7 @@ WebElement::WebElement(Point topLeft,
       myElementColor(elementColor),
       myFrameColor(frameColor),
       myTitleString(),
-//      myTitleImage(),
+      myTitleImage(),
       myIsSelected(selected)
 //      myIsMenuSelected(menuselected)
 {}
@@ -202,7 +202,7 @@ void WebElement::updatePosition(int x1, int y1, int x2, int y2)
     myOptionsBottomRight.x = myOptionsTopLeft.x + options_width;
     myOptionsBottomRight.y = myOptionsTopLeft.y + options_height;
 
-//    myTitleImage.updatePosition(x1, y1, x2, y2);
+    myTitleImage.updatePosition(x1, y1, x2, y2);
     myTitleString->updatePosition(x1, y1, x2, y2);
 }
 
@@ -239,7 +239,7 @@ void WebElement::drawElement(ZLPaintContext &painter)
     painter.drawLine(myBottomRight.x, myBottomRight.y, myTopLeft.x, myBottomRight.y);
     painter.drawLine(myTopLeft.x, myBottomRight.y, myTopLeft.x, myTopLeft.y);
 
-//    myTitleImage.draw(painter);
+    myTitleImage.draw(painter);
     myTitleString->draw();
 
 //    drawOptions(painter);

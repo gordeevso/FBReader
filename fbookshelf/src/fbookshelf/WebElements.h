@@ -78,7 +78,7 @@ struct WebElement
                      ZLColor elementColor = ZLColor(),
                      ZLColor frameColor = ZLColor(),
                      shared_ptr<Book> book = 0,
-//                     shared_ptr<ZLImageData> imagedata = 0,
+                     shared_ptr<ZLImageData> imagedata = 0,
                      bool selected = false
 //                     bool menuselected = false
             );
@@ -103,7 +103,7 @@ public:
     ZLColor myFrameColor;
     shared_ptr<Book> myBook;
     shared_ptr<StringRect> myTitleString;
-//    ImageRect myTitleImage;
+    ImageRect myTitleImage;
     bool myIsSelected;
 //    bool myIsMenuSelected;
 };

@@ -237,18 +237,15 @@ bool WebView::onStylusMovePressed(int x, int y) {
 }
 
 bool WebView::onStylusRelease(int x, int y) {
-//    for(std::vector<WebElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
+    for(std::vector<WebElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
 
-//        if(it == myItSelectedElement &&
-//           (*it).checkSelectedBook(x, y) &&
-//           !(*it).checkBookOptions(x, y) &&
-//           !myElementMenu.myIsVisible &&
-//           !myElementMenu.myIsSelected) {
-
-//            Fbookshelf::Instance().doAction(BookshelfActionCode::RUN_FBREADER);
-//            break;
-//        }
-//    }
+        if(it == myItSelectedElement &&
+           (*it).checkSelectedBook(x, y)) {
+            std::cout << "do action release\n";
+            Fbookshelf::Instance().doAction(BookshelfActionCode::RUN_FBREADER);
+            break;
+        }
+    }
     return true;
 }
 

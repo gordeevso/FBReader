@@ -34,17 +34,16 @@ public:
 
     void setCaption(const std::string &caption);
     void updateView(BookshelfModel::SortType);
+    void resizeElements(bool smaller);
     void setMode(ViewMode);
     void invertMode();
 
     std::vector<GridElement>::iterator getSelectedElement();
 
     bool onStylusPress(int x, int y);
-    bool onStylusMovePressed(int x, int y);
     bool onStylusRelease(int x, int y);
     bool onStylusMove(int x, int y);
 
-    void onScrollbarStep(ZLView::Direction direction, int steps);
     void onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to);
     void onScrollbarPageStep(ZLView::Direction direction, int steps);
 
@@ -80,7 +79,7 @@ private:
 
     int myElementsOnX;
     int myElementsOnY;
-    int myRenderingElementsCount;
+    size_t myRenderingElementsCount;
 
     size_t myScrollBarPos;
     size_t myScrollBarMaxPos;

@@ -80,7 +80,7 @@ void BookshelfModel::buildVecLibrary(BookshelfModel::SortType sort_type)
         for(BooksMap::const_iterator it = it_begin; it != it_end; ++it)
         {
             myVecLibrarySortedByAuthors.push_back((*it).second);
-            //std::sort(myVecLibrarySortedByAuthors.begin(), myVecLibrarySortedByAuthors.end(), author_comp);
+            std::sort(myVecLibrarySortedByAuthors.begin(), myVecLibrarySortedByAuthors.end(), author_comp);
         }   
     }
     if(sort_type == SORT_BY_TITLE)
@@ -88,7 +88,7 @@ void BookshelfModel::buildVecLibrary(BookshelfModel::SortType sort_type)
         for(BooksMap::const_iterator it = it_begin; it != it_end; ++it)
         {
             myVecLibrarySortedByTitles.push_back((*it).second);
-            //std::sort(myVecLibrarySortedByTitles.begin(), myVecLibrarySortedByTitles.end(), title_comp);
+            std::sort(myVecLibrarySortedByTitles.begin(), myVecLibrarySortedByTitles.end(), title_comp);
         }   
     }
     if(sort_type == SORT_BY_ID)
@@ -96,7 +96,7 @@ void BookshelfModel::buildVecLibrary(BookshelfModel::SortType sort_type)
         for(BooksMap::const_iterator it = it_begin; it != it_end; ++it)
         {
             myVecLibrarySortedByIds.push_back((*it).second);
-            //std::sort(myVecLibrarySortedByIds.begin(), myVecLibrarySortedByIds.end(), bookId_comp);
+            std::sort(myVecLibrarySortedByIds.begin(), myVecLibrarySortedByIds.end(), bookId_comp);
         }   
     }
 }

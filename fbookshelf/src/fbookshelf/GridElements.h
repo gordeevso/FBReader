@@ -50,20 +50,20 @@ struct StringRect
     ~StringRect()
     {}
 
-    void updateFont(int x1, int y1, int x2, int y2);
+    void updateFont(int y1, int y2);
     void updatePosition(int x1, int y1, int x2, int y2);
     void draw();
     void divideStr(std::string & s1, std::string & s2);
 
     public:
-
+        std::string const & myRefStr;
+        ZLPaintContext & myRefPainter;
         int myX;
         int myY;
         int myXr;
         int myYr;
         int myFontSize;
-        std::string const & myRefStr;
-        ZLPaintContext & myRefPainter;
+
 };
 
 struct GridElement
@@ -74,8 +74,6 @@ struct GridElement
                      Point optbottomright = Point(),
                      ZLColor elementColor = ZLColor(),
                      ZLColor frameColor = ZLColor(),
-                     shared_ptr<Book> book = 0,
-                     shared_ptr<ZLImageData> imagedata = 0,
                      bool selected = false,
                      bool menuselected = false);
 

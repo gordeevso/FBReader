@@ -51,8 +51,6 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
 
     }
 
-
-
     addAction(BookshelfActionCode::SET_GRIDVIEW, new SetGridViewAction());
     addAction(BookshelfActionCode::SET_BOOKSTACKVIEW, new SetBookStackViewAction());
 
@@ -70,6 +68,9 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
     addAction(BookshelfActionCode::SHOW_TAG_MENU, new ShowTagMenuAction());
 
     addAction(BookshelfActionCode::RUN_FBREADER, new RunFBReaderAction());
+
+    addAction(BookshelfActionCode::RESIZE_SMALLER, new ResizeSmallerAction());
+    addAction(BookshelfActionCode::RESIZE_BIGGER, new ResizeBiggerAction());
 }
 
 Fbookshelf::~Fbookshelf() {
@@ -134,15 +135,17 @@ void Fbookshelf::initWindow() {
         parser.parse();
         std::string baseString = "";
         std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfModel::Instance().getLibrary();
-        for (int i = 0; i < parser.OPDS_Title_nodes.size(); i++){
+        for (size_t i = 0; i < parser.OPDS_Title_nodes.size(); ++i){
             std::string title =  parser.OPDS_Title_nodes[i];
             //std::cout << i << std::endl;
             shared_ptr<Book> bookptr = Book::createBook(
-                ZLFile(title), i,
+                ZLFile(title),
+                i,
                 "English",
                 "English",
                 title
             );
+            bookptr->addAuthor("author");
             baseString += "a";
             //std::cout << booksmap.size() << std::endl;
             booksmap.insert(std::make_pair(baseString,bookptr));
@@ -166,10 +169,6 @@ void Fbookshelf::initWindow() {
             }
         }
 
-//        shared_ptr<ZLView> view = this->currentView();
-//        if(view->isInstanceOf(WebView::TYPE_ID)) {
-//            static_cast<WebView&>(*view).setMode(WebView::WITHOUT_TAGS_MENU);
-//        }
         shared_ptr<ZLView> view = this->currentView();
         if(view->isInstanceOf(GridView::TYPE_ID)) {
             static_cast<GridView&>(*view).setMode(GridView::WITHOUT_TAGS_MENU);

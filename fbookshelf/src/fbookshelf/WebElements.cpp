@@ -169,7 +169,6 @@ WebElement::WebElement(Point topLeft,
                          ZLColor elementColor,
                          ZLColor frameColor,
                          shared_ptr<Book> book,
-                         shared_ptr<ZLImageData> imagedata,
                          bool selected
 //                         bool menuselected
                        )
@@ -179,6 +178,7 @@ WebElement::WebElement(Point topLeft,
       myOptionsBottomRight(optbottomright),
       myElementColor(elementColor),
       myFrameColor(frameColor),
+      myBook(book),
       myTitleString(),
       myTitleImage(),
       myIsSelected(selected)

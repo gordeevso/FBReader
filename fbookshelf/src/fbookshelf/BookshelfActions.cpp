@@ -18,6 +18,8 @@ const std::string BookshelfActionCode::SHOW_TAG_MENU = "showTagMenu";
 const std::string BookshelfActionCode::SET_BOOKSTACKVIEW = "setBookStackView";
 const std::string BookshelfActionCode::SET_GRIDVIEW = "setGridView";
 const std::string BookshelfActionCode::RUN_FBREADER = "runFbreader";
+const std::string BookshelfActionCode::RESIZE_SMALLER = "resizeSmaller";
+const std::string BookshelfActionCode::RESIZE_BIGGER = "resizeBigger";
 
 ModeDependentAction::ModeDependentAction(int visibleInModes) : myVisibleInModes(visibleInModes) {
 }
@@ -153,7 +155,6 @@ size_t MouseWheelScrollingAction::textOptionValue() const {
 
 
 
-
 void RunFBReaderAction::run()
 {
     Fbookshelf &fbookshelf = Fbookshelf::Instance();
@@ -162,5 +163,33 @@ void RunFBReaderAction::run()
     if(fbookshelf.mode() == Fbookshelf::GRID_MODE) {
         shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
         system(("FBReader " + book->file().physicalFilePath() + "&").c_str());
+    }
+}
+
+ResizeSmallerAction::ResizeSmallerAction() : ModeDependentAction(Fbookshelf::GRID_MODE) {
+
+}
+
+void ResizeSmallerAction::run()
+{
+    Fbookshelf &fbookshelf = Fbookshelf::Instance();
+    shared_ptr<ZLView> view = fbookshelf.currentView();
+
+    if(fbookshelf.mode() == Fbookshelf::GRID_MODE) {
+        static_cast<GridView&>(*view).resizeElements(true);
+    }
+}
+
+ResizeBiggerAction::ResizeBiggerAction() : ModeDependentAction(Fbookshelf::GRID_MODE) {
+
+}
+
+void ResizeBiggerAction::run()
+{
+    Fbookshelf &fbookshelf = Fbookshelf::Instance();
+    shared_ptr<ZLView> view = fbookshelf.currentView();
+
+    if(fbookshelf.mode() == Fbookshelf::GRID_MODE) {
+        static_cast<GridView&>(*view).resizeElements(false);
     }
 }

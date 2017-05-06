@@ -140,8 +140,66 @@ void GridView::updateView(BookshelfModel::SortType sort_type) {
     Fbookshelf::Instance().refreshWindow();
 }
 
-void GridView::setMode(GridView::ViewMode mode)
-{
+void GridView::resizeElements(bool smaller) {
+    if(smaller) {
+        ++myElementsOnX;
+        ++myElementsOnY;
+    }
+    else {
+        --myElementsOnX;
+        --myElementsOnY;
+    }
+
+    myRenderingElementsCount = myElementsOnX * myElementsOnY;
+    myScrollBarPos = 0;
+    myScrollBarMaxPos = 1;
+    myMouseScrollFrom = 0;
+    myMouseScrollTo = 1;
+    myElementWidth = myViewWidth / myElementsOnX;
+    myElementHeight = myViewHeight / myElementsOnY;
+
+    int x1 = myTopLeftX;
+    int y1 = myTopleftY;
+    int x2 = myTopLeftX + myElementWidth;
+    int y2 = myElementHeight;
+
+    std::vector<GridElement>::iterator cur = myVecBookshelfElements.begin();
+    std::vector<GridElement>::iterator end = myVecBookshelfElements.end();
+
+    for(; cur != end; ++cur) {
+        (*cur).myTopLeft.x = x1;
+        (*cur).myTopLeft.y = y1;
+        (*cur).myBottomRight.x = x2;
+        (*cur).myBottomRight.y = y2;
+
+        x1 += myElementWidth;
+        x2 += myElementWidth;
+
+        if(x2 > myViewWidth + myTopLeftX)
+        {
+            x1 = myTopLeftX;
+            x2 = myTopLeftX + myElementWidth;
+            y1 += myElementHeight;
+            y2 += myElementHeight;
+        }
+    }
+
+    if(myVecBookshelfElements.size() > myRenderingElementsCount) {
+        myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
+        ++myScrollBarMaxPos;
+    }
+
+    setScrollbarEnabled(VERTICAL, true);
+    setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+
+    myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
+    myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
+
+    updateBookshelfElements();
+    Fbookshelf::Instance().refreshWindow();
+}
+
+void GridView::setMode(GridView::ViewMode mode) {
     if(mode != myViewMode) {
         if(mode == GridView::WITHOUT_TAGS_MENU) {
             if(!myTagsMenu.isNull())
@@ -228,11 +286,6 @@ bool GridView::onStylusPress(int x, int y) {
 }
 
 
-bool GridView::onStylusMovePressed(int x, int y) {
-
-    return true;
-}
-
 bool GridView::onStylusRelease(int x, int y) {
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
 
@@ -312,10 +365,6 @@ bool GridView::onStylusMove(int x, int y) {
 }
 
 
-//What is it?
-void GridView::onScrollbarStep(ZLView::Direction direction, int steps) {
-    std::cout << "onscrollstep\n";
-}
 
 
 

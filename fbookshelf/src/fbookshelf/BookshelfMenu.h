@@ -31,7 +31,7 @@ public:
     int myYOffset;
     int myFontSize;
     int myViewHeight;
-    int myRenderingElementsCount;
+    size_t myRenderingElementsCount;
 
     Point myTopLeft;
     Point myCurTopLeft;

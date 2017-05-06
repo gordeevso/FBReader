@@ -23,6 +23,8 @@ public:
     static const std::string SET_BOOKSTACKVIEW;
     static const std::string SET_GRIDVIEW;
     static const std::string RUN_FBREADER;
+    static const std::string RESIZE_SMALLER;
+    static const std::string RESIZE_BIGGER;
 
 private:
     BookshelfActionCode();
@@ -116,6 +118,20 @@ private:
 class RunFBReaderAction : public ZLApplication::Action {
 
 public:
+    void run();
+};
+
+class ResizeSmallerAction : public ModeDependentAction {
+
+public:
+    ResizeSmallerAction();
+    void run();
+};
+
+class ResizeBiggerAction : public ModeDependentAction {
+
+public:
+    ResizeBiggerAction();
     void run();
 };
 

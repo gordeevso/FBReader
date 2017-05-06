@@ -62,7 +62,7 @@ StringRect::StringRect(const std::string &str,
       myFontSize(fontsize)
 {}
 
-void StringRect::updateFont(int x1, int y1, int x2, int y2)
+void StringRect::updateFont(int y1, int y2)
 {
     myFontSize = (y2 - y1) * 0.04;
 
@@ -72,7 +72,7 @@ void StringRect::updateFont(int x1, int y1, int x2, int y2)
 
 void StringRect::updatePosition(int x1, int y1, int x2, int y2)
 {
-    updateFont(x1, y1, x2, y2);
+    updateFont(y1, y2);
 
     myX = x1 + (x2 - x1) * 0.05;
     myY = y2 - (y2 - y1) * 0.075 - myFontSize;
@@ -168,8 +168,6 @@ GridElement::GridElement(Point topLeft,
                          Point optbottomright,
                          ZLColor elementColor,
                          ZLColor frameColor,
-                         shared_ptr<Book> book,
-                         shared_ptr<ZLImageData> imagedata,
                          bool selected,
                          bool menuselected)
     : myTopLeft(topLeft),

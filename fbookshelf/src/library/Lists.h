@@ -35,5 +35,6 @@ typedef std::set<shared_ptr<Book>,BookByFileNameComparator> BookSet;
 typedef std::vector<shared_ptr<Author> > AuthorList;
 typedef std::vector<shared_ptr<Tag> > TagList;
 typedef std::set<shared_ptr<Tag> > TagSet;
+typedef std::vector<std::string> ShelfList;
 
 #endif /* __LISTS_H__ */

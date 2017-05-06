@@ -20,6 +20,7 @@
 #include <queue>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 
 #include <ZLibrary.h>
 #include <ZLStringUtil.h>
@@ -122,4 +123,172 @@ std::vector<shared_ptr<Book> > & BookshelfModel::getLibrary(BookshelfModel::Sort
     }
     
     return myVecLibrarySortedByIds;
+}
+
+
+bool BookshelfModel::hasBooks(std::string shelf) const
+{
+	const BooksByShelf::const_iterator it = myBooksByShelf.find(shelf);
+	return it != myBooksByShelf.end() && !it->second.empty();
+}
+
+const BookList &BookshelfModel::books(std::string shelf) const
+{
+	return myBooksByShelf[shelf];
+}
+
+const ShelfList &BookshelfModel::shelfs() const
+{
+	return myShelfs;
+}
+
+int BookshelfModel::loadShelfsFromDB(const char * pathToShelfDB)
+{
+    myShelfs.clear();
+    myBooksByShelf.clear();
+    
+    std::ifstream fin(pathToShelfDB);
+    if (!fin.is_open())
+    {
+        return OPEN_FILE_ERROR;
+    }
+    size_t nShelfs = 0;
+    fin >> nShelfs;
+    for (size_t i = 0; i < nShelfs; ++i)
+    {
+        std::string shelf;
+        fin >> shelf;
+        myShelfs.push_back(shelf);
+        size_t nBooksOnShelf = 0;
+        fin >> nBooksOnShelf;
+        for (size_t j = 0; j < nBooksOnShelf; ++j)
+        {
+            int bookId = 0;
+            fin >> bookId;
+            BooksMap::const_iterator it = myLibrary.begin();
+            BooksMap::const_iterator itEnd = myLibrary.end();
+            for (; it != itEnd; ++it) {
+                if ((*it).second->bookId() == bookId)
+                {
+                    myBooksByShelf[shelf].push_back((*it).second);
+                    break;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+int BookshelfModel::saveShelfsFromModelToDB(const char * pathToShelfDB)
+{
+    std::ofstream fout(pathToShelfDB);
+    if(!fout.is_open()) {
+        std::cout << "Can't open file" << std::endl;
+        return OPEN_FILE_ERROR;
+    }
+    fout << myBooksByShelf.size() << std::endl;
+    BooksByShelf::const_iterator it = myBooksByShelf.begin();
+    BooksByShelf::const_iterator itEnd = myBooksByShelf.end();
+    for (; it != itEnd; ++it)
+    {
+        fout << (*it).first << " " << (*it).second.size() << std::endl;
+        for (size_t i = 0; i != (*it).second.size(); ++i)
+        {
+            fout << (*it).second[i]->bookId() << " ";
+        }
+        fout << std::endl;
+    }
+
+    return 0;
+}
+
+void BookshelfModel::removeShelf(std::string shelf)
+{
+    const BooksByShelf::iterator it = myBooksByShelf.find(shelf);
+    if (it != myBooksByShelf.end())
+    {
+        myBooksByShelf.erase(it);
+    }
+    ShelfList::iterator jt = myShelfs.begin();
+    ShelfList::iterator jtEnd = myShelfs.end();
+    for (; jt != jtEnd; ++jt)
+    {
+        if ((*jt) == shelf)
+        {
+            myShelfs.erase(jt);
+            break;
+        }
+    }
+    saveShelfsFromModelToDB("/home/cherkasov/.FBookshelf/shelfDB.txt");
+ }
+
+int BookshelfModel::renameShelf(std::string from, std::string to)
+{
+    BooksByShelf::iterator from_it = myBooksByShelf.find(from);
+    if (from_it == myBooksByShelf.end())
+    {
+        return CAN_NOT_FIND_SHELF;
+    }
+    BooksByShelf::iterator to_it = myBooksByShelf.find(to);
+    if (to_it != myBooksByShelf.end())
+    {
+        return SHELF_ALDREADY_EXISTS;
+    }
+    ShelfList::iterator it = std::find(myShelfs.begin(), myShelfs.end(), from);
+    myShelfs.erase(it);
+    myShelfs.push_back(to);
+    BookList bookList = myBooksByShelf[from];
+    myBooksByShelf.insert(std::make_pair(to, bookList));
+    myBooksByShelf.erase(from);
+    saveShelfsFromModelToDB("/home/cherkasov/.FBookshelf/shelfDB.txt");
+    return 0;
+}
+
+void BookshelfModel::addBookToShelf(std::string shelf, shared_ptr<Book> book)
+{
+    const BooksByShelf::iterator it = myBooksByShelf.find(shelf);
+    if (it != myBooksByShelf.end()) 
+    {
+        BookList::iterator jt = std::find((*it).second.begin(), (*it).second.end(), book);
+        if (jt == (*it).second.end()) 
+        {
+            (*it).second.push_back(book);
+        }
+    } else 
+    {
+        createShelf(shelf);
+        myBooksByShelf[shelf].push_back(book);
+    }
+    saveShelfsFromModelToDB("/home/cherkasov/.FBookshelf/shelfDB.txt");
+}
+
+void BookshelfModel::createShelf(std::string shelf)
+{
+    ShelfList::iterator it = std::find(myShelfs.begin(), myShelfs.end(), shelf);
+    if (it == myShelfs.end()) 
+    {
+        myShelfs.push_back(shelf);
+    
+    }
+    BooksByShelf::iterator jt = myBooksByShelf.find(shelf);
+    if (jt == myBooksByShelf.end()) 
+    {
+        BookList emptyList(0);
+        myBooksByShelf.insert(std::make_pair(shelf, emptyList));
+    }
+    saveShelfsFromModelToDB("/home/cherkasov/.FBookshelf/shelfDB.txt");
+}
+
+void BookshelfModel::removeBookFromShelf(std::string shelf, shared_ptr<Book> book) 
+{
+    BooksByShelf::iterator jt = myBooksByShelf.find(shelf);
+    if (jt != myBooksByShelf.end()) 
+    {
+        BookList::iterator it = std::find((*jt).second.begin(), (*jt).second.end(), book);
+        if (it != (*jt).second.end()) 
+        {
+            (*jt).second.erase(it);
+        }
+    }
+    saveShelfsFromModelToDB("/home/cherkasov/.FBookshelf/shelfDB.txt");
 }

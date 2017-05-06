@@ -39,13 +39,21 @@ typedef std::map<std::string, shared_ptr<Book> > BooksMap;
 class BookshelfModel {
 
 public:
-	static BookshelfModel &Instance();
+    
+    static BookshelfModel &Instance();
 
     enum SortType {
         SORT_BY_ID,
         SORT_BY_AUTHOR,
         SORT_BY_TITLE
     };
+    
+        enum ShelfDBError {
+        OPEN_FILE_ERROR,
+        CAN_NOT_FIND_SHELF,
+        SHELF_ALDREADY_EXISTS
+    };
+    
 
 private:
 	static shared_ptr<BookshelfModel> ourInstance;
@@ -58,6 +66,16 @@ public:
         BooksMap &getLibrary();        
         void buildVecLibrary(SortType);
         std::vector<shared_ptr<Book> > & getLibrary(SortType);
+        
+        const ShelfList &shelfs() const;
+	const BookList &books(std::string) const;
+        bool hasBooks(std::string shelf) const;
+	void removeShelf(std::string shelf);
+	int renameShelf(std::string from, std::string to);
+        void addBookToShelf(std::string shelf, shared_ptr<Book> book);
+        void removeBookFromShelf(std::string shelf, shared_ptr<Book> book);
+        int loadShelfsFromDB(const char * pathToShelfDB);
+        void createShelf(std::string shelf);
 
 private:
         BooksMap myLibrary;
@@ -65,6 +83,10 @@ private:
         std::vector<shared_ptr<Book> > myVecLibrarySortedByTitles;
         std::vector<shared_ptr<Book> > myVecLibrarySortedByIds;
 	mutable BookList myRecentBooks;
+        mutable ShelfList myShelfs;
+	typedef std::map<std::string, BookList> BooksByShelf;
+	mutable BooksByShelf myBooksByShelf;
+        int saveShelfsFromModelToDB(const char * pathToShelfDB);
 };
 
 #endif /* __BOOKSHELFMODEL_H__ */

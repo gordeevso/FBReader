@@ -32,7 +32,7 @@ void OPDSDownloader::googleOAuth(){
     std::system("cookiebrowser");
 }
 
-std::string getHomeDir(){
+std::string OPDSDownloader::getHomeDir(){
     int myuid;
     passwd *mypasswd;
     std::string TestFileName;

@@ -137,19 +137,18 @@ void Fbookshelf::initWindow() {
         std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfModel::Instance().getLibrary();
         for (size_t i = 0; i < parser.OPDS_Title_nodes.size(); ++i){
             std::string title =  parser.OPDS_Title_nodes[i];
-            //std::cout << i << std::endl;
+            // std::cout << title << " " << parser.OPDS_tree_href[i].size() << std::endl;
+            std::string path = parser.OPDS_tree_href[i][2].second;
+            std::string type = parser.get_book_type(i, 2);
             shared_ptr<Book> bookptr = Book::createBook(
-                ZLFile(title),
-                i,
-                "English",
+                ZLFile(path), i,
+                type,
                 "English",
                 title
             );
             bookptr->addAuthor("author");
             baseString += "a";
-            //std::cout << booksmap.size() << std::endl;
-            booksmap.insert(std::make_pair(baseString,bookptr));
-            //std::cout << "OK" << std::endl;
+            booksmap.insert(std::make_pair(path,bookptr));
         }
         shared_ptr<ZLView> view = this->currentView();
 

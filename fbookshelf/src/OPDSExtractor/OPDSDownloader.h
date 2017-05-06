@@ -14,6 +14,7 @@ public:
     ~OPDSDownloader();
     std::string download(const std::string &url);
     void googleOAuth();
+    std::string getHomeDir();
 private:
     CURL *curl;
     std::vector <std::pair<std::string, std::string> > OPDS_tree;

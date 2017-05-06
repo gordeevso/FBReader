@@ -50,6 +50,20 @@ bool OPDSSimpleParser::is_book_link(const size_t &idx, const size_t &href_num){
 	return false;
 }
 
+std::string OPDSSimpleParser::get_book_type(const size_t &idx, const size_t &href_num){
+	std::string type_name = OPDS_tree_href[idx][href_num].first;
+	std::string book_type;
+
+	if (type_name.find(PDF) != std::string::npos){
+		book_type = PDF;
+	}
+	else if(type_name.find(FB2) != std::string::npos){
+		book_type = FB2;
+	}
+
+	return book_type;
+}
+
 void OPDSSimpleParser::saveBook(const size_t &idx, const size_t &href_num){
 	std::string type_name = OPDS_tree_href[idx][href_num].first;
 	std::string book_type;
@@ -74,6 +88,7 @@ void OPDSSimpleParser::saveBook(const size_t &idx, const size_t &href_num){
 
 void OPDSSimpleParser::parse(){
 	size_t last = 0;
+	last = OPDSFile.find(TAG_Entry, last);
 	while (last != std::string::npos){
 		last = OPDSFile.find(TAG_OPEN_TITLE, last);
 		if (last != std::string::npos){
@@ -81,7 +96,7 @@ void OPDSSimpleParser::parse(){
 			size_t length_of_name = OPDSFile.find(TAG_CLOSE_TITLE, last + 1) - last;
 			std::string title = OPDSFile.substr(last, length_of_name);
 			last += length_of_name + TAG_CLOSE_TITLE.length();
-			if (OPDS_tree_href.size() > 0){
+			if (OPDS_tree_href.size() >= 0){
 				size_t closing_tile = OPDSFile.find(TAG_Entry_CLOSE, last);
 				if (closing_tile == std::string::npos){
 					closing_tile = OPDSFile.length() - 1;

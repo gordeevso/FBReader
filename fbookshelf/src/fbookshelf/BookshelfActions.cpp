@@ -1,10 +1,11 @@
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
 
 #include "BookshelfActions.h"
 #include "FBookshelf.h"
 #include "BookStackView.h"
-
+#include "../OPDSExtractor/OPDSDownloader.h"
 #include "../library/BookshelfModel.h"
 
 const std::string BookshelfActionCode::SORT_BY_AUTHOR = "sortByAuthor";
@@ -154,7 +155,6 @@ size_t MouseWheelScrollingAction::textOptionValue() const {
 }
 
 
-
 void RunFBReaderAction::run()
 {
     Fbookshelf &fbookshelf = Fbookshelf::Instance();
@@ -163,6 +163,17 @@ void RunFBReaderAction::run()
     if(fbookshelf.mode() == Fbookshelf::GRID_MODE) {
         shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
         system(("FBReader " + book->file().physicalFilePath() + "&").c_str());
+    }
+    else if(fbookshelf.mode() == Fbookshelf::WEB_MODE){
+        OPDSDownloader downloader;
+        shared_ptr<Book> book = (*(static_cast<WebView&>(*view).getSelectedElement())).myBook;
+        std::string book_name = book->title() + "." + book->encoding();
+        std::string book_path = downloader.getHomeDir() + "/FBookshelfNet/";
+        std::ofstream write_book((book_path + book_name).c_str());
+
+        std::string url = mainDomain + book->file().physicalFilePath();
+        std::string content = downloader.download(url);
+        write_book << content;
     }
 }
 

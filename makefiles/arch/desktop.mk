@@ -11,7 +11,7 @@ CC = ccache gcc
 AR = ar rsu
 LD = g++
 
-CFLAGS = -pipe -fno-exceptions -Wall -Wno-ctor-dtor-privacy -W -DLIBICONV_PLUG
+CFLAGS = -pipe -Wall -Wno-ctor-dtor-privacy -W -DLIBICONV_PLUG --std=c++11
 LDFLAGS =
 
 ifeq "$(UI_TYPE)" "qt"

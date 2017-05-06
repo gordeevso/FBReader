@@ -7,7 +7,7 @@ ZLIBDIRS = zlibrary/core zlibrary/text zlibrary/ui
 APPDIRS = fbookshelf 
 WEBVIEW = cookieUtility
 all:
-	for dir in $(ZLIBDIRS) $(APPDIRS); do \
+	@for dir in $(ZLIBDIRS) $(APPDIRS); do \
 		if [ -d $$dir ]; then \
 			cd $$dir; \
 			if ! $(MAKE); then \
@@ -15,13 +15,7 @@ all:
 			fi; \
 			cd $(ROOTDIR); \
 		fi; \
-	done; \
-	for dir in $(WEBVIEW); do \
-		cd $$dir;\
-		bash mk.sh; \
-		cd $(ROOTDIR); \
-	done; \
-	
+	done;
 
 install: all do_install
 

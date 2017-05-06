@@ -91,7 +91,7 @@ void MainWindow::handleLogOutClicked()
 
 void MainWindow::handleSaveAllClicked()
 {
-    std::string filepath = getHomeDir() + "/FBookshelfNet/cookie.txt";
+    std::string filepath = getHomeDir() + "/fbreader-lib/FBReader/cookie.txt";
     std::ofstream fout(filepath);
     for (auto c: m_cookies) {
         if (c.domain() == ".fbreader.org" || c.domain() == "books.fbreader.org")

@@ -155,6 +155,10 @@ void Fbookshelf::initWindow() {
         }
 
     }
+    else if(netVsLibMode == "drive"){
+        GoogleDriveLibrary lib();
+        lib.getBookList();
+    }
     else{
         BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
         BooksMap::iterator it = BookshelfModel::Instance().getLibrary().begin();

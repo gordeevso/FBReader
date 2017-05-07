@@ -10,6 +10,7 @@ class GoogleDriveLibrary
 public:
 	std::vector<shared_ptr<Book> > getBookList();
 	void downloadBook(const std::string& filename);
+	void login();
 	void logout();
 };
 

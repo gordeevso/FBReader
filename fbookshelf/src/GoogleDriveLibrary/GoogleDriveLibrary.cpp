@@ -74,9 +74,14 @@ void GoogleDriveLibrary::logout()
 
 }
 
-std::vector<shared_ptr<Book> > GoogleDriveLibrary::getBookList()
+void GoogleDriveLibrary::login()
 {
     AuthorisationManager::getInstance().authorise();
+}
+
+std::vector<shared_ptr<Book> > GoogleDriveLibrary::getBookList()
+{
+    
     std::string filelist;
     void * curl = curl_easy_init();
     save_to_string_authorised(curl, "https://www.googleapis.com/drive/v2/files", filelist);

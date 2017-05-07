@@ -44,27 +44,23 @@ void get_page(const char* url, const char* file_name)
 
 std::string to_string(const json& j)
 {
-  std::stringstream ss;
-  ss << j;
-  return ss.str().substr(1, ss.str().size()-2);
+    std::stringstream ss;
+    ss << j;
+    return ss.str().substr(1, ss.str().size()-2);
 }
 
 
 
 void find_library(const json& filelist, std::string& id)
 {
-  for(auto it = filelist["items"].begin(); it != filelist["items"].end(); ++it)
-  {
-    //auto item = *it;
-    std::stringstream ss_title;
-    ss_title << (*it)["title"];
-
-    if(ss_title.str().find("FBReader") != std::string::npos)
+    for(auto it = filelist["items"].begin(); it != filelist["items"].end(); ++it)
     {
-      id = to_string((*it)["id"]);
-      return;
+        if(to_string((*it)["title"]).find("FBReader") != std::string::npos)
+        {
+            id = to_string((*it)["id"]);
+            return;
+        }
     }
-  }
 }
 
 
@@ -78,7 +74,7 @@ void GoogleDriveLibrary::logout()
 
 }
 
-std::vector<shared_ptr<Book> > getBookList()
+std::vector<shared_ptr<Book> > GoogleDriveLibrary::getBookList()
 {
     AuthorisationManager::getInstance().authorise();
     std::string filelist;

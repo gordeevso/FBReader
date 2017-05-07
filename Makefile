@@ -22,6 +22,16 @@ all:
 		cd $(ROOTDIR); \
 	done; \
 	
+no-cookie:
+	for dir in $(ZLIBDIRS) $(APPDIRS); do \
+		if [ -d $$dir ]; then \
+			cd $$dir; \
+			if ! $(MAKE); then \
+				exit 1; \
+			fi; \
+			cd $(ROOTDIR); \
+		fi; \
+	done;
 
 install: all do_install
 

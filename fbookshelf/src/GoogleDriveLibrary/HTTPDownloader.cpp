@@ -34,51 +34,35 @@ HTTPDownloader::~HTTPDownloader() {
     
 }
 
-string HTTPDownloader::download(void * curl, const std::string& url) {
-
-    struct curl_slist *slist=NULL; 
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
-
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    /* example.com is redirected, so we tell libcurl to follow redirection */
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); //Prevent "longjmp causes uninitialized stack frame" bug
-    curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "deflate");
-    std::stringstream out;
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, details::write_data);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
-    /* Perform the request, res will get the return code */
-    CURLcode res = curl_easy_perform(curl);
-    /* Check for errors */
-    if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                curl_easy_strerror(res));
-    }
-    curl_slist_free_all(slist);
-    return out.str();
-}
-
-string HTTPDownloader::download_authorised(void * curl, const std::string& url) 
+string HTTPDownloader::download(void * curl, const std::string& url, bool needsAuth)
 {
+
     struct curl_slist *slist=NULL; 
-    slist = curl_slist_append(slist, std::string("Authorization: Bearer " + AuthorisationManager::getInstance().getAuthorisationToken()).c_str());
+    if(needsAuth)
+    {
+        slist = curl_slist_append(slist, std::string("Authorization: Bearer " + AuthorisationManager::getInstance().getAuthorisationToken()).c_str());
+    }
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    /* example.com is redirected, so we tell libcurl to follow redirection */
+    
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); //Prevent "longjmp causes uninitialized stack frame" bug
     curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "deflate");
+    
     std::stringstream out;
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, details::write_data);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
+    
     /* Perform the request, res will get the return code */
     CURLcode res = curl_easy_perform(curl);
+    
     /* Check for errors */
-    if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                curl_easy_strerror(res));
+    if (res != CURLE_OK) 
+    {
+        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
     }
+
     curl_slist_free_all(slist);
     return out.str();
 }

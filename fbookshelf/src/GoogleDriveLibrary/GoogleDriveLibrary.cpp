@@ -6,26 +6,22 @@
 
 using json = nlohmann::json;
 
-void save_to_string(void * curl, const char * url, std::string& result)
+void save_to_string(void * curl, const char * url, std::string& result, bool needsAuth = false)
 {
-    result = HTTPDownloader().download(curl, url);
+    result = HTTPDownloader().download(curl, url, needsAuth);
 }
 
-
-void save_to_string_authorised(void * curl, const char * url, std::string& result)
-{
-    result = HTTPDownloader().download_authorised(curl, url);
-}
-
-
-void get_page(const char* url, const char* file_name)
+void get_page(const char* url, const char* file_name, bool needsAuth = false)
 {
     CURL* easyhandle = curl_easy_init();
-
-    // access token is received prior to using this program; to refresh it, use refresh_token from Google
     struct curl_slist *slist=NULL;
-    slist = curl_slist_append(slist, std::string("Authorization: Bearer " + AuthorisationManager::getInstance().getAuthorisationToken()).c_str());
-    curl_easy_setopt( easyhandle, CURLOPT_HTTPHEADER, slist);
+
+    if(needsAuth)
+    {
+        // access token is received prior to using this program; to refresh it, use refresh_token from Google
+        slist = curl_slist_append(slist, std::string("Authorization: Bearer " + AuthorisationManager::getInstance().getAuthorisationToken()).c_str());
+        curl_easy_setopt( easyhandle, CURLOPT_HTTPHEADER, slist);
+    }
 
     curl_easy_setopt( easyhandle, CURLOPT_URL, url ) ;
 
@@ -35,7 +31,11 @@ void get_page(const char* url, const char* file_name)
     curl_easy_perform( easyhandle );
 
     // cleanup
-    curl_slist_free_all(slist);
+    if(needsAuth)
+    {
+        curl_slist_free_all(slist);    
+    }
+    
     curl_easy_cleanup(easyhandle);
     fclose(file);
 
@@ -84,7 +84,7 @@ std::vector<shared_ptr<Book> > GoogleDriveLibrary::getBookList()
     
     std::string filelist;
     void * curl = curl_easy_init();
-    save_to_string_authorised(curl, "https://www.googleapis.com/drive/v2/files", filelist);
+    save_to_string(curl, "https://www.googleapis.com/drive/v2/files", filelist, true);
     curl_easy_cleanup(curl);
   
     json filelist_json = json::parse(filelist);
@@ -108,8 +108,8 @@ std::vector<shared_ptr<Book> > GoogleDriveLibrary::getBookList()
                 std::string file_download_link = to_string((*it)["selfLink"]) + "?alt=media";
                 std::string thumb_download_link = to_string((*it)["thumbnailLink"]) + "?alt=media";
 
-                //get_page(file_download_link.c_str(), file_output_name.c_str());
-                //get_page(thumb_download_link.c_str(), thumb_output_name.c_str());
+                //get_page(file_download_link.c_str(), file_output_name.c_str(), true);
+                //get_page(thumb_download_link.c_str(), thumb_output_name.c_str(), true);
             }
         }
     }

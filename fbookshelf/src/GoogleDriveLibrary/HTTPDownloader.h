@@ -23,11 +23,7 @@ public:
      * @param url The URL to download
      * @return The download result
      */
-    std::string download(void * curl, const std::string& url);
-
-    std::string download_authorised(void * curl, const std::string& url);
-private:
-    
+    std::string download(void * curl, const std::string& url, bool needsAuth = false);   
 };
 
 #endif  /* HTTPDOWNLOADER_H */

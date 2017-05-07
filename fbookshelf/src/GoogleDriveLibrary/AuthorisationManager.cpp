@@ -10,7 +10,7 @@
 
 using json = nlohmann::json;
 
-void save_to_string(void * curl, const char * url, std::string& result);
+void save_to_string(void * curl, const char * url, std::string& result, bool needsAuth = false);
 
 
 static const std::string clientId = "1060324431339-tois5j0useksl71234s39sl16ga6dc2f.apps.googleusercontent.com";
@@ -126,14 +126,10 @@ void AuthorisationManager::obtainTokens()
     save_to_string(curl, url.c_str(), res);
     curl_easy_cleanup(curl);
 
-    std::cout << res << std::endl;
-
     json resJson = json::parse(res);
 
     authToken = resJson["access_token"];
     refreshToken = resJson["refresh_token"];
-
-    std::cout << authToken << std::endl << refreshToken << std::endl;
 }
 
 void AuthorisationManager::authorise()

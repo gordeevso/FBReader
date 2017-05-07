@@ -27,6 +27,8 @@
 #include "../OPDSExtractor/OPDSDownloader.h"
 #include "../OPDSExtractor/OPDSSimpleParser.h"
 
+#include "../GoogleDriveLibrary/GoogleDriveLibrary.h"
+
 Fbookshelf &Fbookshelf::Instance() {
     return (Fbookshelf&)ZLApplication::Instance();
 }
@@ -156,6 +158,11 @@ void Fbookshelf::initWindow() {
             static_cast<WebView&>(*view).setMode(WebView::WITHOUT_TAGS_MENU);
         }
 
+    }
+    else if (netVsLibMode == "drive")
+    {
+        GoogleDriveLibrary lib;
+        lib.login();
     }
     else{
         BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());

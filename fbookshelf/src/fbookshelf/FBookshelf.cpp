@@ -164,7 +164,7 @@ void Fbookshelf::initWindow() {
         GoogleDriveLibrary lib;
         lib.login();
     }
-    else{
+    else {
         BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
         BooksMap::iterator it = BookshelfModel::Instance().getLibrary().begin();
         BooksMap::iterator itEnd = BookshelfModel::Instance().getLibrary().end();
@@ -181,11 +181,7 @@ void Fbookshelf::initWindow() {
         }
     }
             
-
-
-
     refreshWindow();
-
 }
 
 std::string Fbookshelf::helpFileName(const std::string &language) const {

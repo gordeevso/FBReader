@@ -20,17 +20,15 @@
 #ifndef __BOOKSHELFMODEL_H__
 #define __BOOKSHELFMODEL_H__
 
+#include <map>
+#include <set>
+#include <shared_ptr.h>
 #include <string>
 #include <vector>
-#include <set>
-#include <map>
-
-#include <shared_ptr.h>
-
 #include <ZLOptions.h>
 
-#include "Book.h"
 #include "Author.h"
+#include "Book.h"
 #include "Tag.h"
 #include "Lists.h"
 
@@ -41,52 +39,52 @@ class BookshelfModel {
 public:
     
     static BookshelfModel &Instance();
-
+    
     enum SortType {
         SORT_BY_ID,
         SORT_BY_AUTHOR,
         SORT_BY_TITLE
     };
     
-        enum ShelfDBError {
+    enum ShelfDBError {
         OPEN_FILE_ERROR,
         CAN_NOT_FIND_SHELF,
         SHELF_ALDREADY_EXISTS
     };
     
-
 private:
-	static shared_ptr<BookshelfModel> ourInstance;
+    static shared_ptr<BookshelfModel> ourInstance;
         
 private:
-	BookshelfModel();
+    BookshelfModel();
 
 public:
-  
-        BooksMap &getLibrary();        
-        void buildVecLibrary(SortType);
-        std::vector<shared_ptr<Book> > & getLibrary(SortType);
-        
-        const ShelfList &shelfs() const;
-	const BookList &books(std::string) const;
-        bool hasBooks(std::string shelf) const;
-	void removeShelf(std::string shelf);
-	int renameShelf(std::string from, std::string to);
-        void addBookToShelf(std::string shelf, shared_ptr<Book> book);
-        void removeBookFromShelf(std::string shelf, shared_ptr<Book> book);
-        int loadShelfsFromDB(const char * pathToShelfDB);
-        void createShelf(std::string shelf);
+    
+    BooksMap &getLibrary();
+    std::vector<shared_ptr<Book> > & getLibrary(SortType);
+    const ShelfList &getShelfs() const;
+    const BookList &getBooks(const std::string &shelf) const;
+    bool hasBooks(const std::string &shelf) const;
+    void removeShelf(const std::string &shelf);
+    int renameShelf(const std::string &from, const std::string &to);
+    void addBookToShelf(const std::string &shelf, shared_ptr<Book> book);
+    void removeBookFromShelf(const std::string &shelf, shared_ptr<Book> book);
+    void createShelf(const std::string &shelf);
 
 private:
-        BooksMap myLibrary;
-        std::vector<shared_ptr<Book> > myVecLibrarySortedByAuthors;
-        std::vector<shared_ptr<Book> > myVecLibrarySortedByTitles;
-        std::vector<shared_ptr<Book> > myVecLibrarySortedByIds;
-	mutable BookList myRecentBooks;
-        mutable ShelfList myShelfs;
-	typedef std::map<std::string, BookList> BooksByShelf;
-	mutable BooksByShelf myBooksByShelf;
-        int saveShelfsFromModelToDB(const char * pathToShelfDB);
+    
+    BooksMap myLibrary;
+    std::vector<shared_ptr<Book> > myVecLibrarySortedByAuthors;
+    std::vector<shared_ptr<Book> > myVecLibrarySortedByTitles;
+    std::vector<shared_ptr<Book> > myVecLibrarySortedByIds;
+    mutable BookList myRecentBooks;
+    mutable ShelfList myShelfs;
+    typedef std::map<std::string, BookList> BooksByShelf;
+    mutable BooksByShelf myBooksByShelf;
+    int saveShelfsFromModelToDB();
+    std::string getPathToShelfDB();
+    void buildVecLibrary(SortType);
+    int loadShelfsFromDB();
 };
 
 #endif /* __BOOKSHELFMODEL_H__ */

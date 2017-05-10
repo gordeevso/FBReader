@@ -277,3 +277,17 @@ void Book::addAuthor(shared_ptr<Author> author) {
 void Book::removeAllAuthors() {
 	myAuthors.clear();
 }
+
+void Book::addShelf(const std::string &shelf) {
+    const ShelfList::const_iterator it = std::find(myShelves.begin(), myShelves.end(), shelf);
+    if (it == myShelves.end()) {
+        myShelves.push_back(shelf);
+    }
+}
+
+void Book::removeShelf(const std::string &shelf) {
+    const ShelfList::const_iterator it = std::find(myShelves.begin(), myShelves.end(), shelf);
+    if (it != myShelves.end()) {
+        myShelves.erase(it);
+    }
+}

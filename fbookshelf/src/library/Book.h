@@ -66,6 +66,7 @@ public: // unmodifiable book methods
 
 	const TagList &tags() const;
 	const AuthorList &authors() const;
+        const ShelfList &shelves() const;
 
 public: // modifiable book methods
 	void setTitle(const std::string &title);
@@ -85,6 +86,9 @@ public:
 	void addAuthor(const std::string &displayName, const std::string &sortKey = std::string());
 	bool replaceAuthor(shared_ptr<Author> from, shared_ptr<Author> to);
 	void removeAllAuthors();
+        
+        void addShelf(const std::string &shelf);
+        void removeShelf(const std::string &shelf);
 
 public:
 	int bookId() const;
@@ -101,6 +105,7 @@ private:
 	int myIndexInSeries;
 	TagList myTags;
 	AuthorList myAuthors;
+        ShelfList myShelves;
 
 private: // disable copying
 	Book(const Book &);
@@ -134,6 +139,7 @@ inline int Book::indexInSeries() const { return myIndexInSeries; }
 
 inline const TagList &Book::tags() const { return myTags; }
 inline const AuthorList &Book::authors() const { return myAuthors; }
+inline const ShelfList &Book::shelves() const { return myShelves; }
 
 inline int Book::bookId() const { return myBookId; }
 inline void Book::setBookId(int bookId) { myBookId = bookId; }

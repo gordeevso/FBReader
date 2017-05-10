@@ -47,7 +47,7 @@ BookshelfModel &BookshelfModel::Instance() {
 	if (ourInstance.isNull()) {
 		ourInstance = new BookshelfModel();
 	}
-        ourInstance->loadShelfsFromDB();
+        ourInstance->loadShelvesFromDB();
 	return *ourInstance;
 }
 
@@ -141,28 +141,28 @@ const BookList &BookshelfModel::getBooks(const std::string &shelf) const
     return myBooksByShelf[shelf];
 }
 
-const ShelfList &BookshelfModel::getShelfs() const
+const ShelfList &BookshelfModel::getShelves() const
 {
-    return myShelfs;
+    return myShelves;
 }
 
-int BookshelfModel::loadShelfsFromDB()
+int BookshelfModel::loadShelvesFromDB()
 {
-    myShelfs.clear();
+    myShelves.clear();
     myBooksByShelf.clear();
     
     std::ifstream fin(getPathToShelfDB().c_str());
     if (!fin.is_open())
     {
-        saveShelfsFromModelToDB();
+        saveShelvesFromModelToDB();
     }
-    size_t nShelfs = 0;
-    fin >> nShelfs;
-    for (size_t i = 0; i < nShelfs; ++i)
+    size_t nShelves = 0;
+    fin >> nShelves;
+    for (size_t i = 0; i < nShelves; ++i)
     {
         std::string shelf;
         fin >> shelf;
-        myShelfs.push_back(shelf);
+        myShelves.push_back(shelf);
         size_t nBooksOnShelf = 0;
         fin >> nBooksOnShelf;
         for (size_t j = 0; j < nBooksOnShelf; ++j)
@@ -175,6 +175,7 @@ int BookshelfModel::loadShelfsFromDB()
                 if ((*it).second->bookId() == bookId)
                 {
                     myBooksByShelf[shelf].push_back((*it).second);
+                    (*it).second->addShelf(shelf);
                     break;
                 }
             }
@@ -183,7 +184,7 @@ int BookshelfModel::loadShelfsFromDB()
     return 0;
 }
 
-int BookshelfModel::saveShelfsFromModelToDB()
+int BookshelfModel::saveShelvesFromModelToDB()
 {
     std::ofstream fout(getPathToShelfDB().c_str());
     if(!fout.is_open()) {
@@ -212,17 +213,17 @@ void BookshelfModel::removeShelf(const std::string &shelf)
     {
         myBooksByShelf.erase(it);
     }
-    ShelfList::iterator jt = myShelfs.begin();
-    ShelfList::iterator jtEnd = myShelfs.end();
+    ShelfList::iterator jt = myShelves.begin();
+    ShelfList::iterator jtEnd = myShelves.end();
     for (; jt != jtEnd; ++jt)
     {
         if ((*jt) == shelf)
         {
-            myShelfs.erase(jt);
+            myShelves.erase(jt);
             break;
         }
     }
-    saveShelfsFromModelToDB();
+    saveShelvesFromModelToDB();
  }
 
 int BookshelfModel::renameShelf(const std::string &from, const std::string &to)
@@ -237,13 +238,13 @@ int BookshelfModel::renameShelf(const std::string &from, const std::string &to)
     {
         return SHELF_ALDREADY_EXISTS;
     }
-    ShelfList::iterator it = std::find(myShelfs.begin(), myShelfs.end(), from);
-    myShelfs.erase(it);
-    myShelfs.push_back(to);
+    ShelfList::iterator it = std::find(myShelves.begin(), myShelves.end(), from);
+    myShelves.erase(it);
+    myShelves.push_back(to);
     BookList bookList = myBooksByShelf[from];
     myBooksByShelf.insert(std::make_pair(to, bookList));
     myBooksByShelf.erase(from);
-    saveShelfsFromModelToDB();
+    saveShelvesFromModelToDB();
     return 0;
 }
 
@@ -262,15 +263,16 @@ void BookshelfModel::addBookToShelf(const std::string &shelf, shared_ptr<Book> b
         createShelf(shelf);
         myBooksByShelf[shelf].push_back(book);
     }
-    saveShelfsFromModelToDB();
+    book->addShelf(shelf);
+    saveShelvesFromModelToDB();
 }
 
 void BookshelfModel::createShelf(const std::string &shelf)
 {
-    ShelfList::iterator it = std::find(myShelfs.begin(), myShelfs.end(), shelf);
-    if (it == myShelfs.end())
+    ShelfList::iterator it = std::find(myShelves.begin(), myShelves.end(), shelf);
+    if (it == myShelves.end())
     {
-        myShelfs.push_back(shelf);
+        myShelves.push_back(shelf);
     }
     BooksByShelf::iterator jt = myBooksByShelf.find(shelf);
     if (jt == myBooksByShelf.end())
@@ -278,11 +280,16 @@ void BookshelfModel::createShelf(const std::string &shelf)
         BookList emptyList(0);
         myBooksByShelf.insert(std::make_pair(shelf, emptyList));
     }
-    saveShelfsFromModelToDB();
+    saveShelvesFromModelToDB();
 }
 
 void BookshelfModel::removeBookFromShelf(const std::string &shelf, shared_ptr<Book> book) 
 {
+    const ShelfList::iterator kt = std::find(myShelves.begin(), myShelves.end(), shelf);
+    if (kt == myShelves.end())
+    {
+        myShelves.erase(kt);
+    }
     BooksByShelf::iterator jt = myBooksByShelf.find(shelf);
     if (jt != myBooksByShelf.end())
     {
@@ -292,7 +299,8 @@ void BookshelfModel::removeBookFromShelf(const std::string &shelf, shared_ptr<Bo
             (*jt).second.erase(it);
         }
     }
-    saveShelfsFromModelToDB();
+    book->removeShelf(shelf);
+    saveShelvesFromModelToDB();
 }
 
 std::string BookshelfModel::getPathToShelfDB(){

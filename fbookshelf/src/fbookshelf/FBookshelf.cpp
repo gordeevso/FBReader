@@ -33,28 +33,29 @@ Fbookshelf &Fbookshelf::Instance() {
     return (Fbookshelf&)ZLApplication::Instance();
 }
 
-Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshelf"),
+Fbookshelf::Fbookshelf(const std::string & bookToOpen) : ZLApplication("FBookshelf"),
                                                         myBindings0(new ZLKeyBindings("Keys"))
 {
     myGridView = new GridView(*context());
     myBookStackView = new BookStackView(*context());
     myWebView = new WebView(*context());
 
-    if (bookToOpen != ""){
-        netVsLibMode = bookToOpen;
+//    if (bookToOpen != ""){
+//        netVsLibMode = bookToOpen;
 
-        myViewMode = WEB_MODE;
-        setView(myWebView);
+//        myViewMode = WEB_MODE;
+//        setView(myWebView);
 
-    }
-    else {
+//    }
+//    else {
         myViewMode = GRID_MODE;
         setView(myGridView);
 
-    }
+//    }
 
     addAction(BookshelfActionCode::SET_GRIDVIEW, new SetGridViewAction());
     addAction(BookshelfActionCode::SET_BOOKSTACKVIEW, new SetBookStackViewAction());
+    addAction(BookshelfActionCode::SET_WEBVIEW, new SetWebViewAction());
 
     addAction(BookshelfActionCode::ADD_TO_SHELF, new AddToShelfDialogAction());
     addAction(BookshelfActionCode::REMOVE_FROM_SHELF, new RemoveFromShelfDialogAction());
@@ -73,12 +74,18 @@ Fbookshelf::Fbookshelf(const std::string &bookToOpen) : ZLApplication("FBookshel
 
     addAction(BookshelfActionCode::RESIZE_SMALLER, new ResizeSmallerAction());
     addAction(BookshelfActionCode::RESIZE_BIGGER, new ResizeBiggerAction());
+
+    addAction(BookshelfActionCode::SIGNIN_RELOAD_GOOGLE_DRIVE, new SignInReloadGoogleDrive());
+    addAction(BookshelfActionCode::SIGNOUT_GOOGLE_DRIVE, new SignOutGoogleDrive());
+    addAction(BookshelfActionCode::SIGNIN_RELOAD_BOOKS_FBREADER_ORG, new SignInReloadBooksFbreaderOrg());
+    addAction(BookshelfActionCode::SIGNOUT_BOOKS_FBREADER_ORG, new SignOutBooksFbreaderOrg());
+    addAction(BookshelfActionCode::DOWNLOAD_BOOK, new DownloadBookAction());
 }
 
 Fbookshelf::~Fbookshelf() {
 }
 
-void Fbookshelf::setMode(Fbookshelf::ViewMode mode) {
+void Fbookshelf::setMode(Fbookshelf::ViewMode mode, WebView::ViewMode web_mode) {
     myViewMode = mode;
     switch (mode) {
     case GRID_MODE:
@@ -90,7 +97,7 @@ void Fbookshelf::setMode(Fbookshelf::ViewMode mode) {
         setView(myBookStackView);
         break;
     case WEB_MODE:
-        static_cast<WebView&>(*myWebView).setMode(WebView::WITHOUT_TAGS_MENU);
+        static_cast<WebView&>(*myWebView).setMode(web_mode);
         setView(myWebView);
         break;
     default:
@@ -118,53 +125,50 @@ shared_ptr<ZLView> Fbookshelf::getWebView()
     return myWebView;
 }
 
-
-
 shared_ptr<ZLKeyBindings> Fbookshelf::keyBindings() {
     return myBindings0;
 }
-
 
 void Fbookshelf::initWindow() {
     ZLApplication::initWindow();
     trackStylus(true);
 
-    if (netVsLibMode == "net"){
-        std::string url = "https://books.fbreader.org/opds/by_title";
-        OPDSDownloader downloader;
-        std::string content = downloader.download(url);
-        OPDSSimpleParser parser(content);
-        parser.parse();
-        std::string baseString = "";
-        std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfModel::Instance().getLibrary();
-        for (size_t i = 0; i < parser.OPDS_Title_nodes.size(); ++i){
-            std::string title =  parser.OPDS_Title_nodes[i];
-            // std::cout << title << " " << parser.OPDS_tree_href[i].size() << std::endl;
-            std::string path = parser.OPDS_tree_href[i][2].second;
-            std::string type = parser.get_book_type(i, 2);
-            shared_ptr<Book> bookptr = Book::createBook(
-                ZLFile(path), i,
-                type,
-                "English",
-                title
-            );
-            bookptr->addAuthor("author");
-            baseString += "a";
-            booksmap.insert(std::make_pair(path,bookptr));
-        }
-        shared_ptr<ZLView> view = this->currentView();
+//    if (netVsLibMode == "net"){
+//        std::string url = "https://books.fbreader.org/opds/by_title";
+//        OPDSDownloader downloader;
+//        std::string content = downloader.download(url);
+//        OPDSSimpleParser parser(content);
+//        parser.parse();
+//        std::string baseString = "";
+//        std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfModel::Instance().getLibrary();
+//        for (size_t i = 0; i < parser.OPDS_Title_nodes.size(); ++i){
+//            std::string title =  parser.OPDS_Title_nodes[i];
+//            // std::cout << title << " " << parser.OPDS_tree_href[i].size() << std::endl;
+//            std::string path = parser.OPDS_tree_href[i][2].second;
+//            std::string type = parser.get_book_type(i, 2);
+//            shared_ptr<Book> bookptr = Book::createBook(
+//                ZLFile(path), i,
+//                type,
+//                "English",
+//                title
+//            );
+//            bookptr->addAuthor("author");
+//            baseString += "a";
+//            booksmap.insert(std::make_pair(path,bookptr));
+//        }
+//        shared_ptr<ZLView> view = this->currentView();
 
-        if(view->isInstanceOf(WebView::TYPE_ID)) {
-            static_cast<WebView&>(*view).setMode(WebView::WITHOUT_TAGS_MENU);
-        }
+//        if(view->isInstanceOf(WebView::TYPE_ID)) {
+//            static_cast<WebView&>(*view).setMode(WebView::GOOGLE_DRIVE);
+//        }
 
-    }
-    else if (netVsLibMode == "drive")
-    {
-        GoogleDriveLibrary lib;
-        lib.login();
-    }
-    else {
+//    }
+//    else if (netVsLibMode == "drive")
+//    {
+//        GoogleDriveLibrary lib;
+//        lib.login();
+//    }
+//    else {
         BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
         BooksMap::iterator it = BookshelfModel::Instance().getLibrary().begin();
         BooksMap::iterator itEnd = BookshelfModel::Instance().getLibrary().end();
@@ -179,7 +183,7 @@ void Fbookshelf::initWindow() {
         if(view->isInstanceOf(GridView::TYPE_ID)) {
             static_cast<GridView&>(*view).setMode(GridView::WITHOUT_TAGS_MENU);
         }
-    }
+//    }
             
     refreshWindow();
 }

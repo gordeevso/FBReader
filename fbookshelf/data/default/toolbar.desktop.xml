@@ -2,6 +2,13 @@
 <toolbar>
 	<button id="setBookStackView"/>
 	<button id="setGridView"/>
+	<button id="setWebView"/>
+	<separator/>
+	<button id="signInReloadGoogleDrive"/>
+	<button id="signOutGoogleDrive"/>
+	<separator/>
+	<button id="signInReloadBooksFbreaderOrg"/>
+	<button id="signOutBooksFbreaderOrg"/>
 	<separator/>
 	<button id="showTagMenu"/>
 	<separator/>

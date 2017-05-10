@@ -60,7 +60,7 @@ public:
     Fbookshelf(const std::string &bookToOpen);
     ~Fbookshelf();
 
-    void setMode(ViewMode mode);
+    void setMode(Fbookshelf::ViewMode mode, WebView::ViewMode web_mode = WebView::BOOKS_FBREADER_ORG);
     ViewMode mode() const;
 
     shared_ptr<ZLView> getGridView();

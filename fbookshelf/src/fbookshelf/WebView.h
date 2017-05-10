@@ -29,13 +29,14 @@ public:
     const ZLTypeId &typeId() const;
 
     enum ViewMode {
-        WITH_TAGS_MENU = 0,
-        WITHOUT_TAGS_MENU = 1
+        BOOKS_FBREADER_ORG = 0,
+        GOOGLE_DRIVE = 1
     };
 
     void setCaption(const std::string &caption);
     void updateView(BookshelfModel::SortType);
     void setMode(ViewMode);
+    ViewMode mode() const;
     void invertMode();
 
     std::vector<WebElement>::iterator getSelectedElement();

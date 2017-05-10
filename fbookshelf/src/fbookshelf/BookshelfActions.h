@@ -22,9 +22,15 @@ public:
     static const std::string SHOW_TAG_MENU;
     static const std::string SET_BOOKSTACKVIEW;
     static const std::string SET_GRIDVIEW;
+    static const std::string SET_WEBVIEW;
     static const std::string RUN_FBREADER;
     static const std::string RESIZE_SMALLER;
     static const std::string RESIZE_BIGGER;
+    static const std::string SIGNIN_RELOAD_GOOGLE_DRIVE;
+    static const std::string SIGNOUT_GOOGLE_DRIVE;
+    static const std::string SIGNIN_RELOAD_BOOKS_FBREADER_ORG;
+    static const std::string SIGNOUT_BOOKS_FBREADER_ORG;
+    static const std::string DOWNLOAD_BOOK;
 
 private:
     BookshelfActionCode();
@@ -59,6 +65,43 @@ public:
     void run();
 };
 
+class SetWebViewAction : public ModeDependentAction {
+
+public:
+    SetWebViewAction();
+    void run();
+};
+
+
+
+class SignInReloadGoogleDrive : public ModeDependentAction {
+
+public:
+    SignInReloadGoogleDrive();
+    void run();
+};
+
+class SignOutGoogleDrive : public ModeDependentAction {
+
+public:
+    SignOutGoogleDrive();
+    void run();
+};
+
+
+class SignInReloadBooksFbreaderOrg : public ModeDependentAction {
+
+public:
+    SignInReloadBooksFbreaderOrg();
+    void run();
+};
+
+class SignOutBooksFbreaderOrg : public ModeDependentAction {
+
+public:
+    SignOutBooksFbreaderOrg();
+    void run();
+};
 
 
 class SortBooksAction : public ModeDependentAction {
@@ -116,6 +159,12 @@ private:
 };
 
 class RunFBReaderAction : public ZLApplication::Action {
+
+public:
+    void run();
+};
+
+class DownloadBookAction : public ZLApplication::Action {
 
 public:
     void run();

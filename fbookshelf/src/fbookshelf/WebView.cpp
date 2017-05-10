@@ -27,7 +27,7 @@ const ZLColor BACKGROUND_COLOR = ZLColor(255,255,255);
 const std::string CAPTION = "Web";
 
 WebView::WebView(ZLPaintContext &context) : ZLView(context),
-                                              myViewMode(WebView::WITHOUT_TAGS_MENU),
+                                              myViewMode(WebView::GOOGLE_DRIVE),
                                               mySortType(BookshelfModel::SORT_BY_AUTHOR),
                                               myTopLeftX(0),
                                               myTopleftY(0),
@@ -53,10 +53,6 @@ WebView::WebView(ZLPaintContext &context) : ZLView(context),
     ZLFile imageFile("/usr/share/pixmaps/FBookshelf/title.png");
     myTitleImage = new ZLFileImage(imageFile, 0);
 
-
-//    std::vector<std::string> tags;
-//    Tag::collectTagNames(tags);
-//    myTagsMenu = new BookshelfMenu(context, tags);
 }
 
 const ZLTypeId WebView::TYPE_ID(ZLView::TYPE_ID);
@@ -70,117 +66,104 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
     if(mySortType != sort_type || myVecBookshelfElements.empty()) {
         myVecBookshelfElements.clear();
 
-        if(myViewMode == WebView::WITHOUT_TAGS_MENU)
-            myViewWidth = context().width();
-
-        if(myViewMode == WebView::WITH_TAGS_MENU)
-            myViewWidth = context().width() - myTopLeftX;
-
-        myElementWidth = myViewWidth / myElementsOnX;
-
         int x1 = myTopLeftX;
         int y1 = myTopleftY;
-        int x2 = myTopLeftX + myElementWidth;
+        int x2 = myElementWidth;
         int y2 = myElementHeight;
 
         WebElement element;
-        //std::cout << "OKI" << std::endl;
-        std::vector<shared_ptr<Book> > & library = BookshelfModel::Instance().getLibrary(sort_type);
-        
+
+        bool books_fbreader_org = true;
+        if(myViewMode == WebView::GOOGLE_DRIVE)
+            books_fbreader_org = false;
+
+        //Write call to custom netLibrary
+        std::vector<shared_ptr<Book> > & library = books_fbreader_org ?
+                                                   BookshelfModel::Instance().getLibrary(sort_type) :  //fbreader
+                                                   BookshelfModel::Instance().getLibrary(sort_type);   //google
         std::cout << library.size() << std::endl;
-        std::vector<shared_ptr<Book> >::iterator it = library.begin();
+        if(library.empty()) {
+            //just after first start library is empty
+            //show message about authorization
+            //"push button to authorize"
+            //or nothing
+        }
+        else {
+            std::vector<shared_ptr<Book> >::iterator it = library.begin();
+            std::vector<shared_ptr<Book> >::iterator itEnd = library.end();
 
-        std::vector<shared_ptr<Book> >::iterator itEnd = library.end();
-        for(; it != itEnd; ++it) {
+            for(; it != itEnd; ++it) {
 
-            BookModel model(*it);
+                BookModel model(*it);
 
-            element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(myTitleImage));
-            element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
-            element.myBook = *it;
+                //change myTitleImage to (*it)->image()
+                element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(myTitleImage));
+                element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
+                element.myBook = *it;
 
-            element.myTitleString = new StringRect(element.myBook->title(), context());
+                element.myTitleString = new StringRect(element.myBook->title(), context());
 
-            element.myTopLeft.x = x1;
-            element.myTopLeft.y = y1;
-            element.myBottomRight.x = x2;
-            element.myBottomRight.y = y2;
+                element.myTopLeft.x = x1;
+                element.myTopLeft.y = y1;
+                element.myBottomRight.x = x2;
+                element.myBottomRight.y = y2;
 
-            element.myElementColor = ELEMENT_COLOR;
-            element.myFrameColor = ELEMENT_FRAME_COLOR;
+                element.myElementColor = ELEMENT_COLOR;
+                element.myFrameColor = ELEMENT_FRAME_COLOR;
 
-            myVecBookshelfElements.push_back(element);
+                myVecBookshelfElements.push_back(element);
 
-            x1 += myElementWidth;
-            x2 += myElementWidth;
+                x1 += myElementWidth;
+                x2 += myElementWidth;
 
-            if(x2 > myViewWidth + myTopLeftX)
-            {
-                x1 = myTopLeftX;
-                x2 = myTopLeftX + myElementWidth;
-                y1 += myElementHeight;
-                y2 += myElementHeight;
+                if(x2 > myViewWidth + myTopLeftX)
+                {
+                    x1 = myTopLeftX;
+                    x2 = myElementWidth;
+                    y1 += myElementHeight;
+                    y2 += myElementHeight;
+                }
             }
+
+            myItSelectedElement = myVecBookshelfElements.begin();
+
+            if(myVecBookshelfElements.size() > myRenderingElementsCount) {
+                myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
+                ++myScrollBarMaxPos;
+            }
+
+            setScrollbarEnabled(VERTICAL, true);
+            setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+
+            myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
+            myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
+
+            mySortType = sort_type;
         }
-
-        myItSelectedElement = myVecBookshelfElements.begin();
-//        myElementMenu.myIsVisible = false;
-
-        if(myVecBookshelfElements.size() > myRenderingElementsCount) {
-            myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
-            ++myScrollBarMaxPos;
-        }
-
-        setScrollbarEnabled(VERTICAL, true);
-        setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-
-        myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
-        myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
-
-        mySortType = sort_type;
     }
 
-    
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();
 }
 
 void WebView::setMode(WebView::ViewMode mode)
 {
-    if(mode != myViewMode) {
-        if(mode == WebView::WITHOUT_TAGS_MENU) {
-//            if(!myTagsMenu.isNull())
-//                myTagsMenu->myIsVisible = false;
-            myTopLeftX = 0;
-        }
-
-        if(mode == WebView::WITH_TAGS_MENU) {
-//            if(!myTagsMenu.isNull()) {
-//                std::vector<std::string> tags;
-//                Tag::collectTagNames(tags);
-//                myTagsMenu->reloadTags(tags);
-//                myTagsMenu->myIsVisible = true;
-//                myTopLeftX = myTagsMenu->myXOffset;
-//            }
-        }
-
+    if(mode != myViewMode)
         myViewMode = mode;
-    }
-    if(myVecBookshelfElements.empty()){
-        updateView(mySortType);
-    }
-    else {
-        updateBookshelfElements();
-        Fbookshelf::Instance().refreshWindow();
-    }
+
+    updateView(mySortType);
+}
+
+WebView::ViewMode WebView::mode() const {
+    return myViewMode;
 }
 
 void WebView::invertMode()
 {
-    if(myViewMode == WebView::WITHOUT_TAGS_MENU)
-        setMode(WebView::WITH_TAGS_MENU);
+    if(myViewMode == WebView::GOOGLE_DRIVE)
+        setMode(WebView::BOOKS_FBREADER_ORG);
     else
-        setMode(WebView::WITHOUT_TAGS_MENU);
+        setMode(WebView::GOOGLE_DRIVE);
 }
 
 std::vector<WebElement>::iterator WebView::getSelectedElement() {
@@ -242,7 +225,7 @@ bool WebView::onStylusRelease(int x, int y) {
         if(it == myItSelectedElement &&
            (*it).checkSelectedBook(x, y)) {
             std::cout << "do action release\n";
-            Fbookshelf::Instance().doAction(BookshelfActionCode::RUN_FBREADER);
+            Fbookshelf::Instance().doAction(BookshelfActionCode::DOWNLOAD_BOOK);
             break;
         }
     }
@@ -356,7 +339,7 @@ void WebView::onScrollbarPageStep(ZLView::Direction direction, int steps){
 
 void WebView::onMouseScroll(bool forward) {
 
-    if(myViewMode == WebView::WITHOUT_TAGS_MENU) {
+    if(myViewMode == WebView::GOOGLE_DRIVE) {
         if(forward && myMouseScrollTo < myScrollBarMaxPos) {
             ++myMouseScrollFrom;
             ++myMouseScrollTo;
@@ -389,10 +372,10 @@ void WebView::onMouseScroll(bool forward) {
 
 
 void WebView::updateBookshelfElements() {
-    if(myViewMode == WebView::WITHOUT_TAGS_MENU)
+    if(myViewMode == WebView::GOOGLE_DRIVE)
         myViewWidth = context().width();
 
-    if(myViewMode == WebView::WITH_TAGS_MENU)
+    if(myViewMode == WebView::BOOKS_FBREADER_ORG)
         myViewWidth = context().width() - myTopLeftX;
 
     myViewHeight = context().height();
@@ -464,13 +447,13 @@ void WebView::updateScrollUp()
 
 
 void WebView::drawBookshelfElements() {
-    if(myViewMode == WebView::WITHOUT_TAGS_MENU) {
+    if(myViewMode == WebView::GOOGLE_DRIVE) {
         if(context().width() != myViewWidth || context().height() != myViewHeight) {
             updateBookshelfElements();
         }
     }
 
-    if(myViewMode == WebView::WITH_TAGS_MENU) {
+    if(myViewMode == WebView::BOOKS_FBREADER_ORG) {
         if(context().width() != myViewWidth + myTopLeftX || context().height() != myViewHeight) {
             updateBookshelfElements();
         }

@@ -25,8 +25,10 @@
 #include <shared_ptr.h>
 
 #include <ZLFile.h>
+#include <ZLFileImage.h>
 
 #include "Lists.h"
+
 
 class Author;
 class Tag;
@@ -45,13 +47,20 @@ public:
 		const std::string &title
 	);
 
+    static shared_ptr<Book> createNetBook(
+        shared_ptr<ZLFileImage> fileimage,
+        const std::string &url,
+        const std::string &title,
+        const std::string &extension
+    );
+
 	static shared_ptr<Book> loadFromFile(const ZLFile &file);
 
 	// this method is used in Migration only
 	static shared_ptr<Book> loadFromBookInfo(const ZLFile &file);
 
 private:
-	Book(const ZLFile &file, int id);
+    Book(const ZLFile &file, int id, bool is_net_book);
 
 public:
 	~Book();
@@ -66,13 +75,23 @@ public: // unmodifiable book methods
 
 	const TagList &tags() const;
 	const AuthorList &authors() const;
-        const ShelfList &shelves() const;
+    const ShelfList &shelves() const;
+
+    //webview
+    const std::string &url() const;
+    const std::string &extension() const;
+    const shared_ptr<ZLFileImage> image() const;
 
 public: // modifiable book methods
 	void setTitle(const std::string &title);
 	void setLanguage(const std::string &language);
 	void setEncoding(const std::string &encoding);
 	void setSeries(const std::string &title, int index);
+
+    //webview
+    void setUrl(const std::string &url);
+    void setExtension(const std::string &extension);
+    void setImage(shared_ptr<ZLFileImage> fileimage);
 
 public:
 	bool addTag(shared_ptr<Tag> tag);
@@ -105,7 +124,12 @@ private:
 	int myIndexInSeries;
 	TagList myTags;
 	AuthorList myAuthors;
-        ShelfList myShelves;
+
+    ShelfList myShelves;
+    bool myIsNetBook;
+    shared_ptr<ZLFileImage> myImage;
+    std::string myUrl;
+    std::string myExtension;
 
 private: // disable copying
 	Book(const Book &);
@@ -144,4 +168,7 @@ inline const ShelfList &Book::shelves() const { return myShelves; }
 inline int Book::bookId() const { return myBookId; }
 inline void Book::setBookId(int bookId) { myBookId = bookId; }
 
+inline const std::string & Book::url() const { return myUrl; }
+inline const std::string & Book::extension() const { return myExtension; }
+inline const shared_ptr<ZLFileImage> Book::image() const { return myImage; }
 #endif /* __BOOK_H__ */

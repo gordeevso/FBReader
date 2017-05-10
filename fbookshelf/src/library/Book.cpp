@@ -23,6 +23,7 @@
 #include <ZLStringUtil.h>
 #include <ZLFile.h>
 #include <ZLLanguageList.h>
+#include <ZLFileImage.h>
 
 #include "Book.h"
 #include "Author.h"
@@ -33,7 +34,17 @@
 
 const std::string Book::AutoEncoding = "auto";
 
-Book::Book(const ZLFile &file, int id) : myBookId(id), myFile(file), myIndexInSeries(0) {
+Book::Book(const ZLFile &file, int id, bool is_net_book = false) : myBookId(id),
+                                                                   myFile(file),
+                                                                   myIndexInSeries(0),
+                                                                   myIsNetBook(is_net_book)
+{
+    if(!myIsNetBook) {
+        myImage = 0;
+        myUrl = "";
+        myExtension = "";
+    }
+
 }
 
 Book::~Book() {
@@ -50,7 +61,24 @@ shared_ptr<Book> Book::createBook(
 	book->setEncoding(encoding);
 	book->setLanguage(language);
 	book->setTitle(title);
-	return book;
+    return book;
+}
+
+shared_ptr<Book> Book::createNetBook(
+        const shared_ptr<ZLFileImage> fileimage,
+        const std::string &url,
+        const std::string &title,
+        const std::string &extension
+) {
+    ZLFile file("");
+    Book *book = new Book(file, 0, true);
+    book->setEncoding(AutoEncoding);
+    book->setLanguage(PluginCollection::Instance().DefaultLanguageOption.value());
+    book->setTitle(title);
+    book->setUrl(url);
+    book->setImage(fileimage);
+    book->setExtension(extension);
+    return book;
 }
 
 shared_ptr<Book> Book::loadFromFile(const ZLFile &file) {
@@ -257,7 +285,22 @@ void Book::setEncoding(const std::string &encoding) {
 
 void Book::setSeries(const std::string &title, int index) {
 	mySeriesTitle = title;
-	myIndexInSeries = index;
+    myIndexInSeries = index;
+}
+
+void Book::setUrl(const std::string &url)
+{
+    myUrl = url;
+}
+
+void Book::setExtension(const std::string &extension)
+{
+    myExtension = extension;
+}
+
+void Book::setImage(shared_ptr<ZLFileImage> fileimage)
+{
+    myImage = fileimage;
 }
 
 void Book::removeAllTags() {

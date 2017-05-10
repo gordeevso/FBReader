@@ -9,23 +9,23 @@
 class ZLDialog;
 class ZLOptionsDialog;
 
-class AddTagDialog {
+class AddToShelfDialog {
 
 public:
     static bool run();
 
 private:
-    AddTagDialog();
+    AddToShelfDialog();
 
 };
 
-class RemoveTagDialog {
+class RemoveFromShelfDialog {
 
 public:
     static bool run();
 
 private:
-    RemoveTagDialog();
+    RemoveFromShelfDialog();
 
 };
 

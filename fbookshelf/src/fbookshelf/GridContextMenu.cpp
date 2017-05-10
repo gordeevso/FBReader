@@ -23,8 +23,8 @@ GridContextMenu::GridContextMenu(ZLPaintContext &context, Point topleft, int xof
       myVecMenuStrings()
 {
     myIsVisible = false;
-    myVecMenuStrings.push_back(std::make_pair(BookshelfActionCode::ADD_TAG, false));
-    myVecMenuStrings.push_back(std::make_pair(BookshelfActionCode::REMOVE_TAG, false));
+    myVecMenuStrings.push_back(std::make_pair(BookshelfActionCode::ADD_TO_SHELF, false));
+    myVecMenuStrings.push_back(std::make_pair(BookshelfActionCode::REMOVE_FROM_SHELF, false));
     myItMenuEnd = myVecMenuStrings.end();
 }
 

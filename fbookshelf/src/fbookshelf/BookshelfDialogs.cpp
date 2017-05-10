@@ -11,10 +11,10 @@
 
 
 
-class AddTagEntry : public ZLTextOptionEntry {
+class AddToShelfEntry : public ZLTextOptionEntry {
 
 public:
-    AddTagEntry(const std::string &initialValue);
+    AddToShelfEntry(const std::string &initialValue);
 
     const std::string &initialValue() const;
     void onAccept(const std::string &value);
@@ -24,20 +24,20 @@ private:
     std::string myValue;
 };
 
-AddTagEntry::AddTagEntry(const std::string &initialValue) : myValue(initialValue)
+AddToShelfEntry::AddToShelfEntry(const std::string &initialValue) : myValue(initialValue)
 {}
 
-const std::string &AddTagEntry::initialValue() const
+const std::string &AddToShelfEntry::initialValue() const
 {
     return myValue;
 }
 
-void AddTagEntry::onAccept(const std::string &value)
+void AddToShelfEntry::onAccept(const std::string &value)
 {
     myValue = value;
 }
 
-ZLOptionEntry::ZLOptionKind AddTagEntry::kind() const
+ZLOptionEntry::ZLOptionKind AddToShelfEntry::kind() const
 {
     return STRING;
 }
@@ -45,15 +45,15 @@ ZLOptionEntry::ZLOptionKind AddTagEntry::kind() const
 
 
 
-AddTagDialog::AddTagDialog()
+AddToShelfDialog::AddToShelfDialog()
 {}
 
-bool AddTagDialog::run()
+bool AddToShelfDialog::run()
 {
-    shared_ptr<ZLDialog> dialog = ZLDialogManager::Instance().createDialog(ZLResourceKey("add tag"));
+    shared_ptr<ZLDialog> dialog = ZLDialogManager::Instance().createDialog(ZLResourceKey("add to shelf"));
 
-    AddTagEntry * addTagEntry = new AddTagEntry("");
-    dialog->addOption(ZLResourceKey("name"), addTagEntry);
+    AddToShelfEntry * addToShelfEntry = new AddToShelfEntry("");
+    dialog->addOption(ZLResourceKey("name"), addToShelfEntry);
 
     dialog->addButton(ZLDialogManager::OK_BUTTON, true);
     dialog->addButton(ZLDialogManager::CANCEL_BUTTON, false);
@@ -64,8 +64,7 @@ bool AddTagDialog::run()
 
         shared_ptr<ZLView> view = fbookshelf.getGridView();
         shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
-        book->addTag(addTagEntry->initialValue());
-        BooksDB::Instance().saveBook(book);
+        BookshelfModel::Instance().addBookToShelf(addToShelfEntry->initialValue(), book);
 
         return true;
     }
@@ -73,10 +72,10 @@ bool AddTagDialog::run()
 }
 
 
-class BookTagEntry : public ZLComboOptionEntry {
+class BookShelfEntry : public ZLComboOptionEntry {
 
 public:
-    BookTagEntry();
+    BookShelfEntry();
 
     const std::string &initialValue() const;
     const std::vector<std::string> &values() const;
@@ -90,7 +89,7 @@ private:
     std::vector<std::string> myValues;
 };
 
-BookTagEntry::BookTagEntry() : ZLComboOptionEntry(true),
+BookShelfEntry::BookShelfEntry() : ZLComboOptionEntry(true),
                                mySelectedValue("")
 {
 
@@ -100,42 +99,42 @@ BookTagEntry::BookTagEntry() : ZLComboOptionEntry(true),
 
     shared_ptr<ZLView> view = fbookshelf.getGridView();
     shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
-    TagList const & tags = book->tags();
+    ShelfList const & shelves = book->shelves();
 
-    for(size_t i = 0; i != tags.size(); ++i) {
-        myValues.push_back(tags[i]->name());
+    for(size_t i = 0; i != shelves.size(); ++i) {
+        myValues.push_back(shelves[i]);
     }
 
 }
 
-const std::string &BookTagEntry::initialValue() const {
+const std::string &BookShelfEntry::initialValue() const {
     return mySelectedValue;
 }
 
-const std::vector<std::string> &BookTagEntry::values() const {
+const std::vector<std::string> &BookShelfEntry::values() const {
     return myValues;
 }
 
-void BookTagEntry::onAccept(const std::string &value) {
+void BookShelfEntry::onAccept(const std::string &value) {
 
 }
 
 
-void BookTagEntry::onValueSelected(int index) {
+void BookShelfEntry::onValueSelected(int index) {
     mySelectedValue = myValues[index];
 }
 
 
-RemoveTagDialog::RemoveTagDialog() {
+RemoveFromShelfDialog::RemoveFromShelfDialog() {
 }
 
 
-bool RemoveTagDialog::run()
+bool RemoveFromShelfDialog::run()
 {
-    shared_ptr<ZLDialog> dialog = ZLDialogManager::Instance().createDialog(ZLResourceKey("remove tag"));
+    shared_ptr<ZLDialog> dialog = ZLDialogManager::Instance().createDialog(ZLResourceKey("remove from shelf"));
 
-    BookTagEntry * bookTagEntry = new BookTagEntry();
-    dialog->addOption(ZLResourceKey("name"), bookTagEntry);
+    BookShelfEntry * bookShelfEntry = new BookShelfEntry();
+    dialog->addOption(ZLResourceKey("name"), bookShelfEntry);
 
     dialog->addButton(ZLDialogManager::OK_BUTTON, true);
     dialog->addButton(ZLDialogManager::CANCEL_BUTTON, false);
@@ -148,12 +147,11 @@ bool RemoveTagDialog::run()
 
         shared_ptr<ZLView> view = fbookshelf.getGridView();
         shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
-        TagList const & tags = book->tags();
+        ShelfList const & shelves = book->shelves();
 
-        for(size_t i = 0; i != tags.size(); ++i) {
-            if(bookTagEntry->initialValue() == tags[i]->name()) {
-                book->removeTag(tags[i], false);
-                BooksDB::Instance().saveBook(book);
+        for(size_t i = 0; i != shelves.size(); ++i) {
+            if(bookShelfEntry->initialValue() == shelves[i]) {
+                BookshelfModel::Instance().removeBookFromShelf(shelves[i], book);
                 break;
             }
         }

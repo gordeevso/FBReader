@@ -11,8 +11,8 @@
 const std::string BookshelfActionCode::SORT_BY_AUTHOR = "sortByAuthor";
 const std::string BookshelfActionCode::SORT_BY_ID = "sortById";
 const std::string BookshelfActionCode::SORT_BY_TITLE = "sortByTitle";
-const std::string BookshelfActionCode::ADD_TAG = "add tag";
-const std::string BookshelfActionCode::REMOVE_TAG = "remove tag";
+const std::string BookshelfActionCode::ADD_TO_SHELF = "add to shelf";
+const std::string BookshelfActionCode::REMOVE_FROM_SHELF = "remove from shelf";
 const std::string BookshelfActionCode::MOUSE_SCROLL_FORWARD = "mouseScrollForward";
 const std::string BookshelfActionCode::MOUSE_SCROLL_BACKWARD = "mouseScrollBackward";
 const std::string BookshelfActionCode::SHOW_TAG_MENU = "showTagMenu";
@@ -53,14 +53,14 @@ void SetBookStackViewAction::run()
 }
 
 
-void AddTagDialogAction::run()
+void AddToShelfDialogAction::run()
 {
-    AddTagDialog::run();
+    AddToShelfDialog::run();
 }
 
-void RemoveTagDialogAction::run()
+void RemoveFromShelfDialogAction::run()
 {
-    RemoveTagDialog::run();
+    RemoveFromShelfDialog::run();
 }
 
 

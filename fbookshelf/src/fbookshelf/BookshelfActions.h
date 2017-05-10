@@ -15,8 +15,8 @@ public:
     static const std::string SORT_BY_AUTHOR;
     static const std::string SORT_BY_ID;
     static const std::string SORT_BY_TITLE;
-    static const std::string ADD_TAG;
-    static const std::string REMOVE_TAG;
+    static const std::string ADD_TO_SHELF;
+    static const std::string REMOVE_FROM_SHELF;
     static const std::string MOUSE_SCROLL_FORWARD;
     static const std::string MOUSE_SCROLL_BACKWARD;
     static const std::string SHOW_TAG_MENU;
@@ -76,13 +76,13 @@ public:
 };
 
 
-class AddTagDialogAction : public ZLApplication::Action {
+class AddToShelfDialogAction : public ZLApplication::Action {
 
 public:
     void run();
 };
 
-class RemoveTagDialogAction : public ZLApplication::Action {
+class RemoveFromShelfDialogAction : public ZLApplication::Action {
 
 public:
     void run();

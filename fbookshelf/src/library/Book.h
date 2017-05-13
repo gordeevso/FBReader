@@ -51,7 +51,8 @@ public:
         shared_ptr<ZLFileImage> fileimage,
         const std::string &url,
         const std::string &title,
-        const std::string &extension
+        const std::string &extension,
+        const bool &isLocal = false
     );
 
 	static shared_ptr<Book> loadFromFile(const ZLFile &file);
@@ -71,6 +72,7 @@ public: // unmodifiable book methods
 	const std::string &language() const;
 	const std::string &encoding() const;
 	const std::string &seriesTitle() const;
+	const bool &isLocal() const;
 	int indexInSeries() const;
 
 	const TagList &tags() const;
@@ -87,7 +89,7 @@ public: // modifiable book methods
 	void setLanguage(const std::string &language);
 	void setEncoding(const std::string &encoding);
 	void setSeries(const std::string &title, int index);
-
+	void setLocal(const bool &isLocal);
     //webview
     void setUrl(const std::string &url);
     void setExtension(const std::string &extension);
@@ -121,6 +123,7 @@ private:
 	std::string myLanguage;
 	std::string myEncoding;
 	std::string mySeriesTitle;
+	bool myIsLocal;
 	int myIndexInSeries;
 	TagList myTags;
 	AuthorList myAuthors;
@@ -155,6 +158,7 @@ public:
 };
 
 inline const std::string &Book::title() const { return myTitle; }
+inline const bool &Book::isLocal() const { return myIsLocal; }
 inline const ZLFile &Book::file() const { return myFile; }
 inline const std::string &Book::language() const { return myLanguage; }
 inline const std::string &Book::encoding() const { return myEncoding; }

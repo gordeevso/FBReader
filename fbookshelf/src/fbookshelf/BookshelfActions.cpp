@@ -114,10 +114,13 @@ void SignInReloadBooksFbreaderOrg::run() {
         NetworkFBReaderActions net;
         std::vector<BookModelFill> booksToPass = net.getNetworkLibrary();
         std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfNetFBReaderModel::Instance().getLibrary();
+        booksmap.clear();
         for (size_t i = 0; i < booksToPass.size(); i++){
             booksmap.insert(booksToPass[i]);
         }
+        std::cout << "vector size: " << booksToPass.size() << std::endl;
         static_cast<WebView&>(*view).setMode(WebView::BOOKS_FBREADER_ORG);
+        static_cast<WebView&>(*view).updateView(BookshelfModel::SortType::SORT_BY_TITLE);
     }
 }
 
@@ -251,8 +254,15 @@ void DownloadBookAction::run() {
 
     if(fbookshelf.mode() == Fbookshelf::WEB_MODE){
         if(static_cast<WebView&>(*view).mode() == WebView::BOOKS_FBREADER_ORG) {
+            shared_ptr<Book> book = (*(static_cast<WebView&>(*view).getSelectedElement())).myBook;
             NetworkFBReaderActions net;
-            std::string filePath = net.downloadBook((*(static_cast<WebView&>(*view).getSelectedElement())).myBook);
+            std::string filePath;
+            if (book->isLocal()){
+                filePath = net.getBookName(book->title(), book->extension());
+            }
+            else{
+                filePath = net.downloadBook(book);
+            }
             system(("FBReader " + filePath + "&").c_str());
         }
         else if(static_cast<WebView&>(*view).mode() == WebView::GOOGLE_DRIVE) {

@@ -68,7 +68,8 @@ shared_ptr<Book> Book::createNetBook(
         const shared_ptr<ZLFileImage> fileimage,
         const std::string &url,
         const std::string &title,
-        const std::string &extension
+        const std::string &extension,
+        const bool &isLocal
 ) {
     ZLFile file("");
     Book *book = new Book(file, 0, true);
@@ -78,6 +79,7 @@ shared_ptr<Book> Book::createNetBook(
     book->setUrl(url);
     book->setImage(fileimage);
     book->setExtension(extension);
+    book->setLocal(isLocal);
     return book;
 }
 
@@ -277,6 +279,10 @@ void Book::setLanguage(const std::string &language) {
 		}
 	}
 	myLanguage = language;
+}
+
+void Book::setLocal(const bool &isLocal){
+	myIsLocal = isLocal;
 }
 
 void Book::setEncoding(const std::string &encoding) {

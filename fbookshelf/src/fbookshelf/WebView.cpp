@@ -20,7 +20,8 @@
 const int ELEMENTS_ON_X = 3;
 const int ELEMENTS_ON_Y = 3;
 
-const ZLColor ELEMENT_COLOR = ZLColor(190,190,190);
+const ZLColor ELEMENT_COLOR = ZLColor(255,160,122);
+const ZLColor ELEMENT_DOWNLOADED_COLOR = ZLColor(190,190,190);
 const ZLColor ELEMENT_FRAME_COLOR = ZLColor(250,250,250);
 const ZLColor ELEMENT_COLOR_ON_SELECT = ZLColor(210,210,210);
 const ZLColor BACKGROUND_COLOR = ZLColor(255,255,255);
@@ -63,7 +64,7 @@ const ZLTypeId &WebView::typeId() const {
 }
 
 void WebView::updateView(BookshelfModel::SortType sort_type) {
-
+    std::cout << "Here Update";
     //if(mySortType != sort_type || myVecBookshelfElements.empty()) {
         myVecBookshelfElements.clear();
 
@@ -91,10 +92,11 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
         else {
             std::vector<shared_ptr<Book> >::iterator it = library.begin();
             std::vector<shared_ptr<Book> >::iterator itEnd = library.end();
-
+            int incr = 0;
             for(; it != itEnd; ++it) {
                 BookModel model(*it);
-
+                
+                incr++;
                 //change myTitleImage to (*it)->image()
                 element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*((*it)->image()));
                 element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
@@ -107,9 +109,8 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
                 element.myBottomRight.x = x2;
                 element.myBottomRight.y = y2;
 
-                element.myElementColor = ELEMENT_COLOR;
+                element.myElementColor = element.myBook->isLocal() ? ELEMENT_DOWNLOADED_COLOR : ELEMENT_COLOR;
                 element.myFrameColor = ELEMENT_FRAME_COLOR;
-
                 myVecBookshelfElements.push_back(element);
 
                 x1 += myElementWidth;
@@ -122,8 +123,8 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
                     y1 += myElementHeight;
                     y2 += myElementHeight;
                 }
+                std::cout << "Incr: " << incr << std::endl;
             }
-
             myItSelectedElement = myVecBookshelfElements.begin();
 
             if(myVecBookshelfElements.size() > myRenderingElementsCount) {

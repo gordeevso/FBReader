@@ -31,7 +31,7 @@
 #include <ZLDir.h>
 #include <ZLDialogManager.h>
 
-#include "BookshelfNetFBReaderModel.h"
+#include "BookshelfNetGoogleModel.h"
 #include "Book.h"
 #include "Author.h"
 #include "Tag.h"
@@ -41,27 +41,27 @@
 #include "../database/booksdb/BooksDBUtil.h"
 #include "../database/booksdb/BooksDB.h"
 
-shared_ptr<BookshelfNetFBReaderModel> BookshelfNetFBReaderModel::ourInstance;
+shared_ptr<BookshelfNetGoogleModel> BookshelfNetGoogleModel::ourInstance;
 
-BookshelfNetFBReaderModel &BookshelfNetFBReaderModel::Instance() {
+BookshelfNetGoogleModel &BookshelfNetGoogleModel::Instance() {
 	if (ourInstance.isNull()) {
-		ourInstance = new BookshelfNetFBReaderModel();
+		ourInstance = new BookshelfNetGoogleModel();
 	}
 	return *ourInstance;
 }
 
-BookshelfNetFBReaderModel::BookshelfNetFBReaderModel()
+BookshelfNetGoogleModel::BookshelfNetGoogleModel()
 {
 
 }
 
-BooksMap &BookshelfNetFBReaderModel::getLibrary()
+BooksMap &BookshelfNetGoogleModel::getLibrary()
 {
     return myLibrary;
 }
 
-void BookshelfNetFBReaderModel::buildVecLibrary(BookshelfNetFBReaderModel::SortType sort_type)
-{   std::map<std::string, shared_ptr<Book> > &booksMap = BookshelfNetFBReaderModel::Instance().getLibrary();
+void BookshelfNetGoogleModel::buildVecLibrary(BookshelfNetGoogleModel::SortType sort_type)
+{   std::map<std::string, shared_ptr<Book> > &booksMap = BookshelfNetGoogleModel::Instance().getLibrary();
     BooksMap::const_iterator it_begin = booksMap.begin();
     BooksMap::const_iterator it_end = booksMap.end();
     if(sort_type == SORT_BY_AUTHOR)
@@ -90,9 +90,25 @@ void BookshelfNetFBReaderModel::buildVecLibrary(BookshelfNetFBReaderModel::SortT
     }
 }
 
-std::vector<shared_ptr<Book> > & BookshelfNetFBReaderModel::getLibrary(BookshelfNetFBReaderModel::SortType sort_type)
+std::vector<shared_ptr<Book> > & BookshelfNetGoogleModel::getLibrary(BookshelfNetGoogleModel::SortType sort_type)
 {
-    myVecLibrarySortedByIds.clear();
-    buildVecLibrary(BookshelfNetFBReaderModel::SortType::SORT_BY_ID);  
+    if(sort_type == SORT_BY_AUTHOR)
+    {
+        if(myVecLibrarySortedByAuthors.empty()) { buildVecLibrary(sort_type); }
+        return myVecLibrarySortedByAuthors;
+    }
+    
+    if(sort_type == SORT_BY_TITLE)
+    {
+        if(myVecLibrarySortedByTitles.empty()) { buildVecLibrary(sort_type); }
+        return myVecLibrarySortedByTitles;
+    }
+
+    if(sort_type == SORT_BY_ID)
+    {
+        if(myVecLibrarySortedByIds.empty()) { buildVecLibrary(sort_type); }
+        return myVecLibrarySortedByIds;
+    }
+
     return myVecLibrarySortedByIds;
 }

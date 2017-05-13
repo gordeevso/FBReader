@@ -35,12 +35,17 @@ std::string NetworkFBReaderActions::deleteSpaces(std::string name){
 	return newName;
 }
 std::string NetworkFBReaderActions::downloadBook(shared_ptr<Book> book){
-    std::string book_name = deleteSpaces(ZLFile::replaceIllegalCharacters(book->title(), '_')) + "." + book->extension();
-    std::string book_path = downloader.getHomeDir() + "/FBookshelfNet/";
-    std::ofstream write_book((book_path + book_name).c_str());
+    std::string bookName = getBookName(book->title(), book->extension());
+    std::ofstream write_book(bookName.c_str());
     std::string url = mainDomain + book->url();
     std::string content = downloader.download(url);
     write_book << content;
+    return (bookName);
+}
+
+std::string NetworkFBReaderActions::getBookName(std::string title, std::string extension){
+	std::string book_name = deleteSpaces(ZLFile::replaceIllegalCharacters(title, '_')) + "." + extension;
+    std::string book_path = downloader.getHomeDir() + "/FBookshelfNet/";
     return (book_path + book_name);
 }
 
@@ -55,6 +60,11 @@ void NetworkFBReaderActions::downloadImage(std::string url, std::string name){
     std::string downloadUrl = mainDomain + url;
     std::string content = downloader.download(downloadUrl);
     write_image << content;
+}
+
+bool doesFileExist(const std::string &fileName){
+	std::ifstream f(fileName.c_str());
+    return f.good();
 }
 
 std::vector<BookModelFill> NetworkFBReaderActions::getNetworkLibrary(){
@@ -72,11 +82,13 @@ std::vector<BookModelFill> NetworkFBReaderActions::getNetworkLibrary(){
         ZLFile imageFile(imageName);
         shared_ptr<ZLFileImage> myTitleImage = new ZLFileImage(imageFile, 0);
         std::string type = parser.get_book_type(i, 2);
+        bool isDownloaded = doesFileExist(getBookName(title, type));
         shared_ptr<Book> bookptr = Book::createNetBook(
             myTitleImage,
             path,
             title,
-            type
+            type,
+            isDownloaded
         );
         bookptr->addAuthor("author");
         booksmap.push_back(std::make_pair(path,bookptr));

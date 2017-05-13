@@ -28,6 +28,7 @@ public:
 	std::string downloadBook(shared_ptr<Book> book);
 	std::vector<BookModelFill> getNetworkLibrary();
 	void logOut();
+	std::string getBookName(std::string title, std::string extension);
 private:
 	void downloadImage(std::string url, std::string name);
 	std::string getImageName(std::string title);

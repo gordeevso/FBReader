@@ -11,6 +11,7 @@
 #include "FBookshelf.h"
 #include "BookshelfActions.h"
 #include "../library/BookshelfNetFBReaderModel.h"
+#include "../library/BookshelfNetGoogleModel.h"
 #include "../bookmodel/BookModel.h"
 #include "../options/FBTextStyle.h"
 #include "../library/BookshelfModel.h"
@@ -74,11 +75,12 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
         WebElement element;
 
         bool books_fbreader_org = true;
-        
+        if(myViewMode == WebView::GOOGLE_DRIVE)
+            books_fbreader_org = false;
         //Write call to custom netLibrary
         std::vector<shared_ptr<Book> > & library = books_fbreader_org ?
                                                    BookshelfNetFBReaderModel::Instance().getLibrary(BookshelfNetFBReaderModel::SortType::SORT_BY_TITLE) :  //fbreader
-                                                   BookshelfModel::Instance().getLibrary(sort_type);   //google
+                                                   BookshelfNetGoogleModel::Instance().getLibrary(BookshelfNetGoogleModel::SortType::SORT_BY_TITLE);   //google
         std::cout << library.size() << std::endl;
         if(library.empty()) {
             //just after first start library is empty

@@ -23,7 +23,7 @@
 #include "NetworkActions.h"
 
 
-class NetworkFBReaderActions{
+class NetworkFBReaderActions : NetworkActions{
 public:
 	std::string downloadBook(shared_ptr<Book> book);
 	std::vector<BookModelFill> getNetworkLibrary();

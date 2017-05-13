@@ -38,53 +38,29 @@ class BookshelfBaseModel {
 
 public:
     
-    //static BookshelfBaseModel &Instance();
+    static BookshelfBaseModel &Instance();
     
-    // enum SortType {
-    //     SORT_BY_ID,
-    //     SORT_BY_AUTHOR,
-    //     SORT_BY_TITLE
-    // };
+    enum SortType {
+        SORT_BY_ID,
+        SORT_BY_AUTHOR,
+        SORT_BY_TITLE
+    };
     
-    // enum ShelfDBError {
-    //     OPEN_FILE_ERROR,
-    //     CAN_NOT_FIND_SHELF,
-    //     SHELF_ALDREADY_EXISTS
-    // };
-    
-private:
+protected:
     static shared_ptr<BookshelfBaseModel> ourInstance;
-        
-private:
-   // BookshelfBaseModel();
+    BookshelfBaseModel();
 
 public:
     
-    //virtual BooksMap &getLibrary();
-    //virtual std::vector<shared_ptr<Book> > & getLibrary(SortType);
-    // const ShelfList &getShelves() const;
-    // const BookList &getBooks(const std::string &shelf) const;
-    // bool hasBooks(const std::string &shelf) const;
-    // void removeShelf(const std::string &shelf);
-    // int renameShelf(const std::string &from, const std::string &to);
-    // void addBookToShelf(const std::string &shelf, shared_ptr<Book> book);
-    // void removeBookFromShelf(const std::string &shelf, shared_ptr<Book> book);
-    // void createShelf(const std::string &shelf);
+    BooksMap &getLibrary();
+    std::vector<shared_ptr<Book> > & getLibrary(SortType);
 
-private:
+protected:
     
     BooksMap myLibrary;
     std::vector<shared_ptr<Book> > myVecLibrarySortedByAuthors;
     std::vector<shared_ptr<Book> > myVecLibrarySortedByTitles;
     std::vector<shared_ptr<Book> > myVecLibrarySortedByIds;
-    mutable BookList myRecentBooks;
-    // mutable ShelfList myShelves;
-    // typedef std::map<std::string, BookList> BooksByShelf;
-    // mutable BooksByShelf myBooksByShelf;
-    // int saveShelvesFromModelToDB();
-    // std::string getPathToShelfDB();
-    // void buildVecLibrary(SortType);
-    // int loadShelvesFromDB();
 };
 
 #endif /* __BOOKSHELFBASEMODEL_H__ */

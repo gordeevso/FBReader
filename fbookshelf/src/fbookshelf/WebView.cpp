@@ -63,7 +63,7 @@ const ZLTypeId &WebView::typeId() const {
 
 void WebView::updateView(BookshelfModel::SortType sort_type) {
 
-    if(mySortType != sort_type || myVecBookshelfElements.empty()) {
+    //if(mySortType != sort_type || myVecBookshelfElements.empty()) {
         myVecBookshelfElements.clear();
 
         int x1 = myTopLeftX;
@@ -137,7 +137,7 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
 
             mySortType = sort_type;
         }
-    }
+    //}
 
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();

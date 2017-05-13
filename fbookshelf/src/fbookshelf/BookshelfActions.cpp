@@ -239,6 +239,9 @@ void RunFBReaderAction::run() {
     if(fbookshelf.mode() == Fbookshelf::GRID_MODE) {
         shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
         system(("FBReader " + book->file().physicalFilePath() + "&").c_str());
+    } else if (fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE) {
+        shared_ptr<Book> book = (*(static_cast<BookStackView&>(*view).getSelectedElement())).myBook;
+        system(("FBReader " + book->file().physicalFilePath() + "&").c_str());
     }
 }
 

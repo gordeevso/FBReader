@@ -17,8 +17,8 @@
  * 02110-1301, USA.
  */
 
-#ifndef __BOOKSHELFMODEL_H__
-#define __BOOKSHELFMODEL_H__
+#ifndef __BOOKSHELFNETFBREADERMODEL_H__
+#define __BOOKSHELFNETFBREADERMODEL_H__
 
 #include <map>
 #include <set>
@@ -35,11 +35,11 @@
 
 typedef std::map<std::string, shared_ptr<Book> > BooksMap;
 
-class BookshelfModel : BookshelfBaseModel{
+class BookshelfNetFBReaderModel : BookshelfBaseModel{
 
 public:
     
-    static BookshelfModel &Instance();
+    static BookshelfNetFBReaderModel &Instance();
     
     enum SortType {
         SORT_BY_ID,
@@ -54,10 +54,10 @@ public:
     };
     
 private:
-    static shared_ptr<BookshelfModel> ourInstance;
+    static shared_ptr<BookshelfNetFBReaderModel> ourInstance;
         
 private:
-    BookshelfModel();
+    BookshelfNetFBReaderModel();
 
 public:
     
@@ -88,8 +88,4 @@ private:
     int loadShelvesFromDB();
 };
 
-bool author_comp(const shared_ptr<Book> & book1, const shared_ptr<Book> & book2);
-bool title_comp(const shared_ptr<Book> & book1, const shared_ptr<Book> & book2);
-bool bookId_comp(const shared_ptr<Book> & book1, const shared_ptr<Book> & book2);
-
-#endif /* __BOOKSHELFMODEL_H__ */
+#endif /* __BOOKSHELFNETFBREADERMODEL_H__ */

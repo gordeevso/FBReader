@@ -10,7 +10,7 @@
 #include "WebView.h"
 #include "FBookshelf.h"
 #include "BookshelfActions.h"
-
+#include "../library/BookshelfNetFBReaderModel.h"
 #include "../bookmodel/BookModel.h"
 #include "../options/FBTextStyle.h"
 #include "../library/BookshelfModel.h"
@@ -79,7 +79,7 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
 
         //Write call to custom netLibrary
         std::vector<shared_ptr<Book> > & library = books_fbreader_org ?
-                                                   BookshelfModel::Instance().getLibrary(sort_type) :  //fbreader
+                                                   BookshelfNetFBReaderModel::Instance().getLibrary(BookshelfNetFBReaderModel::SortType::SORT_BY_TITLE) :  //fbreader
                                                    BookshelfModel::Instance().getLibrary(sort_type);   //google
         std::cout << library.size() << std::endl;
         if(library.empty()) {

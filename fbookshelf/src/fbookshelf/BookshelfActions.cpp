@@ -9,7 +9,8 @@
 #include "../OPDSExtractor/OPDSSimpleParser.h"
 #include "../GoogleDriveLibrary/GoogleDriveLibrary.h"
 #include "../library/BookshelfModel.h"
-
+#include "../library/BookshelfNetFBReaderModel.h"
+#include "../NetLib/NetworkFBReaderActions.h"
 
 const std::string BookshelfActionCode::SORT_BY_AUTHOR = "sortByAuthor";
 const std::string BookshelfActionCode::SORT_BY_ID = "sortById";
@@ -80,33 +81,6 @@ void SignInReloadGoogleDrive::run() {
 
     if(fbookshelf.mode() == Fbookshelf::WEB_MODE) {
 
-        std::string url = "https://books.fbreader.org/opds/by_title";
-        OPDSDownloader downloader;
-        std::string content = downloader.download(url);
-        OPDSSimpleParser parser(content);
-        parser.parse();
-        std::string baseString = "";
-        std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfModel::Instance().getLibrary();
-        for (size_t i = 0; i < parser.OPDS_Title_nodes.size(); ++i){
-            std::string title =  parser.OPDS_Title_nodes[i];
-            // std::cout << title << " " << parser.OPDS_tree_href[i].size() << std::endl;
-            std::string path = parser.OPDS_tree_href[i][2].second;
-            std::string type = parser.get_book_type(i, 2);
-            shared_ptr<Book> bookptr = Book::createBook(
-                ZLFile(path), i,
-                type,
-                "English",
-                title
-            );
-            bookptr->addAuthor("author");
-            baseString += "a";
-            booksmap.insert(std::make_pair(path,bookptr));
-        }
-
-
-        //load data in netLibrary
-
-
         static_cast<WebView&>(*view).setMode(WebView::GOOGLE_DRIVE);
     }
 }
@@ -120,6 +94,7 @@ void SignOutGoogleDrive::run() {
 
 
 SignInReloadBooksFbreaderOrg::SignInReloadBooksFbreaderOrg() : ModeDependentAction(Fbookshelf::WEB_MODE) {
+
 }
 
 void SignInReloadBooksFbreaderOrg::run() {
@@ -127,12 +102,12 @@ void SignInReloadBooksFbreaderOrg::run() {
     shared_ptr<ZLView> view = fbookshelf.currentView();
 
     if(fbookshelf.mode() == Fbookshelf::WEB_MODE) {
-
-        GoogleDriveLibrary lib;
-        lib.login();
-
-        //load data in netLibrary
-
+        NetworkFBReaderActions net;
+        std::vector<BookModelFill> booksToPass = net.getNetworkLibrary();
+        std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfNetFBReaderModel::Instance().getLibrary();
+        for (size_t i = 0; i < booksToPass.size(); i++){
+            booksmap.insert(booksToPass[i]);
+        }
         static_cast<WebView&>(*view).setMode(WebView::BOOKS_FBREADER_ORG);
     }
 }
@@ -141,7 +116,8 @@ SignOutBooksFbreaderOrg::SignOutBooksFbreaderOrg() : ModeDependentAction(Fbooksh
 }
 
 void SignOutBooksFbreaderOrg::run() {
-
+    NetworkFBReaderActions net;
+    net.logOut();
 }
 
 
@@ -263,15 +239,9 @@ void DownloadBookAction::run() {
 
     if(fbookshelf.mode() == Fbookshelf::WEB_MODE){
         if(static_cast<WebView&>(*view).mode() == WebView::BOOKS_FBREADER_ORG) {
-            OPDSDownloader downloader;
-            shared_ptr<Book> book = (*(static_cast<WebView&>(*view).getSelectedElement())).myBook;
-            std::string book_name = book->title() + "." + book->encoding();
-            std::string book_path = downloader.getHomeDir() + "/FBookshelfNet/";
-            std::ofstream write_book((book_path + book_name).c_str());
-
-            std::string url = mainDomain + book->file().physicalFilePath();
-            std::string content = downloader.download(url);
-            write_book << content;
+            NetworkFBReaderActions net;
+            std::string filePath = net.downloadBook((*(static_cast<WebView&>(*view).getSelectedElement())).myBook);
+            system(("FBReader " + filePath + "&").c_str());
         }
         else if(static_cast<WebView&>(*view).mode() == WebView::GOOGLE_DRIVE) {
 

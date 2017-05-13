@@ -33,10 +33,10 @@ class NetworkActions{
 public:
 	NetworkActions();
 	// returns the path to which the book was saved
-	virtual std::string downloadBook(shared_ptr<Book> book);
+	virtual std::string downloadBook(shared_ptr<Book> book) = 0;
 	// returns such a vector with which can easily fill the BookshelfModel
-	virtual std::vector<BookModelFill> getNetworkLibrary();
-	virtual void logOut();
+	virtual std::vector<BookModelFill> getNetworkLibrary() = 0;
+	virtual void logOut() = 0;
 };
 
 #endif /* __NETWORKACTIONS_H__ */

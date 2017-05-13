@@ -69,7 +69,7 @@ std::string GoogleDriveLibrary::downloadBook(shared_ptr<Book> book)
     return "";
 }
 
-void GoogleDriveLibrary::logout()
+void GoogleDriveLibrary::logOut()
 {
 
 }
@@ -79,7 +79,7 @@ void GoogleDriveLibrary::login()
     AuthorisationManager::getInstance().authorise();
 }
 
-std::vector<BookModelFill> getNetworkLibrary()
+std::vector<BookModelFill> GoogleDriveLibrary::getNetworkLibrary()
 {
     
     std::string filelist;

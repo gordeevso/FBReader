@@ -80,7 +80,14 @@ void SignInReloadGoogleDrive::run() {
     shared_ptr<ZLView> view = fbookshelf.currentView();
 
     if(fbookshelf.mode() == Fbookshelf::WEB_MODE) {
+        shared_ptr<NetworkActions> net = new GoogleDriveLibrary();
 
+        std::vector<BookModelFill> booksToPass = net.getNetworkLibrary();
+
+        std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfNetFBReaderModel::Instance().getLibrary();
+        for (size_t i = 0; i < booksToPass.size(); i++){
+            booksmap.insert(booksToPass[i]);
+        }
         static_cast<WebView&>(*view).setMode(WebView::GOOGLE_DRIVE);
     }
 }
@@ -89,7 +96,7 @@ SignOutGoogleDrive::SignOutGoogleDrive() : ModeDependentAction(Fbookshelf::WEB_M
 }
 
 void SignOutGoogleDrive::run() {
-
+    GoogleDriveLibrary().logOut();
 }
 
 

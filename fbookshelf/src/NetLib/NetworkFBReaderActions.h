@@ -31,6 +31,7 @@ public:
 private:
 	void downloadImage(std::string url, std::string name);
 	std::string getImageName(std::string title);
+	std::string deleteSpaces(std::string name);
 	OPDSDownloader downloader;
 };
 

@@ -27,8 +27,15 @@
 #include <fstream>
 #include <string>
 
+std::string NetworkFBReaderActions::deleteSpaces(std::string name){
+	std::string newName = "";
+	for(int i = 0; i < name.length(); i++){
+		if (name[i] != ' ') newName += name[i];
+	}
+	return newName;
+}
 std::string NetworkFBReaderActions::downloadBook(shared_ptr<Book> book){
-    std::string book_name = ZLFile::replaceIllegalCharacters(book->title(), '_') + "." + book->extension();
+    std::string book_name = deleteSpaces(ZLFile::replaceIllegalCharacters(book->title(), '_')) + "." + book->extension();
     std::string book_path = downloader.getHomeDir() + "/FBookshelfNet/";
     std::ofstream write_book((book_path + book_name).c_str());
     std::string url = mainDomain + book->url();

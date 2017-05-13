@@ -4,14 +4,20 @@
 #include <vector>
 #include <shared_ptr.h>
 #include "../library/Book.h"
+#include "../NetLib/NetworkActions.h"
 
-class GoogleDriveLibrary
+class GoogleDriveLibrary : public NetworkActions
 {
 public:
-	std::vector<shared_ptr<Book> > getBookList();
-	void downloadBook(const std::string& filename);
+	// returns the path to which the book was saved
+	virtual std::string downloadBook(shared_ptr<Book> book);
+	
+	// returns such a vector with which can easily fill the BookshelfModel
+	virtual std::vector<BookModelFill> getNetworkLibrary();
+
+	virtual void logOut();
+
 	void login();
-	void logout();
 };
 
 #endif // GOOGLE_DRIVE_LIBRARY

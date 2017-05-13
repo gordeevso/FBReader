@@ -64,9 +64,9 @@ void find_library(const json& filelist, std::string& id)
 }
 
 
-void GoogleDriveLibrary::downloadBook(const std::string& filename)
+std::string GoogleDriveLibrary::downloadBook(shared_ptr<Book> book)
 {
-
+    return "";
 }
 
 void GoogleDriveLibrary::logout()
@@ -79,7 +79,7 @@ void GoogleDriveLibrary::login()
     AuthorisationManager::getInstance().authorise();
 }
 
-std::vector<shared_ptr<Book> > GoogleDriveLibrary::getBookList()
+std::vector<BookModelFill> getNetworkLibrary()
 {
     
     std::string filelist;
@@ -114,5 +114,5 @@ std::vector<shared_ptr<Book> > GoogleDriveLibrary::getBookList()
         }
     }
 
-    return std::vector<shared_ptr<Book> >();
+    return std::vector<BookModelFill>();
 }

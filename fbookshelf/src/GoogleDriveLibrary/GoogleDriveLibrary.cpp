@@ -136,7 +136,7 @@ std::vector<BookModelFill> GoogleDriveLibrary::getNetworkLibrary()
                 }
                 else
                 {
-                    static const std::string no_pic = home_dir + "/no-photo-availiable.jpg";
+                    static const std::string no_pic = "/usr/share/pixmaps/FBookshelf/title.png";
                     ZLFile image_file(no_pic);
                     title_image = new ZLFileImage(image_file, 0);
                 }
@@ -170,8 +170,7 @@ std::string deleteSpaces(std::string name){
 }
 
 std::string GoogleDriveLibrary::downloadBook(shared_ptr<Book> book){
-    std::string book_name = details::deleteSpaces(ZLFile::
-replaceIllegalCharacters(book->title(), '_')) + "." + book->extension();
+    std::string book_name = details::deleteSpaces(ZLFile::replaceIllegalCharacters(book->title(), '_')) + "." + book->extension();
     std::string book_path = OPDSDownloader().getHomeDir() + "/FBookshelfNet/";
     std::string url = book->url();
 

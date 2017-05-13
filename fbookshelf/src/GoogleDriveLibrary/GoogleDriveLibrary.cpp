@@ -97,6 +97,7 @@ std::vector<BookModelFill> GoogleDriveLibrary::getNetworkLibrary()
     std::string id;
 
     find_library(filelist_json, id);
+    std::vector<BookModelFill> result;
   
     for(auto it = filelist_json["items"].begin(); it != filelist_json["items"].end(); ++it)
     {
@@ -108,6 +109,7 @@ std::vector<BookModelFill> GoogleDriveLibrary::getNetworkLibrary()
             if(parent_id == id)
             {
                 std::string file_id = to_string((*it)["id"]);
+                std::string title = to_string((*it)["title"]);
                 std::string file_output_name =  file_id + ".fb2.zip";
                 std::string thumb_output_name = file_id + "_thumb.jpg";
 
@@ -115,10 +117,23 @@ std::vector<BookModelFill> GoogleDriveLibrary::getNetworkLibrary()
                 std::string thumb_download_link = to_string((*it)["thumbnailLink"]) + "?alt=media";
 
                 //get_page(file_download_link.c_str(), file_output_name.c_str(), true);
-                //get_page(thumb_download_link.c_str(), thumb_output_name.c_str(), true);
+                get_page(thumb_download_link.c_str(), thumb_output_name.c_str(), true);
+
+                ZLFile imageFile(thumb_output_name);
+                shared_ptr<ZLFileImage> title_image = new ZLFileImage(imageFile, 0);
+
+                shared_ptr<Book> bookptr = Book::createNetBook(
+                    title_image,
+                    file_download_link,
+                    title,
+                    "fb2.zip"
+                );
+
+                bookptr->addAuthor("author");
+                result.push_back(std::make_pair(file_download_link, bookptr));
             }
         }
     }
 
-    return std::vector<BookModelFill>();
+    return result;
 }

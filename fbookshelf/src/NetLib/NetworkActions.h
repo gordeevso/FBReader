@@ -31,7 +31,7 @@ typedef std::pair<std::string, shared_ptr<Book> > BookModelFill;
 
 class NetworkActions{
 public:
-	NetworkActions();
+	NetworkActions() {}
 	// returns the path to which the book was saved
 	virtual std::string downloadBook(shared_ptr<Book> book) = 0;
 	// returns such a vector with which can easily fill the BookshelfModel

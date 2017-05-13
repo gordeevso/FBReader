@@ -19,6 +19,7 @@
 
 #ifndef __NETWORKFBREADERACTIONS_H__
 #define __NETWORKFBREADERACTIONS_H__
+#include "../OPDSExtractor/OPDSDownloader.h"
 #include "NetworkActions.h"
 
 
@@ -27,6 +28,10 @@ public:
 	std::string downloadBook(shared_ptr<Book> book);
 	std::vector<BookModelFill> getNetworkLibrary();
 	void logOut();
+private:
+	void downloadImage(std::string url, std::string name);
+	std::string getImageName(std::string title);
+	OPDSDownloader downloader;
 };
 
 #endif /* NETWORKFBREADERACTIONS_H */

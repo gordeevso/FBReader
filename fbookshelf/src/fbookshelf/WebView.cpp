@@ -97,7 +97,7 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
                 BookModel model(*it);
 
                 //change myTitleImage to (*it)->image()
-                element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(myTitleImage));
+                element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*((*it)->image()));
                 element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
                 element.myBook = *it;
 

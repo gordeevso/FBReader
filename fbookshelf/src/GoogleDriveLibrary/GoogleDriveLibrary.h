@@ -9,6 +9,8 @@
 class GoogleDriveLibrary : public NetworkActions
 {
 public:
+	GoogleDriveLibrary();
+
 	// returns the path to which the book was saved
 	virtual std::string downloadBook(shared_ptr<Book> book);
 	

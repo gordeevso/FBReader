@@ -50,6 +50,10 @@ std::string to_string(const json& j)
 }
 
 
+GoogleDriveLibrary::GoogleDriveLibrary()
+{
+   //login(); // TODO: maybe make this public function in NetworkActions and make user do it? 
+}
 
 void find_library(const json& filelist, std::string& id)
 {
@@ -82,6 +86,8 @@ void GoogleDriveLibrary::login()
 std::vector<BookModelFill> GoogleDriveLibrary::getNetworkLibrary()
 {
     
+    login();
+
     std::string filelist;
     void * curl = curl_easy_init();
     save_to_string(curl, "https://www.googleapis.com/drive/v2/files", filelist, true);

@@ -254,7 +254,9 @@ void DownloadBookAction::run() {
         }
         else if(static_cast<WebView&>(*view).mode() == WebView::GOOGLE_DRIVE) {
 
-            //download book from google drive here
+            shared_ptr<NetworkActions> net = new GoogleDriveLibrary();
+            std::string filePath = net->downloadBook((*(static_cast<WebView&>(*view).getSelectedElement())).myBook);
+            system(("FBReader " + filePath + "&").c_str());
         }
     }
 }

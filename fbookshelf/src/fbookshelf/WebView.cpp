@@ -74,9 +74,7 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
         WebElement element;
 
         bool books_fbreader_org = true;
-        if(myViewMode == WebView::GOOGLE_DRIVE)
-            books_fbreader_org = false;
-
+        
         //Write call to custom netLibrary
         std::vector<shared_ptr<Book> > & library = books_fbreader_org ?
                                                    BookshelfNetFBReaderModel::Instance().getLibrary(BookshelfNetFBReaderModel::SortType::SORT_BY_TITLE) :  //fbreader
@@ -93,14 +91,13 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
             std::vector<shared_ptr<Book> >::iterator itEnd = library.end();
 
             for(; it != itEnd; ++it) {
-
                 BookModel model(*it);
 
                 //change myTitleImage to (*it)->image()
                 element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*((*it)->image()));
                 element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
                 element.myBook = *it;
-
+		
                 element.myTitleString = new StringRect(element.myBook->title(), context());
 
                 element.myTopLeft.x = x1;

@@ -3,6 +3,9 @@
 #include "../third-party/json.hpp"
 #include "HTTPDownloader.h"
 #include "AuthorisationManager.h"
+#include "../OPDSExtractor/OPDSDownloader.h"
+#include <iostream>
+#include <fstream>
 
 using json = nlohmann::json;
 
@@ -38,7 +41,6 @@ void get_page(const char* url, const char* file_name, bool needsAuth = false)
     
     curl_easy_cleanup(easyhandle);
     fclose(file);
-
 }
 
 
@@ -67,12 +69,6 @@ void find_library(const json& filelist, std::string& id)
     }
 }
 
-
-std::string GoogleDriveLibrary::downloadBook(shared_ptr<Book> book)
-{
-    return "";
-}
-
 void GoogleDriveLibrary::logOut()
 {
 
@@ -87,16 +83,20 @@ std::vector<BookModelFill> GoogleDriveLibrary::getNetworkLibrary()
 {
     
     login();
+    std::cout << "authorised successfully" << std::endl;
 
     std::string filelist;
     void * curl = curl_easy_init();
     save_to_string(curl, "https://www.googleapis.com/drive/v2/files", filelist, true);
     curl_easy_cleanup(curl);
+    std::cout << "got filelist" << std::endl;
   
     json filelist_json = json::parse(filelist);
     std::string id;
 
     find_library(filelist_json, id);
+    std::cout << "found library" << std::endl;
+
     std::vector<BookModelFill> result;
   
     for(auto it = filelist_json["items"].begin(); it != filelist_json["items"].end(); ++it)
@@ -105,22 +105,41 @@ std::vector<BookModelFill> GoogleDriveLibrary::getNetworkLibrary()
         for(auto jt = parents.begin(); jt != parents.end(); ++jt)
         {
             std::string parent_id = to_string((*jt)["id"]);
-      
+            
             if(parent_id == id)
             {
                 std::string file_id = to_string((*it)["id"]);
                 std::string title = to_string((*it)["title"]);
-                std::string file_output_name =  file_id + ".fb2.zip";
-                std::string thumb_output_name = file_id + "_thumb.jpg";
+                //std::cout << "found book: " << title << std::endl;
 
-                std::string file_download_link = to_string((*it)["selfLink"]) + "?alt=media";
-                std::string thumb_download_link = to_string((*it)["thumbnailLink"]) + "?alt=media";
+                std::string home_dir = OPDSDownloader().getHomeDir();
+		
+                std::string file_output_name =  home_dir + "/" + title;
+                std::string thumb_output_name = home_dir + "/" + file_id + "_thumb.jpg";
 
-                //get_page(file_download_link.c_str(), file_output_name.c_str(), true);
-                get_page(thumb_download_link.c_str(), thumb_output_name.c_str(), true);
+                std::string file_download_link = to_string((*it)["selfLink"]) + "?alt=media";     
 
-                ZLFile imageFile(thumb_output_name);
-                shared_ptr<ZLFileImage> title_image = new ZLFileImage(imageFile, 0);
+                std::string link = to_string((*it)["thumbnailLink"]);
+                if(link != "ul")
+                {
+                    std::string thumb_download_link = to_string((*it)["thumbnailLink"]) + "?alt=media";
+		    std::cout << thumb_download_link << std::endl;
+
+                    get_page(thumb_download_link.c_str(), thumb_output_name.c_str(), true);
+                }
+
+                shared_ptr<ZLFileImage> title_image;
+                if(link != "ul")
+                {
+                    ZLFile image_file(thumb_output_name);
+                    title_image = new ZLFileImage(image_file, 0);
+                }
+                else
+                {
+                    static const std::string no_pic = home_dir + "/no-photo-availiable.jpg";
+                    ZLFile image_file(no_pic);
+                    title_image = new ZLFileImage(image_file, 0);
+                }
 
                 shared_ptr<Book> bookptr = Book::createNetBook(
                     title_image,
@@ -135,5 +154,27 @@ std::vector<BookModelFill> GoogleDriveLibrary::getNetworkLibrary()
         }
     }
 
+
     return result;
+}
+
+namespace details
+{
+std::string deleteSpaces(std::string name){
+	std::string newName = "";
+	for(int i = 0; i < name.length(); i++){
+		if (name[i] != ' ') newName += name[i];
+	}
+	return newName;
+}
+}
+
+std::string GoogleDriveLibrary::downloadBook(shared_ptr<Book> book){
+    std::string book_name = details::deleteSpaces(ZLFile::
+replaceIllegalCharacters(book->title(), '_')) + "." + book->extension();
+    std::string book_path = OPDSDownloader().getHomeDir() + "/FBookshelfNet/";
+    std::string url = book->url();
+
+    get_page(url.c_str(), (book_path + book_name).c_str(), true);
+    return (book_path + book_name);
 }

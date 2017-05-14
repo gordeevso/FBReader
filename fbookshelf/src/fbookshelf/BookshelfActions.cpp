@@ -85,7 +85,7 @@ void SignInReloadGoogleDrive::run() {
 
         std::vector<BookModelFill> booksToPass = net->getNetworkLibrary();
 
-        std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfNetFBReaderModel::Instance().getLibrary();
+        std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfNetGoogleModel::Instance().getLibrary();
         for (size_t i = 0; i < booksToPass.size(); i++){
             booksmap.insert(booksToPass[i]);
         }

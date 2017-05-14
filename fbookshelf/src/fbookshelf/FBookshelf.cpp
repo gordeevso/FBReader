@@ -27,7 +27,7 @@
 #include "../OPDSExtractor/OPDSDownloader.h"
 #include "../OPDSExtractor/OPDSSimpleParser.h"
 
-#include "../GoogleDriveLibrary/GoogleDriveLibrary.h"
+#include "../googleDriveLibrary/GoogleDriveLibrary.h"
 
 Fbookshelf &Fbookshelf::Instance() {
     return (Fbookshelf&)ZLApplication::Instance();

@@ -7,7 +7,7 @@
 #include "BookStackView.h"
 #include "../OPDSExtractor/OPDSDownloader.h"
 #include "../OPDSExtractor/OPDSSimpleParser.h"
-#include "../GoogleDriveLibrary/GoogleDriveLibrary.h"
+#include "../googleDriveLibrary/GoogleDriveLibrary.h"
 #include "../library/BookshelfModel.h"
 #include "../library/BookshelfNetFBReaderModel.h"
 #include "../NetLib/NetworkFBReaderActions.h"

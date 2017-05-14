@@ -10,6 +10,7 @@
 #include "../googleDriveLibrary/GoogleDriveLibrary.h"
 #include "../library/BookshelfModel.h"
 #include "../library/BookshelfNetFBReaderModel.h"
+#include "../library/BookshelfNetGoogleModel.h"
 #include "../NetLib/NetworkFBReaderActions.h"
 
 const std::string BookshelfActionCode::SORT_BY_AUTHOR = "sortByAuthor";

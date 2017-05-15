@@ -384,7 +384,19 @@ void GridView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t
     myScrollBarPos = from;
 }
 
+void GridView::onScrollbarStep(ZLView::Direction direction, int steps){
+    if(myElementMenu.myIsVisible) {
+        myElementMenu.myIsVisible = false;
+        Fbookshelf::Instance().refreshWindow();
+    }
 
+    if(steps < 0) {
+        updateScrollUp();
+    }
+    else {
+        updateScrollDown();
+    }
+}
 
 void GridView::onScrollbarPageStep(ZLView::Direction direction, int steps){
     if(myElementMenu.myIsVisible) {

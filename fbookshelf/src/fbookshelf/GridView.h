@@ -45,6 +45,7 @@ public:
     bool onStylusMove(int x, int y);
 
     void onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to);
+    void onScrollbarStep(Direction direction, int steps);
     void onScrollbarPageStep(ZLView::Direction direction, int steps);
 
     void onMouseScroll(bool forward);

@@ -24,10 +24,7 @@
 #include "../library/BookshelfModel.h"
 #include "../database/booksdb/BooksDBUtil.h"
 #include "../database/booksdb/BooksDB.h"
-#include "../OPDSExtractor/OPDSDownloader.h"
-#include "../OPDSExtractor/OPDSSimpleParser.h"
 
-#include "../googleDriveLibrary/GoogleDriveLibrary.h"
 
 Fbookshelf &Fbookshelf::Instance() {
     return (Fbookshelf&)ZLApplication::Instance();
@@ -40,18 +37,8 @@ Fbookshelf::Fbookshelf(const std::string & bookToOpen) : ZLApplication("FBookshe
     myBookStackView = new BookStackView(*context());
     myWebView = new WebView(*context());
 
-//    if (bookToOpen != ""){
-//        netVsLibMode = bookToOpen;
-
-//        myViewMode = WEB_MODE;
-//        setView(myWebView);
-
-//    }
-//    else {
-        myViewMode = GRID_MODE;
-        setView(myGridView);
-
-//    }
+    myViewMode = GRID_MODE;
+    setView(myGridView);
 
     addAction(BookshelfActionCode::SET_GRIDVIEW, new SetGridViewAction());
     addAction(BookshelfActionCode::SET_BOOKSTACKVIEW, new SetBookStackViewAction());
@@ -133,58 +120,21 @@ void Fbookshelf::initWindow() {
     ZLApplication::initWindow();
     trackStylus(true);
 
-//    if (netVsLibMode == "net"){
-//        std::string url = "https://books.fbreader.org/opds/by_title";
-//        OPDSDownloader downloader;
-//        std::string content = downloader.download(url);
-//        OPDSSimpleParser parser(content);
-//        parser.parse();
-//        std::string baseString = "";
-//        std::map<std::string, shared_ptr<Book> > &booksmap = BookshelfModel::Instance().getLibrary();
-//        for (size_t i = 0; i < parser.OPDS_Title_nodes.size(); ++i){
-//            std::string title =  parser.OPDS_Title_nodes[i];
-//            // std::cout << title << " " << parser.OPDS_tree_href[i].size() << std::endl;
-//            std::string path = parser.OPDS_tree_href[i][2].second;
-//            std::string type = parser.get_book_type(i, 2);
-//            shared_ptr<Book> bookptr = Book::createBook(
-//                ZLFile(path), i,
-//                type,
-//                "English",
-//                title
-//            );
-//            bookptr->addAuthor("author");
-//            baseString += "a";
-//            booksmap.insert(std::make_pair(path,bookptr));
-//        }
-//        shared_ptr<ZLView> view = this->currentView();
-
-//        if(view->isInstanceOf(WebView::TYPE_ID)) {
-//            static_cast<WebView&>(*view).setMode(WebView::GOOGLE_DRIVE);
-//        }
-
-//    }
-//    else if (netVsLibMode == "drive")
-//    {
-//        GoogleDriveLibrary lib;
-//        lib.login();
-//    }
-//    else {
-        BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
-        BooksMap::iterator it = BookshelfModel::Instance().getLibrary().begin();
-        BooksMap::iterator itEnd = BookshelfModel::Instance().getLibrary().end();
-        for(; it != itEnd; ++it)
-        {
-            if((*it).second->title() == "About FBReader") {
-                BookshelfModel::Instance().getLibrary().erase(it);
-            }
+    BooksDBUtil::getBooks(BookshelfModel::Instance().getLibrary());
+    BooksMap::iterator it = BookshelfModel::Instance().getLibrary().begin();
+    BooksMap::iterator itEnd = BookshelfModel::Instance().getLibrary().end();
+    for(; it != itEnd; ++it)
+    {
+        if((*it).second->title() == "About FBReader") {
+            BookshelfModel::Instance().getLibrary().erase(it);
         }
+    }
 
-        shared_ptr<ZLView> view = this->currentView();
-        if(view->isInstanceOf(GridView::TYPE_ID)) {
-            static_cast<GridView&>(*view).setMode(GridView::WITHOUT_TAGS_MENU);
-        }
-//    }
-            
+    shared_ptr<ZLView> view = this->currentView();
+    if(view->isInstanceOf(GridView::TYPE_ID)) {
+        static_cast<GridView&>(*view).setMode(GridView::WITHOUT_TAGS_MENU);
+    }
+
     refreshWindow();
 }
 

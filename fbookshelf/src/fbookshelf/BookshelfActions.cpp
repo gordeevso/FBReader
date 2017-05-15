@@ -121,7 +121,8 @@ void SignInReloadBooksFbreaderOrg::run() {
         }
         std::cout << "vector size: " << booksToPass.size() << std::endl;
         static_cast<WebView&>(*view).setMode(WebView::BOOKS_FBREADER_ORG);
-        static_cast<WebView&>(*view).updateView(BookshelfModel::SortType::SORT_BY_TITLE);
+//        setMode calls updateView
+//        static_cast<WebView&>(*view).updateView(BookshelfModel::SortType::SORT_BY_TITLE);
     }
 }
 
@@ -222,6 +223,11 @@ void ScrollingAction::run() {
     if(fbookshelf.mode() == Fbookshelf::BOOKSTACK_MODE) {
         (static_cast<BookStackView&>(*view)).onMouseScroll(myForward);
     }
+
+    if(fbookshelf.mode() == Fbookshelf::WEB_MODE) {
+        (static_cast<WebView&>(*view)).onMouseScroll(myForward);
+    }
+
     fbookshelf.refreshWindow();
 
 }

@@ -50,11 +50,7 @@ WebView::WebView(ZLPaintContext &context) : ZLView(context),
                                               myItSelectedElement(myVecBookshelfElements.end()),
                                               myItFirstRendering(myVecBookshelfElements.end()),
                                               myItLastRendering(myVecBookshelfElements.end())
-//                                              myElementMenu(context)
 {
-    ZLFile imageFile("/usr/share/pixmaps/FBookshelf/title.png");
-    myTitleImage = new ZLFileImage(imageFile, 0);
-
 }
 
 const ZLTypeId WebView::TYPE_ID(ZLView::TYPE_ID);
@@ -78,7 +74,7 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
         bool books_fbreader_org = true;
         if(myViewMode == WebView::GOOGLE_DRIVE)
             books_fbreader_org = false;
-        //Write call to custom netLibrary
+
         std::vector<shared_ptr<Book> > & library = books_fbreader_org ?
                                                    BookshelfNetFBReaderModel::Instance().getLibrary(BookshelfNetFBReaderModel::SortType::SORT_BY_TITLE) :  //fbreader
                                                    BookshelfNetGoogleModel::Instance().getLibrary(BookshelfNetGoogleModel::SortType::SORT_BY_TITLE);   //google
@@ -125,6 +121,7 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
                 }
                 std::cout << "Incr: " << incr << std::endl;
             }
+
             myItSelectedElement = myVecBookshelfElements.begin();
 
             if(myVecBookshelfElements.size() > myRenderingElementsCount) {
@@ -141,8 +138,9 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
             mySortType = sort_type;
         }
     //}
-
+    std::cout << "update begin\n";
     updateBookshelfElements();
+    std::cout << "update end\n";
     Fbookshelf::Instance().refreshWindow();
 }
 
@@ -172,43 +170,6 @@ std::vector<WebElement>::iterator WebView::getSelectedElement() {
 
 
 bool WebView::onStylusPress(int x, int y) {
-//    if(!myTagsMenu.isNull() && myTagsMenu->myIsVisible) {
-//        bool state = false;
-//        if(myTagsMenu->checkSelectedElementMenu(x, y, state)) {
-
-//            assert(myTagsMenu->myItSelectedActionCode >= myTagsMenu->myVecMenuStrings.begin() &&
-//                   myTagsMenu->myItSelectedActionCode < myTagsMenu->myVecMenuStrings.end());
-
-//           // myTagsMenu->myIsVisible = false;
-//            std::cout << (*(myTagsMenu->myItSelectedActionCode)).first << "\n";
-//        }
-//    }
-
-//    for(std::vector<WebElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
-//        if(myElementMenu.myIsVisible) {
-//            bool state = false;
-//            if(myElementMenu.checkSelectedElementMenu(x, y, state)) {
-
-//                assert(myElementMenu.myItSelectedActionCode >= myElementMenu.myVecMenuStrings.begin() &&
-//                       myElementMenu.myItSelectedActionCode < myElementMenu.myVecMenuStrings.end());
-
-//                myElementMenu.myIsVisible = false;
-//                Fbookshelf::Instance().refreshWindow();
-//                Fbookshelf::Instance().doAction((*(myElementMenu.myItSelectedActionCode)).first);
-//            }
-//            myElementMenu.myIsVisible = false;
-//            Fbookshelf::Instance().refreshWindow();
-//        }
-
-//        if((*it).checkBookOptions(x, y)) {
-//            myElementMenu.myIsVisible = true;
-//            myElementMenu.myTopLeft.x = (*it).myOptionsTopLeft.x -
-//                    (myElementMenu.myXOffset - ((*it).myOptionsBottomRight.x - (*it).myOptionsTopLeft.x)) - 1;
-//            myElementMenu.myTopLeft.y = (*it).myOptionsBottomRight.y;
-//            Fbookshelf::Instance().refreshWindow();
-//            break;
-//        }
-//    }
 
     return true;
 }
@@ -233,63 +194,20 @@ bool WebView::onStylusRelease(int x, int y) {
 }
 
 
-
 bool WebView::onStylusMove(int x, int y) {
-//    bool ElementMenuPrevState = myElementMenu.myIsSelected;
-//    bool ElementMenuStringStateChanged = false;
-
-//    if(myElementMenu.myIsVisible && myElementMenu.checkSelectedElementMenu(x, y, ElementMenuStringStateChanged)){
-//        myElementMenu.myIsSelected = true;
-//    }
-//    else
-//        myElementMenu.myIsSelected = false;
-
-//    if(myElementMenu.myIsSelected != ElementMenuPrevState || ElementMenuStringStateChanged)
-//        Fbookshelf::Instance().refreshWindow();
-
-//    if(!myTagsMenu.isNull()) {
-//        bool TagsMenuPrevState = myTagsMenu->myIsSelected;
-//        bool TagsMenuStateChanged = false;
-
-//        if(myTagsMenu->myIsVisible && myTagsMenu->checkSelectedElementMenu(x, y, TagsMenuStateChanged))
-//            myTagsMenu->myIsSelected = true;
-//        else
-//            myTagsMenu->myIsSelected = false;
-
-//        if(myTagsMenu->myIsSelected != TagsMenuPrevState || TagsMenuStateChanged)
-//            Fbookshelf::Instance().refreshWindow();
-//    }
 
     for(std::vector<WebElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         bool SelectedPrevState = (*it).myIsSelected;
-//        bool MenuSelectedPrevState = (*it).myIsMenuSelected;
 
         if((*it).checkSelectedBook(x, y)) {
             myItSelectedElement = it;
             (*it).myIsSelected = true;
-//            if((*it).checkBookOptions(x, y)) {
-//                (*it).myIsMenuSelected = true;
-//                (*it).myIsSelected = false;
-//            }
-//            else {
-//                (*it).myIsSelected = true;
-//                (*it).myIsMenuSelected = false;
-//            }
-
         }
         else {
             (*it).myIsSelected = false;
-//            (*it).myIsMenuSelected = false;
         }
 
-//        if(myElementMenu.myIsVisible) {
-//            (*it).myIsSelected = false;
-//            (*it).myIsMenuSelected = false;
-//        }
-
-        if((*it).myIsSelected != SelectedPrevState
-//                || (*it).myIsMenuSelected != MenuSelectedPrevState
-                )
+        if((*it).myIsSelected != SelectedPrevState)
             Fbookshelf::Instance().refreshWindow();
     }
 
@@ -297,7 +215,6 @@ bool WebView::onStylusMove(int x, int y) {
 }
 
 
-//What is it?
 void WebView::onScrollbarStep(ZLView::Direction direction, int steps) {
     std::cout << "onscrollstep\n";
 }
@@ -305,10 +222,6 @@ void WebView::onScrollbarStep(ZLView::Direction direction, int steps) {
 
 
 void WebView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to) {
-//    if(myElementMenu.myIsVisible) {
-//        myElementMenu.myIsVisible = false;
-//        Fbookshelf::Instance().refreshWindow();
-//    }
 
     if(from < myScrollBarPos) {
         updateScrollUp();
@@ -323,10 +236,6 @@ void WebView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t 
 
 
 void WebView::onScrollbarPageStep(ZLView::Direction direction, int steps){
-//    if(myElementMenu.myIsVisible) {
-//        myElementMenu.myIsVisible = false;
-//        Fbookshelf::Instance().refreshWindow();
-//    }
 
     if(steps < 0) {
         updateScrollUp();
@@ -338,47 +247,28 @@ void WebView::onScrollbarPageStep(ZLView::Direction direction, int steps){
 
 
 void WebView::onMouseScroll(bool forward) {
-
-    if(myViewMode == WebView::GOOGLE_DRIVE) {
-        if(forward && myMouseScrollTo < myScrollBarMaxPos) {
-            ++myMouseScrollFrom;
-            ++myMouseScrollTo;
-            onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-            setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-        }
-
-        if(!forward && myMouseScrollFrom > 0) {
-            --myMouseScrollFrom;
-            --myMouseScrollTo;
-            onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-            setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-        }
+    if(forward && myMouseScrollTo < myScrollBarMaxPos) {
+        ++myMouseScrollFrom;
+        ++myMouseScrollTo;
+        onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+        setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
     }
 
-//    if(myViewMode == WebView::WITH_TAGS_MENU && !myTagsMenu.isNull()) {
-//        ;
-//        if(forward) {
-//            myTagsMenu->updateScrollDown();
-//        }
-//        else {
-//            myTagsMenu->updateScrollUp();
-//        }
-
-//        Fbookshelf::Instance().refreshWindow();
-//    }
-
+    if(!forward && myMouseScrollFrom > 0) {
+        --myMouseScrollFrom;
+        --myMouseScrollTo;
+        onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+        setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+    }
 }
 
 
 
 void WebView::updateBookshelfElements() {
-    if(myViewMode == WebView::GOOGLE_DRIVE)
-        myViewWidth = context().width();
-
-    if(myViewMode == WebView::BOOKS_FBREADER_ORG)
-        myViewWidth = context().width() - myTopLeftX;
-
+    myViewWidth = context().width();
     myViewHeight = context().height();
+
+    std::cout << "works\n";
 
     myElementWidth = myViewWidth / myElementsOnX;
     myElementHeight = myViewHeight / myElementsOnY;
@@ -402,9 +292,7 @@ void WebView::updateBookshelfElements() {
         }
     }
 
-
 }
-
 
 
 void WebView::updateScrollDown() {
@@ -447,18 +335,10 @@ void WebView::updateScrollUp()
 
 
 void WebView::drawBookshelfElements() {
-    if(myViewMode == WebView::GOOGLE_DRIVE) {
-        if(context().width() != myViewWidth || context().height() != myViewHeight) {
-            updateBookshelfElements();
-        }
-    }
 
-    if(myViewMode == WebView::BOOKS_FBREADER_ORG) {
-        if(context().width() != myViewWidth + myTopLeftX || context().height() != myViewHeight) {
-            updateBookshelfElements();
-        }
+    if(context().width() != myViewWidth || context().height() != myViewHeight) {
+        updateBookshelfElements();
     }
-
 
     for(std::vector<WebElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         (*it).drawElement(context());
@@ -488,16 +368,6 @@ ZLColor WebView::backgroundColor() const {
 
 void WebView::paint() {
     drawBackground();
-
-//    if(!myTagsMenu.isNull()) {
-//        if(myTagsMenu->myIsVisible) {
-//            myTagsMenu->checkFont();
-//            myTagsMenu->draw();
-//        }
-//    }
-
     drawBookshelfElements();
-//    if(myElementMenu.myIsVisible)
-//        myElementMenu.draw();
 
 }

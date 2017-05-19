@@ -18,18 +18,7 @@
 #include "../library/BookshelfModel.h"
 #include "../library/Tag.h"
 
-const int ELEMENTS_ON_X = 3;
-const int ELEMENTS_ON_Y = 3;
 
-const ZLColor ELEMENT_COLOR = ZLColor(190,190,190);
-const ZLColor ELEMENT_FRAME_COLOR = ZLColor(250,250,250);
-const ZLColor ELEMENT_COLOR_ON_SELECT = ZLColor(210,210,210);
-const ZLColor BACKGROUND_COLOR = ZLColor(255,255,255);
-
-const std::string CAPTION = "Grid";
-const std::string ALL_SHELVES = "All shelves";
-
-long const DELAY_ON_CLICK_BOOK_MS = 400;
 
 GridView::GridView(ZLPaintContext &context) : ZLView(context),
                                               myViewMode(GridView::WITHOUT_TAGS_MENU),
@@ -570,6 +559,7 @@ void GridView::drawBookshelfElements() {
 
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
         (*it).drawElement(context());
+        (*it).drawOptions(context());
     }
 }
 

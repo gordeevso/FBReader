@@ -168,6 +168,7 @@ GridElement::GridElement(Point topLeft,
                          Point optbottomright,
                          ZLColor elementColor,
                          ZLColor frameColor,
+                         shared_ptr<Book> book,
                          bool selected,
                          bool menuselected)
     : myTopLeft(topLeft),
@@ -176,6 +177,7 @@ GridElement::GridElement(Point topLeft,
       myOptionsBottomRight(optbottomright),
       myElementColor(elementColor),
       myFrameColor(frameColor),
+      myBook(book),
       myTitleString(),
       myTitleImage(),
       myIsSelected(selected),
@@ -239,7 +241,6 @@ void GridElement::drawElement(ZLPaintContext &painter)
     myTitleImage.draw(painter);
     myTitleString->draw();
 
-    drawOptions(painter);
 }
 
 bool GridElement::checkBookOptions(int x, int y)

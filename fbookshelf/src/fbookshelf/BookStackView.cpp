@@ -22,19 +22,19 @@
 //const ZLColor ELEMENT_COLOR = ZLColor(190,190,190);
 //const ZLColor ELEMENT_FRAME_COLOR = ZLColor(250,250,250);
 //const ZLColor ELEMENT_COLOR_ON_SELECT = ZLColor(210,210,210);
-const ZLColor BACKGROUND_COLOR = ZLColor(210, 180, 140);
+const ZLColor BOOKSTACK_BACKGROUND_COLOR = ZLColor(210, 180, 140);
 
-const std::string CAPTION = "BookStack";
+const std::string BOOKSTACK_CAPTION = "BookStack";
 
 BookStackView::BookStackView(ZLPaintContext &context) : ZLView(context),
                                               myViewMode(BookStackView::WITHOUT_TAGS_MENU),
                                               mySortType(BookshelfModel::SORT_BY_AUTHOR),
 //                                              myTopLeftX(0),
 //                                              myTopleftY(0),
-                                              myCaption(CAPTION),
+                                              myCaption(BOOKSTACK_CAPTION),
                                               myViewWidth(context.width()),
                                               myViewHeight(context.height()),
-                                              myBackgroundColor(BACKGROUND_COLOR),
+                                              myBackgroundColor(BOOKSTACK_BACKGROUND_COLOR),
 //                                              myElementsOnX(ELEMENTS_ON_X),
 //                                              myElementsOnY(ELEMENTS_ON_Y),
 //                                              myRenderingElementsCount(myElementsOnX * myElementsOnY),

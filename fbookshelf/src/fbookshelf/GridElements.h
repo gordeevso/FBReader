@@ -74,6 +74,7 @@ struct GridElement
                      Point optbottomright = Point(),
                      ZLColor elementColor = ZLColor(),
                      ZLColor frameColor = ZLColor(),
+                     shared_ptr<Book> book = 0,
                      bool selected = false,
                      bool menuselected = false);
 

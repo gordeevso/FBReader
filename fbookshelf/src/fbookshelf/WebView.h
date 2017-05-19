@@ -10,7 +10,8 @@
 #include <ZLPaintContext.h>
 #include <ZLFileImage.h>
 
-#include "WebElements.h"
+#include "GridView.h"
+#include "GridElements.h"
 #include "BookshelfMenu.h"
 #include "GridContextMenu.h"
 
@@ -22,7 +23,7 @@
 
 class ZLImageData;
 
-class WebView : public ZLView {
+class WebView : public GridView {
 
 public:
     WebView(ZLPaintContext &context);
@@ -39,7 +40,7 @@ public:
     ViewMode mode() const;
     void invertMode();
 
-    std::vector<WebElement>::iterator getSelectedElement();
+    std::vector<GridElement>::iterator getSelectedElement();
 
     bool onStylusPress(int x, int y);
     bool onStylusMovePressed(int x, int y);
@@ -69,37 +70,7 @@ private:
 
 
 private:
-    ViewMode myViewMode;
-    BookshelfModel::SortType mySortType;
-
-    int myTopLeftX;
-    int myTopleftY;
-
-    std::string myCaption;
-    int myViewWidth;
-    int myViewHeight;
-    ZLColor myBackgroundColor;
-
-    int myElementsOnX;
-    int myElementsOnY;
-    int myRenderingElementsCount;
-
-    size_t myScrollBarPos;
-    size_t myScrollBarMaxPos;
-    size_t myMouseScrollFrom;
-    size_t myMouseScrollTo;
-
-    int myElementWidth;
-    int myElementHeight;
-
-    std::vector<WebElement> myVecBookshelfElements;
-    std::vector<WebElement>::iterator myItSelectedElement;
-    std::vector<WebElement>::iterator myItFirstRendering;
-    std::vector<WebElement>::iterator myItLastRendering;
-
-    shared_ptr<ZLFileImage> myTitleImage;
-//    GridContextMenu myElementMenu;
-//    shared_ptr<BookshelfMenu> myTagsMenu;
+    WebView::ViewMode myViewMode;
 
 };
 

@@ -6,6 +6,8 @@
 #include <ZLUnicodeUtil.h>
 #include <ZLTimeManager.h>
 #include <ZLTextSelectionModel.h>
+#include <ZLTimeManager.h>
+#include <ZLTime.h>
 
 #include "GridView.h"
 #include "FBookshelf.h"
@@ -25,6 +27,9 @@ const ZLColor ELEMENT_COLOR_ON_SELECT = ZLColor(210,210,210);
 const ZLColor BACKGROUND_COLOR = ZLColor(255,255,255);
 
 const std::string CAPTION = "Grid";
+const std::string ALL_SHELVES = "All shelves";
+
+long const DELAY_ON_CLICK_BOOK_MS = 400;
 
 GridView::GridView(ZLPaintContext &context) : ZLView(context),
                                               myViewMode(GridView::WITHOUT_TAGS_MENU),
@@ -48,11 +53,14 @@ GridView::GridView(ZLPaintContext &context) : ZLView(context),
                                               myItSelectedElement(myVecBookshelfElements.end()),
                                               myItFirstRendering(myVecBookshelfElements.end()),
                                               myItLastRendering(myVecBookshelfElements.end()),
-                                              myElementMenu(context)
+                                              myContextMenu(context),
+                                              myShelfvesMenu(0),
+                                              myCurrentShelf(ALL_SHELVES),
+                                              myLastShelf(""),
+                                              myTime(new ZLTime())
 {
     std::vector<std::string> tags;
-    Tag::collectTagNames(tags);
-    myTagsMenu = new BookshelfMenu(context, tags);
+    myShelfvesMenu = new BookshelfMenu(context, tags);
 }
 
 const ZLTypeId GridView::TYPE_ID(ZLView::TYPE_ID);
@@ -62,8 +70,8 @@ const ZLTypeId &GridView::typeId() const {
 }
 
 void GridView::updateView(BookshelfModel::SortType sort_type) {
-
-    if(mySortType != sort_type || myVecBookshelfElements.empty()) {
+    if(mySortType != sort_type || myVecBookshelfElements.empty() || myLastShelf != myCurrentShelf) {
+        myLastShelf = myCurrentShelf;
         myVecBookshelfElements.clear();
 
         if(myViewMode == GridView::WITHOUT_TAGS_MENU)
@@ -86,7 +94,30 @@ void GridView::updateView(BookshelfModel::SortType sort_type) {
         std::vector<shared_ptr<Book> >::const_iterator it = library.begin();
         std::vector<shared_ptr<Book> >::const_iterator itEnd = library.end();
 
+        std::vector<std::string> shelves = BookshelfModel::Instance().getShelves();
+        shelves.insert(shelves.begin(), ALL_SHELVES);
+        myShelfvesMenu->reloadTags(shelves);
+
+        std::vector<std::string> shelves_curr_book;
+
+        bool show_book = false;
         for(; it != itEnd; ++it) {
+
+            show_book = false;
+            shelves_curr_book = (*it)->shelves();
+
+            for(auto & x: shelves_curr_book) {
+                if(myCurrentShelf == x) {
+                    show_book = true;
+
+                }
+            }
+
+            if(myCurrentShelf == ALL_SHELVES)
+                show_book = true;
+
+            if(!show_book)
+                continue;
 
             BookModel model(*it);
 
@@ -119,7 +150,7 @@ void GridView::updateView(BookshelfModel::SortType sort_type) {
         }
 
         myItSelectedElement = myVecBookshelfElements.begin();
-        myElementMenu.myIsVisible = false;
+        myContextMenu.myIsVisible = false;
 
         if(myVecBookshelfElements.size() > myRenderingElementsCount) {
             myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
@@ -134,7 +165,6 @@ void GridView::updateView(BookshelfModel::SortType sort_type) {
 
         mySortType = sort_type;
     }
-
 
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();
@@ -202,18 +232,15 @@ void GridView::resizeElements(bool smaller) {
 void GridView::setMode(GridView::ViewMode mode) {
     if(mode != myViewMode) {
         if(mode == GridView::WITHOUT_TAGS_MENU) {
-            if(!myTagsMenu.isNull())
-                myTagsMenu->myIsVisible = false;
+            if(!myShelfvesMenu.isNull())
+                myShelfvesMenu->myIsVisible = false;
             myTopLeftX = 0;
         }
 
         if(mode == GridView::WITH_TAGS_MENU) {
-            if(!myTagsMenu.isNull()) {
-                std::vector<std::string> tags;
-                Tag::collectTagNames(tags);
-                myTagsMenu->reloadTags(tags);
-                myTagsMenu->myIsVisible = true;
-                myTopLeftX = myTagsMenu->myXOffset;
+            if(!myShelfvesMenu.isNull()) {
+                myShelfvesMenu->myIsVisible = true;
+                myTopLeftX = myShelfvesMenu->myXOffset;
             }
         }
 
@@ -244,39 +271,39 @@ std::vector<GridElement>::iterator GridView::getSelectedElement() {
 
 
 bool GridView::onStylusPress(int x, int y) {
-    if(!myTagsMenu.isNull() && myTagsMenu->myIsVisible) {
+    if(!myShelfvesMenu.isNull() && myShelfvesMenu->myIsVisible) {
         bool state = false;
-        if(myTagsMenu->checkSelectedElementMenu(x, y, state)) {
+        if(myShelfvesMenu->checkSelectedElementMenu(x, y, state)) {
 
-            assert(myTagsMenu->myItSelectedActionCode >= myTagsMenu->myVecMenuStrings.begin() &&
-                   myTagsMenu->myItSelectedActionCode < myTagsMenu->myVecMenuStrings.end());
+            assert(myShelfvesMenu->myItSelectedActionCode >= myShelfvesMenu->myVecMenuStrings.begin() &&
+                   myShelfvesMenu->myItSelectedActionCode < myShelfvesMenu->myVecMenuStrings.end());
 
-           // myTagsMenu->myIsVisible = false;
-            std::cout << (*(myTagsMenu->myItSelectedActionCode)).first << "\n";
+            myCurrentShelf = (*(myShelfvesMenu->myItSelectedActionCode)).first;
+            updateView(mySortType);
         }
     }
 
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
-        if(myElementMenu.myIsVisible) {
+        if(myContextMenu.myIsVisible) {
             bool state = false;
-            if(myElementMenu.checkSelectedElementMenu(x, y, state)) {
+            if(myContextMenu.checkSelectedElementMenu(x, y, state)) {
 
-                assert(myElementMenu.myItSelectedActionCode >= myElementMenu.myVecMenuStrings.begin() &&
-                       myElementMenu.myItSelectedActionCode < myElementMenu.myVecMenuStrings.end());
+                assert(myContextMenu.myItSelectedActionCode >= myContextMenu.myVecMenuStrings.begin() &&
+                       myContextMenu.myItSelectedActionCode < myContextMenu.myVecMenuStrings.end());
 
-                myElementMenu.myIsVisible = false;
+                myContextMenu.myIsVisible = false;
                 Fbookshelf::Instance().refreshWindow();
-                Fbookshelf::Instance().doAction((*(myElementMenu.myItSelectedActionCode)).first);
+                Fbookshelf::Instance().doAction((*(myContextMenu.myItSelectedActionCode)).first);
             }
-            myElementMenu.myIsVisible = false;
+            myContextMenu.myIsVisible = false;
             Fbookshelf::Instance().refreshWindow();
         }
 
         if((*it).checkBookOptions(x, y)) {
-            myElementMenu.myIsVisible = true;
-            myElementMenu.myTopLeft.x = (*it).myOptionsTopLeft.x -
-                    (myElementMenu.myXOffset - ((*it).myOptionsBottomRight.x - (*it).myOptionsTopLeft.x)) - 1;
-            myElementMenu.myTopLeft.y = (*it).myOptionsBottomRight.y;
+            myContextMenu.myIsVisible = true;
+            myContextMenu.myTopLeft.x = (*it).myOptionsTopLeft.x -
+                    (myContextMenu.myXOffset - ((*it).myOptionsBottomRight.x - (*it).myOptionsTopLeft.x)) - 1;
+            myContextMenu.myTopLeft.y = (*it).myOptionsBottomRight.y;
             Fbookshelf::Instance().refreshWindow();
             break;
         }
@@ -287,46 +314,54 @@ bool GridView::onStylusPress(int x, int y) {
 
 
 bool GridView::onStylusRelease(int x, int y) {
+    shared_ptr<ZLTime> current_time = new ZLTime();
+    long delta = current_time->millisecondsFrom(*myTime);
+    myTime = current_time;
+
+    if(delta > DELAY_ON_CLICK_BOOK_MS)
+        return true;
+
     for(std::vector<GridElement>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
 
         if(it == myItSelectedElement &&
            (*it).checkSelectedBook(x, y) &&
            !(*it).checkBookOptions(x, y) &&
-           !myElementMenu.myIsVisible &&
-           !myElementMenu.myIsSelected) {
+           !myContextMenu.myIsVisible &&
+           !myContextMenu.myIsSelected) {
 
             Fbookshelf::Instance().doAction(BookshelfActionCode::RUN_FBREADER);
             break;
         }
     }
     return true;
+
 }
 
 
 
 bool GridView::onStylusMove(int x, int y) {
-    bool ElementMenuPrevState = myElementMenu.myIsSelected;
+    bool ElementMenuPrevState = myContextMenu.myIsSelected;
     bool ElementMenuStringStateChanged = false;
 
-    if(myElementMenu.myIsVisible && myElementMenu.checkSelectedElementMenu(x, y, ElementMenuStringStateChanged)){
-        myElementMenu.myIsSelected = true;
+    if(myContextMenu.myIsVisible && myContextMenu.checkSelectedElementMenu(x, y, ElementMenuStringStateChanged)){
+        myContextMenu.myIsSelected = true;
     }
     else
-        myElementMenu.myIsSelected = false;
+        myContextMenu.myIsSelected = false;
 
-    if(myElementMenu.myIsSelected != ElementMenuPrevState || ElementMenuStringStateChanged)
+    if(myContextMenu.myIsSelected != ElementMenuPrevState || ElementMenuStringStateChanged)
         Fbookshelf::Instance().refreshWindow();
 
-    if(!myTagsMenu.isNull()) {
-        bool TagsMenuPrevState = myTagsMenu->myIsSelected;
+    if(!myShelfvesMenu.isNull()) {
+        bool TagsMenuPrevState = myShelfvesMenu->myIsSelected;
         bool TagsMenuStateChanged = false;
 
-        if(myTagsMenu->myIsVisible && myTagsMenu->checkSelectedElementMenu(x, y, TagsMenuStateChanged))
-            myTagsMenu->myIsSelected = true;
+        if(myShelfvesMenu->myIsVisible && myShelfvesMenu->checkSelectedElementMenu(x, y, TagsMenuStateChanged))
+            myShelfvesMenu->myIsSelected = true;
         else
-            myTagsMenu->myIsSelected = false;
+            myShelfvesMenu->myIsSelected = false;
 
-        if(myTagsMenu->myIsSelected != TagsMenuPrevState || TagsMenuStateChanged)
+        if(myShelfvesMenu->myIsSelected != TagsMenuPrevState || TagsMenuStateChanged)
             Fbookshelf::Instance().refreshWindow();
     }
 
@@ -352,7 +387,7 @@ bool GridView::onStylusMove(int x, int y) {
             (*it).myIsMenuSelected = false;
         }
 
-        if(myElementMenu.myIsVisible) {
+        if(myContextMenu.myIsVisible) {
             (*it).myIsSelected = false;
             (*it).myIsMenuSelected = false;
         }
@@ -366,11 +401,9 @@ bool GridView::onStylusMove(int x, int y) {
 
 
 
-
-
 void GridView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to) {
-    if(myElementMenu.myIsVisible) {
-        myElementMenu.myIsVisible = false;
+    if(myContextMenu.myIsVisible) {
+        myContextMenu.myIsVisible = false;
         Fbookshelf::Instance().refreshWindow();
     }
 
@@ -385,8 +418,8 @@ void GridView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t
 }
 
 void GridView::onScrollbarStep(ZLView::Direction direction, int steps){
-    if(myElementMenu.myIsVisible) {
-        myElementMenu.myIsVisible = false;
+    if(myContextMenu.myIsVisible) {
+        myContextMenu.myIsVisible = false;
         Fbookshelf::Instance().refreshWindow();
     }
 
@@ -399,8 +432,8 @@ void GridView::onScrollbarStep(ZLView::Direction direction, int steps){
 }
 
 void GridView::onScrollbarPageStep(ZLView::Direction direction, int steps){
-    if(myElementMenu.myIsVisible) {
-        myElementMenu.myIsVisible = false;
+    if(myContextMenu.myIsVisible) {
+        myContextMenu.myIsVisible = false;
         Fbookshelf::Instance().refreshWindow();
     }
 
@@ -431,13 +464,12 @@ void GridView::onMouseScroll(bool forward) {
         }
     }
 
-    if(myViewMode == GridView::WITH_TAGS_MENU && !myTagsMenu.isNull()) {
-        ;
+    if(myViewMode == GridView::WITH_TAGS_MENU && !myShelfvesMenu.isNull()) {
         if(forward) {
-            myTagsMenu->updateScrollDown();
+            myShelfvesMenu->updateScrollDown();
         }
         else {
-            myTagsMenu->updateScrollUp();
+            myShelfvesMenu->updateScrollUp();
         }
 
         Fbookshelf::Instance().refreshWindow();
@@ -565,15 +597,15 @@ ZLColor GridView::backgroundColor() const {
 void GridView::paint() {
     drawBackground();
 
-    if(!myTagsMenu.isNull()) {
-        if(myTagsMenu->myIsVisible) {
-            myTagsMenu->checkFont();
-            myTagsMenu->draw();
+    if(!myShelfvesMenu.isNull()) {
+        if(myShelfvesMenu->myIsVisible) {
+            myShelfvesMenu->checkFont();
+            myShelfvesMenu->draw();
         }
     }
 
     drawBookshelfElements();
-    if(myElementMenu.myIsVisible)
-        myElementMenu.draw();
+    if(myContextMenu.myIsVisible)
+        myContextMenu.draw();
 
 }

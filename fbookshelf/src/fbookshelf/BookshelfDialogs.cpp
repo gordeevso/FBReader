@@ -11,71 +11,10 @@
 
 
 
-class AddToShelfEntry : public ZLTextOptionEntry {
-
-public:
-    AddToShelfEntry(const std::string &initialValue);
-
-    const std::string &initialValue() const;
-    void onAccept(const std::string &value);
-    ZLOptionKind kind() const;
-
-private:
-    std::string myValue;
-};
-
-AddToShelfEntry::AddToShelfEntry(const std::string &initialValue) : myValue(initialValue)
-{}
-
-const std::string &AddToShelfEntry::initialValue() const
-{
-    return myValue;
-}
-
-void AddToShelfEntry::onAccept(const std::string &value)
-{
-    myValue = value;
-}
-
-ZLOptionEntry::ZLOptionKind AddToShelfEntry::kind() const
-{
-    return STRING;
-}
-
-
-
-
-AddToShelfDialog::AddToShelfDialog()
-{}
-
-bool AddToShelfDialog::run()
-{
-    shared_ptr<ZLDialog> dialog = ZLDialogManager::Instance().createDialog(ZLResourceKey("add to shelf"));
-
-    AddToShelfEntry * addToShelfEntry = new AddToShelfEntry("");
-    dialog->addOption(ZLResourceKey("name"), addToShelfEntry);
-
-    dialog->addButton(ZLDialogManager::OK_BUTTON, true);
-    dialog->addButton(ZLDialogManager::CANCEL_BUTTON, false);
-
-    if (dialog->run()) {
-        dialog->acceptValues();
-        Fbookshelf &fbookshelf = Fbookshelf::Instance();
-
-        shared_ptr<ZLView> view = fbookshelf.getGridView();
-        shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
-        BookshelfModel::Instance().addBookToShelf(addToShelfEntry->initialValue(), book);
-
-        return true;
-    }
-    return false;
-}
-
-
 class BookShelfEntry : public ZLComboOptionEntry {
 
 public:
-    BookShelfEntry();
+    BookShelfEntry(bool adding_book);
 
     const std::string &initialValue() const;
     const std::vector<std::string> &values() const;
@@ -87,10 +26,12 @@ private:
     std::string mySelectedValue;
 
     std::vector<std::string> myValues;
+    bool myAddingBook;
 };
 
-BookShelfEntry::BookShelfEntry() : ZLComboOptionEntry(true),
-                               mySelectedValue("")
+BookShelfEntry::BookShelfEntry(bool adding_book) : ZLComboOptionEntry(true),
+                                                   mySelectedValue(""),
+                                                   myAddingBook(adding_book)
 {
 
     myValues.push_back("");
@@ -99,7 +40,7 @@ BookShelfEntry::BookShelfEntry() : ZLComboOptionEntry(true),
 
     shared_ptr<ZLView> view = fbookshelf.getGridView();
     shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
-    ShelfList const & shelves = book->shelves();
+    ShelfList const & shelves = myAddingBook ? BookshelfModel::Instance().getShelves() : book->shelves();
 
     for(size_t i = 0; i != shelves.size(); ++i) {
         myValues.push_back(shelves[i]);
@@ -125,6 +66,33 @@ void BookShelfEntry::onValueSelected(int index) {
 }
 
 
+AddToShelfDialog::AddToShelfDialog()
+{}
+
+bool AddToShelfDialog::run()
+{
+    shared_ptr<ZLDialog> dialog = ZLDialogManager::Instance().createDialog(ZLResourceKey("add to shelf"));
+
+    BookShelfEntry * addToShelfEntry = new BookShelfEntry(true);
+    dialog->addOption(ZLResourceKey("name"), addToShelfEntry);
+
+    dialog->addButton(ZLDialogManager::OK_BUTTON, true);
+    dialog->addButton(ZLDialogManager::CANCEL_BUTTON, false);
+
+    if (dialog->run()) {
+        dialog->acceptValues();
+        Fbookshelf &fbookshelf = Fbookshelf::Instance();
+
+        shared_ptr<ZLView> view = fbookshelf.getGridView();
+        shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
+        BookshelfModel::Instance().addBookToShelf(addToShelfEntry->initialValue(), book);
+
+        return true;
+    }
+    return false;
+}
+
+
 RemoveFromShelfDialog::RemoveFromShelfDialog() {
 }
 
@@ -133,7 +101,7 @@ bool RemoveFromShelfDialog::run()
 {
     shared_ptr<ZLDialog> dialog = ZLDialogManager::Instance().createDialog(ZLResourceKey("remove from shelf"));
 
-    BookShelfEntry * bookShelfEntry = new BookShelfEntry();
+    BookShelfEntry * bookShelfEntry = new BookShelfEntry(false);
     dialog->addOption(ZLResourceKey("name"), bookShelfEntry);
 
     dialog->addButton(ZLDialogManager::OK_BUTTON, true);

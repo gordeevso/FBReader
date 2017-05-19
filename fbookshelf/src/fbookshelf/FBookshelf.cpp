@@ -49,7 +49,7 @@ Fbookshelf::Fbookshelf(const std::string & bookToOpen) : ZLApplication("FBookshe
 
     shared_ptr<Action> booksOrderAction = new SortBooksAction();
     addAction(BookshelfActionCode::SORT_BY_AUTHOR, booksOrderAction);
-    addAction(BookshelfActionCode::SORT_BY_ID, booksOrderAction);
+//    addAction(BookshelfActionCode::SORT_BY_ID, booksOrderAction);
     addAction(BookshelfActionCode::SORT_BY_TITLE, booksOrderAction);
 
     addAction(BookshelfActionCode::MOUSE_SCROLL_FORWARD, new MouseWheelScrollingAction(true));

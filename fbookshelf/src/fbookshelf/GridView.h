@@ -20,6 +20,7 @@
 #include "../options/FBTextStyle.h"
 
 class ZLImageData;
+class ZLTime;
 
 class GridView : public ZLView {
 
@@ -95,8 +96,12 @@ private:
     std::vector<GridElement>::iterator myItFirstRendering;
     std::vector<GridElement>::iterator myItLastRendering;
 
-    GridContextMenu myElementMenu;
-    shared_ptr<BookshelfMenu> myTagsMenu;
+    GridContextMenu myContextMenu;
+    shared_ptr<BookshelfMenu> myShelfvesMenu;
+    std::string myCurrentShelf;
+    std::string myLastShelf;
+
+    shared_ptr<ZLTime> myTime;
 
 };
 

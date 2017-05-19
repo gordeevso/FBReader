@@ -13,7 +13,7 @@ struct GridContextMenu
 {
     GridContextMenu(ZLPaintContext & context,
                 Point topleft = Point(),
-                int xoffset = 80,
+                int xoffset = 100,
                 int yoffset = 10,
                 int fontsize = 5);
 

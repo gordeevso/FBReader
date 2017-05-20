@@ -59,101 +59,97 @@ const ZLTypeId &GridView::typeId() const {
 }
 
 void GridView::updateView(BookshelfModel::SortType sort_type) {
-    if(mySortType != sort_type || myVecBookshelfElements.empty() || myLastShelf != myCurrentShelf) {
-        myLastShelf = myCurrentShelf;
-        myVecBookshelfElements.clear();
+    myLastShelf = myCurrentShelf;
+    myVecBookshelfElements.clear();
 
-        if(myViewMode == GridView::WITHOUT_TAGS_MENU)
-            myViewWidth = context().width();
+    if(myViewMode == GridView::WITHOUT_TAGS_MENU)
+        myViewWidth = context().width();
 
-        if(myViewMode == GridView::WITH_TAGS_MENU)
-            myViewWidth = context().width() - myTopLeftX;
+    if(myViewMode == GridView::WITH_TAGS_MENU)
+        myViewWidth = context().width() - myTopLeftX;
 
-        myElementWidth = myViewWidth / myElementsOnX;
+    myElementWidth = myViewWidth / myElementsOnX;
 
-        int x1 = myTopLeftX;
-        int y1 = myTopleftY;
-        int x2 = myTopLeftX + myElementWidth;
-        int y2 = myElementHeight;
+    int x1 = myTopLeftX;
+    int y1 = myTopleftY;
+    int x2 = myTopLeftX + myElementWidth;
+    int y2 = myElementHeight;
 
-        GridElement element;
+    GridElement element;
 
-        std::vector<shared_ptr<Book> > & library = BookshelfModel::Instance().getLibrary(sort_type);
+    std::vector<shared_ptr<Book> > & library = BookshelfModel::Instance().getLibrary(sort_type);
 
-        std::vector<shared_ptr<Book> >::const_iterator it = library.begin();
-        std::vector<shared_ptr<Book> >::const_iterator itEnd = library.end();
+    std::vector<shared_ptr<Book> >::const_iterator it = library.begin();
+    std::vector<shared_ptr<Book> >::const_iterator itEnd = library.end();
 
-        std::vector<std::string> shelves = BookshelfModel::Instance().getShelves();
-        shelves.insert(shelves.begin(), ALL_SHELVES);
-        myShelfvesMenu->reloadTags(shelves);
+    std::vector<std::string> shelves = BookshelfModel::Instance().getShelves();
+    shelves.insert(shelves.begin(), ALL_SHELVES);
+    myShelfvesMenu->reloadTags(shelves);
 
-        std::vector<std::string> shelves_curr_book;
+    std::vector<std::string> shelves_curr_book;
 
-        bool show_book = false;
-        for(; it != itEnd; ++it) {
+    bool show_book = false;
+    for(; it != itEnd; ++it) {
 
-            show_book = false;
-            shelves_curr_book = (*it)->shelves();
+        show_book = false;
+        shelves_curr_book = (*it)->shelves();
 
-            for(auto & x: shelves_curr_book) {
-                if(myCurrentShelf == x) {
-                    show_book = true;
-
-                }
-            }
-
-            if(myCurrentShelf == ALL_SHELVES)
+        for(auto & x: shelves_curr_book) {
+            if(myCurrentShelf == x)
                 show_book = true;
-
-            if(!show_book)
-                continue;
-
-            BookModel model(*it);
-
-            element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
-            element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
-            element.myBook = *it;
-
-            element.myTitleString = new StringRect(element.myBook->title(), context());
-
-            element.myTopLeft.x = x1;
-            element.myTopLeft.y = y1;
-            element.myBottomRight.x = x2;
-            element.myBottomRight.y = y2;
-
-            element.myElementColor = ELEMENT_COLOR;
-            element.myFrameColor = ELEMENT_FRAME_COLOR;
-
-            myVecBookshelfElements.push_back(element);
-
-            x1 += myElementWidth;
-            x2 += myElementWidth;
-
-            if(x2 > myViewWidth + myTopLeftX)
-            {
-                x1 = myTopLeftX;
-                x2 = myTopLeftX + myElementWidth;
-                y1 += myElementHeight;
-                y2 += myElementHeight;
-            }
         }
 
-        myItSelectedElement = myVecBookshelfElements.begin();
-        myContextMenu.myIsVisible = false;
+        if(myCurrentShelf == ALL_SHELVES)
+            show_book = true;
 
-        if(myVecBookshelfElements.size() > myRenderingElementsCount) {
-            myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
-            ++myScrollBarMaxPos;
+        if(!show_book)
+            continue;
+
+        BookModel model(*it);
+
+        element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
+        element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
+        element.myBook = *it;
+
+        element.myTitleString = new StringRect(element.myBook->title(), context());
+
+        element.myTopLeft.x = x1;
+        element.myTopLeft.y = y1;
+        element.myBottomRight.x = x2;
+        element.myBottomRight.y = y2;
+
+        element.myElementColor = ELEMENT_COLOR;
+        element.myFrameColor = ELEMENT_FRAME_COLOR;
+
+        myVecBookshelfElements.push_back(element);
+
+        x1 += myElementWidth;
+        x2 += myElementWidth;
+
+        if(x2 > myViewWidth + myTopLeftX)
+        {
+            x1 = myTopLeftX;
+            x2 = myTopLeftX + myElementWidth;
+            y1 += myElementHeight;
+            y2 += myElementHeight;
         }
-
-        setScrollbarEnabled(VERTICAL, true);
-        setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-
-        myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
-        myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
-
-        mySortType = sort_type;
     }
+
+    myItSelectedElement = myVecBookshelfElements.begin();
+    myContextMenu.myIsVisible = false;
+
+    if(myVecBookshelfElements.size() > myRenderingElementsCount) {
+        myScrollBarMaxPos = (myVecBookshelfElements.size() - myRenderingElementsCount) / myElementsOnX;
+        ++myScrollBarMaxPos;
+    }
+
+    setScrollbarEnabled(VERTICAL, true);
+    setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+
+    myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
+    myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
+
+    mySortType = sort_type;
 
     updateBookshelfElements();
     Fbookshelf::Instance().refreshWindow();
@@ -161,12 +157,20 @@ void GridView::updateView(BookshelfModel::SortType sort_type) {
 
 void GridView::resizeElements(bool smaller) {
     if(smaller) {
-        ++myElementsOnX;
-        ++myElementsOnY;
+        if(myElementsOnX < 10 && myElementsOnY < 10) {
+            ++myElementsOnX;
+            ++myElementsOnY;
+        }
+        else
+            return;
     }
     else {
-        --myElementsOnX;
-        --myElementsOnY;
+        if(myElementsOnX > 2 && myElementsOnY > 2) {
+            --myElementsOnX;
+            --myElementsOnY;
+        }
+        else
+            return;
     }
 
     myRenderingElementsCount = myElementsOnX * myElementsOnY;
@@ -283,6 +287,7 @@ bool GridView::onStylusPress(int x, int y) {
                 myContextMenu.myIsVisible = false;
                 Fbookshelf::Instance().refreshWindow();
                 Fbookshelf::Instance().doAction((*(myContextMenu.myItSelectedActionCode)).first);
+                updateView(mySortType);
             }
             myContextMenu.myIsVisible = false;
             Fbookshelf::Instance().refreshWindow();

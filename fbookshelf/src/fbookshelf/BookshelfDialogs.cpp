@@ -84,7 +84,6 @@ bool AddToShelfDialog::run()
 
         shared_ptr<ZLView> view = fbookshelf.getGridView();
         shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
-        std::cout << book->title() << " adding to shelf " << addToShelfEntry->initialValue() << "\n";
         BookshelfModel::Instance().addBookToShelf(addToShelfEntry->initialValue(), book);
 
         return true;

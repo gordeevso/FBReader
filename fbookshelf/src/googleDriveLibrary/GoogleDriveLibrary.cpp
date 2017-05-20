@@ -3,7 +3,7 @@
 #include "../third-party/json.hpp"
 #include "HTTPDownloader.h"
 #include "AuthorisationManager.h"
-#include "../OPDSExtractor/OPDSDownloader.h"
+#include "../netLib/OPDSExtractor/OPDSDownloader.h"
 #include <iostream>
 #include <fstream>
 

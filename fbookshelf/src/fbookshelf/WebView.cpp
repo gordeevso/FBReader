@@ -85,7 +85,6 @@ void WebView::updateView(BookshelfModel::SortType sort_type) {
                 y1 += myElementHeight;
                 y2 += myElementHeight;
             }
-            std::cout << "Incr: " << incr << std::endl;
         }
 
         myItSelectedElement = myVecBookshelfElements.begin();

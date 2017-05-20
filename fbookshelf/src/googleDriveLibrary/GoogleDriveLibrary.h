@@ -4,7 +4,7 @@
 #include <vector>
 #include <shared_ptr.h>
 #include "../library/Book.h"
-#include "../NetLib/NetworkActions.h"
+#include "../netLib/NetworkActions.h"
 
 class GoogleDriveLibrary : public NetworkActions
 {

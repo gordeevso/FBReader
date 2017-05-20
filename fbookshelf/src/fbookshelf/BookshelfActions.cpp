@@ -5,13 +5,13 @@
 #include "BookshelfActions.h"
 #include "FBookshelf.h"
 #include "BookStackView.h"
-#include "../OPDSExtractor/OPDSDownloader.h"
-#include "../OPDSExtractor/OPDSSimpleParser.h"
+//#include "../OPDSExtractor/OPDSDownloader.h"
+//#include "../OPDSExtractor/OPDSSimpleParser.h"
 #include "../googleDriveLibrary/GoogleDriveLibrary.h"
 #include "../library/BookshelfModel.h"
 #include "../library/BookshelfNetFBReaderModel.h"
 #include "../library/BookshelfNetGoogleModel.h"
-#include "../NetLib/NetworkFBReaderActions.h"
+#include "../netLib/NetworkFBReaderActions.h"
 
 const std::string BookshelfActionCode::SORT_BY_AUTHOR = "sortByAuthor";
 const std::string BookshelfActionCode::SORT_BY_ID = "sortById";
@@ -119,10 +119,7 @@ void SignInReloadBooksFbreaderOrg::run() {
         for (size_t i = 0; i < booksToPass.size(); i++){
             booksmap.insert(booksToPass[i]);
         }
-        std::cout << "vector size: " << booksToPass.size() << std::endl;
         static_cast<WebView&>(*view).setMode(WebView::BOOKS_FBREADER_ORG);
-//        setMode calls updateView
-//        static_cast<WebView&>(*view).updateView(BookshelfModel::SortType::SORT_BY_TITLE);
     }
 }
 

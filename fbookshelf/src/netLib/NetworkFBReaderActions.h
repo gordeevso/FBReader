@@ -19,7 +19,7 @@
 
 #ifndef __NETWORKFBREADERACTIONS_H__
 #define __NETWORKFBREADERACTIONS_H__
-#include "../OPDSExtractor/OPDSDownloader.h"
+#include "OPDSExtractor/OPDSDownloader.h"
 #include "NetworkActions.h"
 
 

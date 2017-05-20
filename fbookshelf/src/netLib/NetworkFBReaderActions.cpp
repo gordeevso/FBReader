@@ -20,8 +20,8 @@
 #include <ZLFile.h>
 #include <ZLFileImage.h>
 #include "NetworkFBReaderActions.h"
-#include "../OPDSExtractor/OPDSDownloader.h"
-#include "../OPDSExtractor/OPDSSimpleParser.h"
+#include "OPDSExtractor/OPDSDownloader.h"
+#include "OPDSExtractor/OPDSSimpleParser.h"
 #include <iostream>
 #include <cstdlib>
 #include <fstream>

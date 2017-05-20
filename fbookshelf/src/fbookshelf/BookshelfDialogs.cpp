@@ -9,8 +9,6 @@
 
 #include "../database/booksdb/BooksDB.h"
 
-
-
 class BookShelfEntry : public ZLComboOptionEntry {
 
 public:
@@ -57,7 +55,8 @@ const std::vector<std::string> &BookShelfEntry::values() const {
 }
 
 void BookShelfEntry::onAccept(const std::string &value) {
-
+    if(myAddingBook)
+        mySelectedValue = value;
 }
 
 
@@ -73,7 +72,7 @@ bool AddToShelfDialog::run()
 {
     shared_ptr<ZLDialog> dialog = ZLDialogManager::Instance().createDialog(ZLResourceKey("add to shelf"));
 
-    BookShelfEntry * addToShelfEntry = new BookShelfEntry(true);
+    BookShelfEntry* addToShelfEntry = new BookShelfEntry(true);
     dialog->addOption(ZLResourceKey("name"), addToShelfEntry);
 
     dialog->addButton(ZLDialogManager::OK_BUTTON, true);
@@ -85,6 +84,7 @@ bool AddToShelfDialog::run()
 
         shared_ptr<ZLView> view = fbookshelf.getGridView();
         shared_ptr<Book> book = (*(static_cast<GridView&>(*view).getSelectedElement())).myBook;
+        std::cout << book->title() << " adding to shelf " << addToShelfEntry->initialValue() << "\n";
         BookshelfModel::Instance().addBookToShelf(addToShelfEntry->initialValue(), book);
 
         return true;

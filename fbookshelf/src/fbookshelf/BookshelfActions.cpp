@@ -263,13 +263,7 @@ void DownloadBookAction::run() {
         if(static_cast<WebView&>(*view).mode() == WebView::BOOKS_FBREADER_ORG) {
             shared_ptr<Book> book = (*(static_cast<WebView&>(*view).getSelectedElement())).myBook;
             NetworkFBReaderActions net;
-            std::string filePath;
-            if (book->isLocal()){
-                filePath = net.getBookName(book->title(), book->extension());
-            }
-            else{
-                filePath = net.downloadBook(book);
-            }
+            std::string filePath = net.downloadBook(book);
             system(("FBReader " + filePath + "&").c_str());
         }
         else if(static_cast<WebView&>(*view).mode() == WebView::GOOGLE_DRIVE) {

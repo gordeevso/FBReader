@@ -34,12 +34,20 @@ std::string NetworkFBReaderActions::deleteSpaces(std::string name){
 	}
 	return newName;
 }
+
+bool doesFileExist(const std::string &fileName){
+    std::ifstream f(fileName.c_str());
+    return f.good();
+}
+
 std::string NetworkFBReaderActions::downloadBook(shared_ptr<Book> book){
     std::string bookName = getBookName(book->title(), book->extension());
-    std::ofstream write_book(bookName.c_str());
-    std::string url = mainDomain + book->url();
-    std::string content = downloader.download(url);
-    write_book << content;
+    if (!doesFileExist(bookName)){
+        std::ofstream write_book(bookName.c_str());
+        std::string url = mainDomain + book->url();
+        std::string content = downloader.download(url);
+        write_book << content;
+    }
     return (bookName);
 }
 
@@ -55,17 +63,16 @@ std::string NetworkFBReaderActions::getImageName(std::string title){
 	return myFileName;
 }
 
+
 void NetworkFBReaderActions::downloadImage(std::string url, std::string name){
-	std::ofstream write_image(name.c_str());
-    std::string downloadUrl = mainDomain + url;
-    std::string content = downloader.download(downloadUrl);
-    write_image << content;
+    if (!doesFileExist(name)){
+    	std::ofstream write_image(name.c_str());
+        std::string downloadUrl = mainDomain + url;
+        std::string content = downloader.download(downloadUrl);
+        write_image << content;
+    }
 }
 
-bool doesFileExist(const std::string &fileName){
-	std::ifstream f(fileName.c_str());
-    return f.good();
-}
 
 std::vector<BookModelFill> NetworkFBReaderActions::getNetworkLibrary(){
     std::string url = "https://books.fbreader.org/opds/by_title";

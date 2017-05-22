@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <set>
+#include <map>
 
 #include <shared_ptr.h>
 
@@ -36,5 +37,6 @@ typedef std::vector<shared_ptr<Author> > AuthorList;
 typedef std::vector<shared_ptr<Tag> > TagList;
 typedef std::set<shared_ptr<Tag> > TagSet;
 typedef std::vector<std::string> ShelfList;
+typedef std::map<std::string, BookList> BooksByShelf;
 
 #endif /* __LISTS_H__ */

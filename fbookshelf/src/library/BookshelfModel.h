@@ -65,10 +65,13 @@ public:
     std::vector<shared_ptr<Book> > & getLibrary(SortType);
     const ShelfList &getShelves() const;
     const BookList &getBooks(const std::string &shelf) const;
+    const BooksByShelf &getBooksByShelf() const;
     bool hasBooks(const std::string &shelf) const;
     void removeShelf(const std::string &shelf);
     int renameShelf(const std::string &from, const std::string &to);
+    void addBookToShelf(const std::string &shelf, shared_ptr<Book> book, size_t slotIndex);
     void addBookToShelf(const std::string &shelf, shared_ptr<Book> book);
+    void replaceBookToShelfSlot(const std::string &shelfFrom, const std::string &shelfTo, size_t slotNumberTo, shared_ptr<Book> book);
     void removeBookFromShelf(const std::string &shelf, shared_ptr<Book> book);
     void createShelf(const std::string &shelf);
 
@@ -79,8 +82,8 @@ private:
     std::vector<shared_ptr<Book> > myVecLibrarySortedByTitles;
     std::vector<shared_ptr<Book> > myVecLibrarySortedByIds;
     mutable BookList myRecentBooks;
+    mutable BookList myUnplacedBooks;
     mutable ShelfList myShelves;
-    typedef std::map<std::string, BookList> BooksByShelf;
     mutable BooksByShelf myBooksByShelf;
     int saveShelvesFromModelToDB();
     std::string getPathToShelfDB();

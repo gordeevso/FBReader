@@ -2,6 +2,7 @@
 #define BOOKSTACKVIEW
 
 #include <iostream>
+#include <cmath>
 #include <vector>
 #include <set>
 #include <string>
@@ -34,64 +35,73 @@ public:
 
     void setCaption(const std::string &caption);
     void updateView(BookshelfModel::SortType);
-    void resizeElements(bool smaller);
     void setMode(ViewMode);
     void invertMode();
 
-    std::vector<BookOnShelf>::iterator getSelectedElement();
+  std::vector<BookElement>::iterator getSelectedElement();
 
     bool onStylusPress(int x, int y);
     bool onStylusRelease(int x, int y);
     bool onStylusMove(int x, int y);
-
+    bool onStylusMovePressed(int x, int y); 
+    void onMouseScroll(bool forward); // what is it?
+    
     void onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to);
     void onScrollbarPageStep(ZLView::Direction direction, int steps);
-
-    void onMouseScroll(bool forward);
+    void onScrollbarStep(ZLView::Direction direction, int steps);
 
 public:
     static const ZLTypeId TYPE_ID;
 
 private:
-    void updateBookshelfElements();
+    void createBookElements();
+    void updateBookElements();
+    
+    void updateBookSlots();
+    
     void updateScrollDown();
     void updateScrollUp();
 
-    void drawBookshelfElements();
+    void drawBookElements();
     void drawBookshelfs();
+    void drawBookSlots();
     void drawBackground();
 
     const std::string &caption() const;
     void paint();
     ZLColor backgroundColor() const;
 
-
 private:
     ViewMode myViewMode;
     BookshelfModel::SortType mySortType;
-
-//    int myTopLeftX;
-//    int myTopleftY;
 
     std::string myCaption;
     int myViewWidth;
     int myViewHeight;
     ZLColor myBackgroundColor;
-
+    
+    int bookElementWidth;
+    int bookElementHeight;
+    int bookHorizontalDistance;
+    int bookVerticalDistance;
+    
+    int prevX1;
+    
     size_t myScrollBarPos;
     size_t myScrollBarMaxPos;
     size_t myMouseScrollFrom;
     size_t myMouseScrollTo;
-
-    std::vector<BookOnShelf> myVecBookshelfElements;
-    std::vector<BookOnShelf>::iterator myItSelectedElement;
-    std::vector<BookOnShelf>::iterator myItFirstRendering;
-    std::vector<BookOnShelf>::iterator myItLastRendering;
     
-    std::vector<Shelf> myVecShelfs;
+    int leftBorder;
+    int rightBorder;
 
-    GridContextMenu myElementMenu;
-    shared_ptr<BookshelfMenu> myTagsMenu;
+    std::vector<BookElement> myBookElements;
+    std::vector<BookElement>::iterator mySelectedBookElement;
+    std::vector<BookElement>::iterator myCapturedBookElement;
+    std::vector<BookSlot>::iterator mySelectedSlot;
+    std::vector<Shelf> myShelfs;
+    std::vector<BookSlot> myBookSlots;
+
 
 };
 

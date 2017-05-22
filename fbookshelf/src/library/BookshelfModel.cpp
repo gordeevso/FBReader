@@ -146,6 +146,12 @@ const ShelfList &BookshelfModel::getShelves() const
     return myShelves;
 }
 
+const BooksByShelf &BookshelfModel::getBooksByShelf() const
+{
+    return myBooksByShelf;
+}
+
+
 int BookshelfModel::loadShelvesFromDB()
 {
     myShelves.clear();
@@ -191,7 +197,7 @@ int BookshelfModel::saveShelvesFromModelToDB()
         std::cout << "Can't open file" << std::endl;
         return OPEN_FILE_ERROR;
     }
-    fout << myBooksByShelf.size() << std::endl;
+    fout << myBooksByShelf.size() << std::endl;    
     BooksByShelf::const_iterator it = myBooksByShelf.begin();
     BooksByShelf::const_iterator itEnd = myBooksByShelf.end();
     for (; it != itEnd; ++it)
@@ -265,6 +271,42 @@ void BookshelfModel::addBookToShelf(const std::string &shelf, shared_ptr<Book> b
     }
     book->addShelf(shelf);
     saveShelvesFromModelToDB();
+}
+
+void BookshelfModel::addBookToShelf(const std::string &shelf, shared_ptr<Book> book, size_t to)
+{   
+    const BooksByShelf::iterator it = myBooksByShelf.find(shelf);
+    if (it != myBooksByShelf.end())
+    {
+        const BookList::const_iterator jt = std::find((*it).second.begin(), (*it).second.end(), book);
+        if (jt == (*it).second.end()) {
+            myBooksByShelf[shelf].insert(myBooksByShelf[shelf].begin() + to, book);
+            book->addShelf(shelf);
+            saveShelvesFromModelToDB();
+        }
+    }
+}
+
+void BookshelfModel::replaceBookToShelfSlot(const std::string &shelfFrom, const std::string &shelfTo, size_t to, shared_ptr<Book> book)
+{   
+    const BookList::const_iterator jt = std::find(myBooksByShelf[shelfTo].begin(), myBooksByShelf[shelfTo].end(), book);
+    if (shelfFrom != shelfTo) {
+        if (jt == myBooksByShelf[shelfTo].end()) {
+            removeBookFromShelf(shelfFrom, book);
+            addBookToShelf(shelfTo, book, to);
+        }
+    } else {
+  
+        const BookList::const_iterator it = std::find(myBooksByShelf[shelfFrom].begin(), myBooksByShelf[shelfFrom].end(), book);
+        if (it - myBooksByShelf[shelfFrom].begin() < to) {
+            removeBookFromShelf(shelfFrom, book);
+            addBookToShelf(shelfTo, book, to - 1);
+            
+        } else if (it - myBooksByShelf[shelfFrom].begin() > to) {
+            removeBookFromShelf(shelfFrom, book);
+            addBookToShelf(shelfTo, book, to);
+        }
+    }
 }
 
 void BookshelfModel::createShelf(const std::string &shelf)

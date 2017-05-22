@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <cassert>
 #include <string>
@@ -16,44 +17,30 @@
 #include "../library/BookshelfModel.h"
 #include "../library/Tag.h"
 
-//const int ELEMENTS_ON_X = 3;
-//const int ELEMENTS_ON_Y = 3;
-
-//const ZLColor ELEMENT_COLOR = ZLColor(190,190,190);
-//const ZLColor ELEMENT_FRAME_COLOR = ZLColor(250,250,250);
-//const ZLColor ELEMENT_COLOR_ON_SELECT = ZLColor(210,210,210);
-const ZLColor BOOKSTACK_BACKGROUND_COLOR = ZLColor(210, 180, 140);
-
-const std::string BOOKSTACK_CAPTION = "BookStack";
-
 BookStackView::BookStackView(ZLPaintContext &context) : ZLView(context),
                                               myViewMode(BookStackView::WITHOUT_TAGS_MENU),
                                               mySortType(BookshelfModel::SORT_BY_AUTHOR),
-//                                              myTopLeftX(0),
-//                                              myTopleftY(0),
-                                              myCaption(BOOKSTACK_CAPTION),
+                                              myCaption(CAPTION),
                                               myViewWidth(context.width()),
                                               myViewHeight(context.height()),
-                                              myBackgroundColor(BOOKSTACK_BACKGROUND_COLOR),
-//                                              myElementsOnX(ELEMENTS_ON_X),
-//                                              myElementsOnY(ELEMENTS_ON_Y),
-//                                              myRenderingElementsCount(myElementsOnX * myElementsOnY),
+                                              myBackgroundColor(BACKGROUND_COLOR),
                                               myScrollBarPos(0),
                                               myScrollBarMaxPos(1),
                                               myMouseScrollFrom(0),
                                               myMouseScrollTo(1),
-//                                              myElementWidth(200),
-//                                              myElementHeight(250),
-                                              myVecBookshelfElements(),
-                                              myVecShelfs(),
-                                              myItSelectedElement(myVecBookshelfElements.end()),
-                                              myItFirstRendering(myVecBookshelfElements.begin()),
-                                              myItLastRendering(myVecBookshelfElements.end()),
-                                              myElementMenu(context)
+                                              myBookElements(),
+                                              myShelfs(),
+                                              myBookSlots(),
+                                              mySelectedBookElement(myBookElements.end()),
+                                              myCapturedBookElement(myBookElements.end()),
+                                              bookElementWidth(200),
+                                              bookElementHeight(250),
+                                              bookHorizontalDistance(250),
+                                              bookVerticalDistance(300),
+                                              leftBorder(80),
+                                              rightBorder(context.width() - 80)
 {
-    std::vector<std::string> tags;
-    Tag::collectTagNames(tags);
-    myTagsMenu = new BookshelfMenu(context, tags);
+    
 }
 
 const ZLTypeId BookStackView::TYPE_ID(ZLView::TYPE_ID);
@@ -63,186 +50,215 @@ const ZLTypeId &BookStackView::typeId() const {
 }
 
 void BookStackView::updateView(BookshelfModel::SortType sort_type) {
-    
-    myVecShelfs.clear();
-    myViewWidth = context().width();
-    myViewHeight = context().height();
-
-    int x1 = 50;
-    int y1 = 50;
-    int x2 = x1 + 200;
-    int y2 = y1 + 250;
-    
-    BookOnShelf element;
-    
-    std::vector<shared_ptr<Book> > & library = BookshelfModel::Instance().getLibrary(sort_type);
-    std::vector<shared_ptr<Book> >::const_iterator it = library.begin();
-    std::vector<shared_ptr<Book> >::const_iterator itEnd = library.end();
-    
-        for(; it != itEnd; ++it) {
-        x1 = x2 + 50;
-        x2 = x1 + 200;
-        
-        if(x2 > myViewWidth)
-        {
-            x1 = 50;
-            x2 = x1 + 200;
-            y1 += 250;
-            y2 += 250;
-        }
-    }
-    if (y2 <= myViewHeight) {
-        myScrollBarMaxPos = 1;
-        myMouseScrollFrom = 0;
-        myMouseScrollTo = 1;
-    } else {
-        
-        myScrollBarMaxPos = y2 - 250;
-        myMouseScrollTo = (myMouseScrollFrom + myViewHeight);
-    }
-    x1 = 50;
-    y1 = 50 - myMouseScrollFrom;
-    x2 = x1 + 200;
-    y2 = y1 + 250;
-    
-    it = library.begin();
-    itEnd = library.end();
-    size_t i = 0;
-    myVecShelfs.push_back(Shelf(y2 - 50, myViewWidth));
-   
-            
-    myVecShelfs[i].myShelfName = new StringRect((*it)->title(), context());
-    i++;
-    for(; it != itEnd; ++it) {
-        BookModel model(*it);
-        element.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
-        element.myTitleImage.myHWFactor = (float)element.myTitleImage.myImageData->height() / element.myTitleImage.myImageData->width();
-        element.myBook = *it;
-        
-        myVecBookshelfElements.push_back(element);
-
-        x1 = x2 + 50;
-        x2 = x1 + 200;
-        
-        if(x2 > myViewWidth)
-        {
-            x1 = 50;
-            x2 = x1 + 200;
-            y1 += 250;
-            y2 += 250;
-            myVecShelfs.push_back(Shelf(y2 - 50, myViewWidth));
-            myVecShelfs[i].myShelfName = new StringRect((*it)->title(), context());
-            i++;
-        }
-    }
-    myItSelectedElement = myVecBookshelfElements.begin();
-    setScrollbarEnabled(VERTICAL, true);
-    setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-    myItFirstRendering = myVecBookshelfElements.begin();
-    myItLastRendering = myVecBookshelfElements.end();
-    updateBookshelfElements();
+    createBookElements();
     Fbookshelf::Instance().refreshWindow();
 }
 
-void BookStackView::setMode(BookStackView::ViewMode mode) {
-    if(mode != myViewMode) {
-        if(mode == BookStackView::WITHOUT_TAGS_MENU) {
-            if(!myTagsMenu.isNull())
-                myTagsMenu->myIsVisible = false;
-//            myTopLeftX = 0;
+void BookStackView::createBookElements() {
+    myBookElements.clear();
+    BooksByShelf booksByShelf = BookshelfModel::Instance().getBooksByShelf();
+    BooksByShelf::const_iterator it = booksByShelf.begin();
+    BooksByShelf::const_iterator itEnd = booksByShelf.end();
+    if (it == itEnd) {
+        return;
+    }
+    for(; it != itEnd; ++it) {
+        BookList::const_iterator jt = (*it).second.begin();
+        BookList::const_iterator jtEnd = (*it).second.end();
+        for(; jt != jtEnd; ++jt) {
+            
+            BookElement bookElement;
+            BookModel model(*jt);
+            bookElement.myTitleImage.myImageData = ZLImageManager::Instance().imageData(*(model.imageMap().begin()->second));
+            bookElement.myTitleImage.myHWFactor = (float)bookElement.myTitleImage.myImageData->height() / bookElement.myTitleImage.myImageData->width();
+            bookElement.myBook = *jt;
+            bookElement.myShelf = (*it).first;
+            myBookElements.push_back(bookElement);
         }
+    }
+    updateBookElements();
+    updateBookSlots();
+}
 
-        if(mode == BookStackView::WITH_TAGS_MENU) {
-            if(!myTagsMenu.isNull()) {
-                std::vector<std::string> tags;
-                Tag::collectTagNames(tags);
-                myTagsMenu->reloadTags(tags);
-                myTagsMenu->myIsVisible = true;
-//                myTopLeftX = myTagsMenu->myXOffset;
+void BookStackView::updateBookElements() {
+    if (myBookElements.empty()) {
+        createBookElements();
+    }
+    std::vector<BookElement>::iterator it = myBookElements.begin();
+    std::vector<BookElement>::iterator itEnd = myBookElements.end();
+    if (it == itEnd) {
+        return;
+    }
+    int x1 = leftBorder;
+    int y1 = 30 - myMouseScrollFrom;
+    int x2 = x1 + bookElementWidth;
+    int y2 = y1 + bookElementHeight;
+ 
+    std::string prevShelf = (*it).myShelf;
+    for(; it != itEnd; ++it) {       
+        if (x2 > context().width() || (*it).myShelf != prevShelf) {
+            x1 = leftBorder;
+            y1 += bookVerticalDistance;
+            x2 = x1 + bookElementWidth;
+            y2 += bookVerticalDistance;
+        }
+        if (it != myCapturedBookElement) {
+            (*it).updatePosition(x1, y1, x2, y2);
+        }
+        x1 += bookHorizontalDistance;
+        x2 += bookHorizontalDistance;
+        prevShelf = (*it).myShelf;
+    }
+    
+    if (y2 <= context().height()) {
+        myScrollBarMaxPos = 1;
+        myMouseScrollFrom = 0;
+        myMouseScrollTo = 1;
+        setScrollbarEnabled(VERTICAL, false);
+    } else {  
+        myScrollBarMaxPos = y2;
+        myMouseScrollTo = (myMouseScrollFrom + context().height());
+    }
+    setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+    setScrollbarEnabled(VERTICAL, true);
+    updateBookSlots();
+}
+
+void BookStackView::updateBookSlots() {
+    myViewWidth = context().width();
+    myViewHeight = context().height();
+    myBookSlots.clear();
+    myShelfs.clear();
+    std::vector<BookElement>::const_iterator it = myBookElements.begin();
+    std::vector<BookElement>::const_iterator itEnd = myBookElements.end();
+    if(it == itEnd) {
+        return;
+    }
+    BookSlot bookSlot;
+    int x1 = 0;
+    int y1 = 30 - myMouseScrollFrom;
+    int x2 = x1 + (*it).myTitleImage.myWidth / 2 + leftBorder;
+    int y2 = y1 + (*it).myTitleImage.myHeight;
+    bookSlot.myShelf = (*it).myShelf;
+    size_t index = 0;
+    bookSlot.myIndex = index;
+    bookSlot.updatePosition(x1, y1, x2, y2);
+    myBookSlots.push_back(bookSlot);
+    Shelf shelf(0, y1 + 270, context().width(), 500);
+    myShelfs.push_back(shelf);
+   
+    
+
+    std::string prevShelf = (*it).myShelf;
+    it++;
+    for(; it != itEnd; ++it) {
+        x1 = x2;
+        x2 = (*it).myTopLeft.x + (*it).myTitleImage.myWidth / 2;
+        bookSlot.myShelf = (*it).myShelf;
+        ++index;
+        if (((*it).myTopLeft.x == leftBorder) || myCapturedBookElement == it && prevX1 == leftBorder) {
+            bookSlot.myIndex = index;
+            bookSlot.myShelf = prevShelf;
+            bookSlot.updatePosition(x1, y1, context().width(), y2);
+            myBookSlots.push_back(bookSlot);
+            myShelfs.push_back(Shelf(0, y1 + bookVerticalDistance + 270, 10 * context().width(), 2000));
+            if ((*it).myShelf != prevShelf) {
+                index = 0;
             }
+            x1 = 0;
+            y1 += bookVerticalDistance;
+            x2 = (*it).myTopLeft.x + (*it).myTitleImage.myWidth / 2;
+            y2 += bookVerticalDistance;
         }
-
-        myViewMode = mode;
+        prevShelf = (*it).myShelf;
+        bookSlot.myIndex = index;
+        bookSlot.myShelf = (*it).myShelf;
+        bookSlot.updatePosition(x1, y1, x2, y2); 
+        myBookSlots.push_back(bookSlot);
     }
+    ++index;
+    bookSlot.myIndex = index;
+    bookSlot.updatePosition(x2, y1, context().width(), y2); 
+    myBookSlots.push_back(bookSlot);
+}
 
-    if(myVecBookshelfElements.empty())
+void BookStackView::setMode(BookStackView::ViewMode mode) {
         updateView(mySortType);
-    else {
-        updateBookshelfElements();
-        Fbookshelf::Instance().refreshWindow();
-    }
-
-
 }
 
-void BookStackView::invertMode()
-{
-    if(myViewMode == BookStackView::WITHOUT_TAGS_MENU)
-        setMode(BookStackView::WITH_TAGS_MENU);
-    else
-        setMode(BookStackView::WITHOUT_TAGS_MENU);
-}
-
-std::vector<BookOnShelf>::iterator BookStackView::getSelectedElement() {
-    return myItSelectedElement;
+std::vector<BookElement>::iterator BookStackView::getSelectedElement() {
+    return mySelectedBookElement;
 }
 
 
 bool BookStackView::onStylusPress(int x, int y) {
-    if(!myTagsMenu.isNull() && myTagsMenu->myIsVisible) {
-        bool state = false;
-        if(myTagsMenu->checkSelectedElementMenu(x, y, state)) {
-
-            assert(myTagsMenu->myItSelectedActionCode >= myTagsMenu->myVecMenuStrings.begin() &&
-                   myTagsMenu->myItSelectedActionCode < myTagsMenu->myVecMenuStrings.end());
-
-           // myTagsMenu->myIsVisible = false;
-            std::cout << (*(myTagsMenu->myItSelectedActionCode)).first << "\n";
+    std::vector<BookElement>::iterator it = myBookElements.begin();
+    std::vector<BookElement>::iterator itEnd = myBookElements.end();
+    for(; it != itEnd; ++it) {
+        if((*it).checkSelectedBookElement(x, y)) {
+            (*it).myIsSelected = true;
+            myCapturedBookElement = it;
+            mySelectedBookElement = it;
+            prevX1 = (*it).myTopLeft.x;
+            return true;
         }
     }
-
-    for(std::vector<BookOnShelf>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
-        if(myElementMenu.myIsVisible) {
-            bool state = false;
-            if(myElementMenu.checkSelectedElementMenu(x, y, state)) {
-
-                assert(myElementMenu.myItSelectedActionCode >= myElementMenu.myVecMenuStrings.begin() &&
-                       myElementMenu.myItSelectedActionCode < myElementMenu.myVecMenuStrings.end());
-
-                myElementMenu.myIsVisible = false;
-                Fbookshelf::Instance().refreshWindow();
-                Fbookshelf::Instance().doAction((*(myElementMenu.myItSelectedActionCode)).first);
-            }
-            myElementMenu.myIsVisible = false;
-            Fbookshelf::Instance().refreshWindow();
-        }
-
-//        if((*it).checkBookOptions(x, y)) {
-//            myElementMenu.myIsVisible = true;
-//            myElementMenu.myTopLeft.x = (*it).myOptionsTopLeft.x -
-//                    (myElementMenu.myXOffset - ((*it).myOptionsBottomRight.x - (*it).myOptionsTopLeft.x)) - 1;
-//            myElementMenu.myTopLeft.y = (*it).myOptionsBottomRight.y;
-//            Fbookshelf::Instance().refreshWindow();
-//            break;
-//        }
-    }
-
+    
+    myCapturedBookElement = myBookElements.end();
     return true;
 }
 
 
 bool BookStackView::onStylusRelease(int x, int y) {
-    for(std::vector<BookOnShelf>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
-
-        if(it == myItSelectedElement &&
-           (*it).checkSelectedBook(x, y) &&
-//           !(*it).checkBookOptions(x, y) &&
-           !myElementMenu.myIsVisible &&
-           !myElementMenu.myIsSelected) {
-
+    std::vector<BookElement>::iterator it = myBookElements.begin();
+    std::vector<BookElement>::iterator itEnd = myBookElements.end();
+    for(; it != itEnd; ++it) {
+        if((*it).checkSelectedBookElement(x, y) && it == mySelectedBookElement && !(*it).myIsCaptured) {
             Fbookshelf::Instance().doAction(BookshelfActionCode::RUN_FBREADER);
-            break;
+            (*it).myIsSelected = false;
+            mySelectedBookElement = myBookElements.end();
+            myCapturedBookElement = myBookElements.end();
+            createBookElements();
+            Fbookshelf::Instance().refreshWindow();
+            return true;
         }
+    }
+    std::vector<BookSlot>::iterator jt = myBookSlots.begin();
+    std::vector<BookSlot>::iterator jtEnd = myBookSlots.end();
+    for(; jt != jtEnd; ++jt) {
+        if((*jt).checkSelectedSlot(x, y) && myCapturedBookElement != myBookElements.end()) {
+            BookshelfModel::Instance().replaceBookToShelfSlot((*myCapturedBookElement).myShelf, (*jt).myShelf, (*jt).myIndex, (*myCapturedBookElement).myBook);
+//            (*mySelectedBookElement).myIsSelected = false;
+            mySelectedBookElement = myBookElements.end();
+            (*myCapturedBookElement).myIsCaptured = true;
+            myCapturedBookElement = myBookElements.end();
+            createBookElements();
+            Fbookshelf::Instance().refreshWindow();
+            return true;
+        }
+    }
+    myCapturedBookElement = myBookElements.end();
+    Fbookshelf::Instance().refreshWindow();
+    return true;
+    
+}
+
+bool BookStackView::onStylusMovePressed(int x, int y) {
+    if (myCapturedBookElement != myBookElements.end()) {
+        (*myCapturedBookElement).myIsCaptured = true;
+        int x1 = x - (*myCapturedBookElement).myTitleImage.myWidth / 2;
+        int y1 = y - (*myCapturedBookElement).myTitleImage.myHeight / 2;
+        int x2 = x1 + (*myCapturedBookElement).myTitleImage.myWidth;
+        int y2 = y1 + (*myCapturedBookElement).myTitleImage.myHeight;
+        if (y1 < 0) {
+            onScrollbarPageStep(ZLView::HORIZONTAL, -1);
+        } else if (y2 > context().height()) {
+            onScrollbarPageStep(ZLView::HORIZONTAL, 1);
+        }
+
+
+        (*myCapturedBookElement).updatePosition(x1, y1, x2, y2);
+        Fbookshelf::Instance().refreshWindow();
     }
     return true;
 }
@@ -250,311 +266,101 @@ bool BookStackView::onStylusRelease(int x, int y) {
 
 
 bool BookStackView::onStylusMove(int x, int y) {
-    bool ElementMenuPrevState = myElementMenu.myIsSelected;
-    bool ElementMenuStringStateChanged = false;
-
-    if(myElementMenu.myIsVisible && myElementMenu.checkSelectedElementMenu(x, y, ElementMenuStringStateChanged)){
-        myElementMenu.myIsSelected = true;
-    }
-    else
-        myElementMenu.myIsSelected = false;
-
-    if(myElementMenu.myIsSelected != ElementMenuPrevState || ElementMenuStringStateChanged)
-        Fbookshelf::Instance().refreshWindow();
-
-    if(!myTagsMenu.isNull()) {
-        bool TagsMenuPrevState = myTagsMenu->myIsSelected;
-        bool TagsMenuStateChanged = false;
-
-        if(myTagsMenu->myIsVisible && myTagsMenu->checkSelectedElementMenu(x, y, TagsMenuStateChanged))
-            myTagsMenu->myIsSelected = true;
-        else
-            myTagsMenu->myIsSelected = false;
-
-        if(myTagsMenu->myIsSelected != TagsMenuPrevState || TagsMenuStateChanged)
-            Fbookshelf::Instance().refreshWindow();
-    }
-
-    for(std::vector<BookOnShelf>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
-        bool SelectedPrevState = (*it).myIsSelected;
-//        bool MenuSelectedPrevState = (*it).myIsMenuSelected;
-
-        if((*it).checkSelectedBook(x, y)) {
-            myItSelectedElement = it;
-
-//            if((*it).checkBookOptions(x, y)) {
-//                (*it).myIsMenuSelected = true;
-//                (*it).myIsSelected = false;
-//            }
-//            else {
-//                (*it).myIsSelected = true;
-//                (*it).myIsMenuSelected = false;
-//            }
-
-        }
-        else {
-            (*it).myIsSelected = false;
-//            (*it).myIsMenuSelected = false;
-        }
-
-        if(myElementMenu.myIsVisible) {
-            (*it).myIsSelected = false;
-//            (*it).myIsMenuSelected = false;
-        }
-
-        if((*it).myIsSelected != SelectedPrevState/* || (*it).myIsMenuSelected != MenuSelectedPrevState*/)
-            Fbookshelf::Instance().refreshWindow();
-    }
 
     return true;
 }
 
-
-
-
-
 void BookStackView::onScrollbarMoved(ZLView::Direction direction, size_t full, size_t from, size_t to) {
-
-    if(from < myScrollBarPos) {
-        updateScrollUp();
+    myMouseScrollFrom = from;
+    myMouseScrollTo = to;
+    if (to > myScrollBarMaxPos) {
+        myMouseScrollTo = myScrollBarMaxPos;
+        myMouseScrollFrom = myMouseScrollTo - context().height();
+    } else if (from > myScrollBarMaxPos) {
+        myMouseScrollFrom = 0;
+        myMouseScrollTo += context().height();
     }
-    else {
-        updateScrollDown();
-    }
-
-    myScrollBarPos = from;
+    setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+    Fbookshelf::Instance().refreshWindow();
 }
 
 
 
 void BookStackView::onScrollbarPageStep(ZLView::Direction direction, int steps){
-    size_t diff = myMouseScrollTo - myMouseScrollFrom;
-
-    if(steps < 0) {
-    myMouseScrollFrom -= diff;
-    myMouseScrollTo -= diff;
-        updateScrollUp();
+    (steps > 0) ? steps = 1 : steps = -1;
+    myMouseScrollFrom += steps;
+    myMouseScrollTo += steps;
+    if (myMouseScrollTo > myScrollBarMaxPos) {
+        myMouseScrollTo = myScrollBarMaxPos;
+        myMouseScrollFrom = myMouseScrollTo - context().height();
+    } else if (myMouseScrollFrom > myScrollBarMaxPos) {
+        myMouseScrollFrom = 0;
+        myMouseScrollTo += context().height();
     }
-    else {
-            myMouseScrollFrom += diff;
-    myMouseScrollTo += diff;
-        updateScrollDown();
-    }
+    setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+    Fbookshelf::Instance().refreshWindow();
 }
 
+void BookStackView::onScrollbarStep(ZLView::Direction direction, int steps){
+    (steps > 0) ? steps = 1 : steps = -1;
+    myMouseScrollFrom += steps;
+    myMouseScrollTo += steps;
+    
+    if (myMouseScrollTo > myScrollBarMaxPos) {
+        myMouseScrollTo = myScrollBarMaxPos;
+        myMouseScrollFrom = myMouseScrollTo - context().height();
+    } else if (myMouseScrollFrom > myScrollBarMaxPos) {
+        myMouseScrollFrom = 0;
+        myMouseScrollTo += context().height();
+    }
+    setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
+    Fbookshelf::Instance().refreshWindow();
+}
 
 void BookStackView::onMouseScroll(bool forward) {
-    size_t scrollSpeed = 30;
-    if(myViewMode == BookStackView::WITHOUT_TAGS_MENU) {
-        if(forward && myMouseScrollTo < myScrollBarMaxPos) {
-            myMouseScrollFrom += scrollSpeed;
-            myMouseScrollTo += scrollSpeed;
-            onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-            setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-        }
-
-        if(!forward && myMouseScrollFrom > 0) {
-            myMouseScrollFrom -= scrollSpeed;
-            myMouseScrollTo -= scrollSpeed;
-            onScrollbarMoved(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-            setScrollbarParameters(VERTICAL, myScrollBarMaxPos, myMouseScrollFrom, myMouseScrollTo);
-        }
-    }
-
-    if(myViewMode == BookStackView::WITH_TAGS_MENU && !myTagsMenu.isNull()) {
-        ;
-        if(forward) {
-            myTagsMenu->updateScrollDown();
-        }
-        else {
-            myTagsMenu->updateScrollUp();
-        }
-        
-        Fbookshelf::Instance().refreshWindow();
-    }
-
-}
-
-
-
-void BookStackView::updateBookshelfElements() {
-    myVecShelfs.clear();
-    myViewWidth = context().width();
-    myViewHeight = context().height();
-    
-    int x1 = 50;
-    int y1 = 50;
-    int x2 = x1 + 200;
-    int y2 = y1 + 250;
-
-    for(std::vector<BookOnShelf>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
-        std::cout << "myTitleImage.myHeight: " << (*it).myTitleImage.myWidth << std::endl;
-        std::cout << "myTitleImage.myX: " << (*it).myTitleImage.myX << std::endl;
-        std::cout << "myTitleImage.myY: " << (*it).myTitleImage.myY << std::endl;
-        x1 = x2 + 10;
-        x2 = x1 + 200;
-        if(x2 > myViewWidth) {
-            x1 = 50;
-            x2 = x1 + 200;
-            y1 += 250;
-            y2 += 250;
-//            myVecShelfs.push_back(Shelf((i + 1) * 350, myViewWidth));
-//            i++;
-        }
-    }
-    if (y2 <= myViewHeight) {
-        myScrollBarMaxPos = 1;
-        myMouseScrollFrom = 0;
-        myMouseScrollTo = 1;
+    if (forward) {
+        onScrollbarStep(ZLView::VERTICAL, 1);
     } else {
-        
-        myScrollBarMaxPos = y2 - 250;
-        myMouseScrollTo = (myMouseScrollFrom + myViewHeight);
-    }
-     
-    std::cout << "y2: " << y2 << std::endl;
-    std::cout << "myViewHeight: " << myViewHeight << std::endl;
-    std::cout << "myScrollBarMaxPos: " << myScrollBarMaxPos << std::endl;
-    std::cout << "myMouseScrollFrom " << myMouseScrollFrom << std::endl;
-    std::cout << "myMouseScrollTo " << myMouseScrollTo << std::endl;
-
-    x1 = 50;
-    y1 = 50 - myMouseScrollFrom;
-    x2 = x1 + 200;
-    y2 = y1 + 250;
-    size_t i = 0;
-    myVecShelfs.push_back(Shelf(y2 - 50, myViewWidth));
-    std::vector<BookOnShelf>::iterator jt = myItFirstRendering;
-    myVecShelfs[i].myShelfName = new StringRect((*jt).myBook->title(), context());
-    i++;
-
-//    element.myTitleString = new StringRect(element.myBook->title(), context());
-
-    for(std::vector<BookOnShelf>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
-        (*it).updatePosition(x1, y1, x2, y2);
-        x1 = x2 + 10;
-        x2 = x1 + 200;
-//        std::cout << "x2 = " << x2 << std::endl;
-//        std::cout << "myViewWidth = " << myViewWidth << std::endl << std::endl;
-        if(x2 > myViewWidth) {
-            x1 = 50;
-            x2 = x1 + 200;
-            y1 += 250;
-            y2 += 250;
-            myVecShelfs.push_back(Shelf(y2 - 50, myViewWidth));
-            myVecShelfs[i].myShelfName = new StringRect((*it).myBook->title(), context());
-            i++;
-
-        }
-//        std::cout << (*it).myTitleImage.myWidth << " " << (*it).myTitleImage.myHeight;
-//        std::cout << std::endl;
+        onScrollbarStep(ZLView::VERTICAL, -1);
     }
 }
 
-
-
-void BookStackView::updateScrollDown() {
-//    if(myItLastRendering + myElementsOnX <= myVecBookshelfElements.end()){
-//        myItFirstRendering += myElementsOnX;
-//        myItLastRendering += myElementsOnX;
-//    }
-//    else {
-//        myItLastRendering = myItFirstRendering = myVecBookshelfElements.end();
-//        myItFirstRendering -= myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
-//    }
-//
-//    assert(myItFirstRendering <= myItLastRendering);
-//    assert(myItFirstRendering >= myVecBookshelfElements.begin() && myItFirstRendering < myVecBookshelfElements.end());
-//    assert(myItLastRendering > myVecBookshelfElements.begin() && myItLastRendering <= myVecBookshelfElements.end());
-
-    updateBookshelfElements();
-    Fbookshelf::Instance().refreshWindow();
-}
-
-void BookStackView::updateScrollUp()
-{
-//    if(myItFirstRendering - myElementsOnX >= myVecBookshelfElements.begin()){
-//        myItFirstRendering -= myElementsOnX;
-//        myItLastRendering -= myElementsOnX;
-//    }
-//    else {
-//        myItFirstRendering = myItLastRendering = myVecBookshelfElements.begin();
-//        myItLastRendering += myVecBookshelfElements.size() > myRenderingElementsCount ? myRenderingElementsCount : myVecBookshelfElements.size();
-//    }
-//
-//    assert(myItFirstRendering <= myItLastRendering);
-//    assert(myItFirstRendering >= myVecBookshelfElements.begin() && myItFirstRendering < myVecBookshelfElements.end());
-//    assert(myItLastRendering > myVecBookshelfElements.begin() && myItLastRendering <= myVecBookshelfElements.end());
-
-    updateBookshelfElements();
-    Fbookshelf::Instance().refreshWindow();
-}
-
-
-
-void BookStackView::drawBookshelfElements() {
-    if(myViewMode == BookStackView::WITHOUT_TAGS_MENU) {
-        if(context().width() != myViewWidth || context().height() != myViewHeight) {
-            updateBookshelfElements();
-        }
-    }
-
-    if(myViewMode == BookStackView::WITH_TAGS_MENU) {
-        if(context().width() != myViewWidth /*+ myTopLeftX */|| context().height() != myViewHeight) {
-            updateBookshelfElements();
-        }
-    }
-
-
-    for(std::vector<BookOnShelf>::iterator it = myItFirstRendering; it != myItLastRendering; ++it) {
-        (*it).drawElement(context());
-    }
-}
-
-void BookStackView::drawBookshelfs() {
-    for(std::vector<Shelf>::iterator it = myVecShelfs.begin(); it != myVecShelfs.end(); ++it) {
+void BookStackView::drawBookSlots() {
+    for(std::vector<BookSlot>::iterator it = myBookSlots.begin(); it != myBookSlots.end(); ++it) {
         (*it).draw(context());
     }
 }
 
-
 void BookStackView::drawBackground() {
-    context().setFillColor(myBackgroundColor);
+    context().setFillColor(ZLColor((150, 75, 0)));
     context().fillRectangle(0,0,context().width(),context().height());
-    context().setFillColor(ZLColor(153, 131, 102));
-    context().fillRectangle(0, 0, 70, myViewHeight);
-    context().fillRectangle(myViewWidth, 0, myViewWidth - 70, myViewHeight);
-    context().setColor(ZLColor(0, 0, 0));
-    context().drawLine(70, 0, 70, myViewHeight);
-    context().drawLine(myViewWidth - 70, 0, myViewWidth - 70, myViewHeight);
 }
 
+void BookStackView::drawBookshelfs() {
+    updateBookElements();
+    for(std::vector<Shelf>::iterator it = myShelfs.begin(); it != myShelfs.end(); ++it) {
+        (*it).draw(context());
+    }
+}
+
+void BookStackView::drawBookElements() {
+    for(std::vector<BookElement>::iterator it = myBookElements.begin(); it != myBookElements.end(); ++it) {
+        (*it).drawElement(context());
+    }
+}
 
 
 const std::string &BookStackView::caption() const {
     return myCaption;
 }
 
-
-
 ZLColor BookStackView::backgroundColor() const {
     return myBackgroundColor;
 }
 
-
-
 void BookStackView::paint() {
-    drawBackground();
-
-    if(!myTagsMenu.isNull()) {
-        if(myTagsMenu->myIsVisible) {
-            myTagsMenu->checkFont();
-            myTagsMenu->draw();
-        }
-    }
+    context().clear(ZLColor(150, 75, 0));
     drawBookshelfs();
-    drawBookshelfElements();
-    if(myElementMenu.myIsVisible)
-        myElementMenu.draw();
-
+    drawBookElements();
+//    drawBookSlots();
 }

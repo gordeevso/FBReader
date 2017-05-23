@@ -18,37 +18,6 @@ OPDSSimpleParser::OPDSSimpleParser(const std::string &OPDSFile) : OPDSFile(OPDSF
 
 typedef std::vector <std::pair<std::string, std::string> > href_tree_type;
 
-void OPDSSimpleParser::print_OPDS_tree(){
-	if (OPDS_Title_nodes.size() == 0){
-		std::cout << "Nothing to be done here" << std::endl;
-		return;
-	}
-    for (size_t i = 0; i < OPDS_Title_nodes.size(); i++){
-        std::cout << i + 1 << " " << OPDS_Title_nodes[i] << std::endl;
-        for (size_t j = 0; j < OPDS_tree_href[i].size(); j++){
-        	std::cout << "   " << j + 1 << " " << OPDS_tree_href[i][j].first << std::endl;
-        }
-    }
-}
-
-std::string OPDSSimpleParser::parse_user_input(const size_t &idx, const size_t &href_num){
-	if (idx > OPDS_Title_nodes.size() - 1 || idx == 0) return "/opds";
-	if (href_num > OPDS_tree_href[idx].size()) return "/opds";
-	if (is_book_link(idx, href_num)){
-		saveBook(idx, href_num);
-		return "/opds";
-	}
-	return OPDS_tree_href[idx][href_num].second;
-}
-
-bool OPDSSimpleParser::is_book_link(const size_t &idx, const size_t &href_num){
-	std::string type_name = OPDS_tree_href[idx][href_num].first;
-	if (type_name.find(APPLICATION) != std::string::npos &&
-		type_name.find(APPLICATION_ATOM) == std::string::npos){
-		return true;
-	}
-	return false;
-}
 
 std::string OPDSSimpleParser::get_book_type(const size_t &idx, const size_t &href_num){
 	std::string type_name = OPDS_tree_href[idx][href_num].first;
@@ -62,28 +31,6 @@ std::string OPDSSimpleParser::get_book_type(const size_t &idx, const size_t &hre
 	}
 
 	return book_type;
-}
-
-void OPDSSimpleParser::saveBook(const size_t &idx, const size_t &href_num){
-	std::string type_name = OPDS_tree_href[idx][href_num].first;
-	std::string book_type;
-
-	if (type_name.find(PDF) != std::string::npos){
-		book_type = PDF;
-	}
-	else if(type_name.find(FB2) != std::string::npos){
-		book_type = FB2;
-	}
-
-	std::string book_name = OPDS_Title_nodes[idx] + "." + book_type;
-	std::ofstream write_book(book_name.c_str());
-
-	std::string url = mainDomain + OPDS_tree_href[idx][href_num].second;
-	OPDSDownloader downloader;
-	std::string content = downloader.download(url);
-	write_book << content;
-
-	return;
 }
 
 void OPDSSimpleParser::parse(){
